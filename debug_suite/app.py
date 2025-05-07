@@ -132,12 +132,25 @@ def delete_error(error_id):
 # --- Helpers ---
 def fetch_errors():
     errors = []
+    statuses = load_statuses()
+    priorities = load_priorities()
     if os.path.exists(ERROR_LOG_PATH):
         with open(ERROR_LOG_PATH, "r", encoding="utf-8") as f:
             for line in f:
                 try:
                     entry = json.loads(line)
                     if isinstance(entry, dict):
+                        # Ensure all entries have an ID
+                        if not entry.get('id'):
+                            entry['id'] = entry.get('timestamp', '')
+                        # Add status and priority if missing
+                        error_id = str(entry.get('id'))
+                        entry['status'] = statuses.get(error_id, 'New')
+                        entry['priority'] = priorities.get(error_id, 'normal')
+                        # Ensure expected fields exist for the template
+                        for field in ['explanation', 'fix_suggestion', 'stack_trace', 'file_path', 'line_number', 'error_type']:
+                            if field not in entry:
+                                entry[field] = None
                         errors.append(entry)
                 except Exception:
                     continue
