@@ -17,10 +17,21 @@ from error_parser import parse_error_log, classify_error, get_human_explanation
 from db_handler import ErrorDatabase
 from log_watcher import LogWatcher
 
+# Import configuration
+from dashboard_config import (
+    LOCAL_ERROR_LOGS_API,
+    CLOUD_ERROR_LOGS_API,
+    REMOTE_MODE,
+    LOCAL_ERROR_LOG_PATH,
+    REMOTE_ERROR_LOG_URL,
+    API_KEY
+)
+
 # Constants
-ERROR_LOG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "error.log")
+ERROR_LOG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "error.log") if not REMOTE_MODE else None
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "error_db.json")
 REFRESH_INTERVAL = 5  # seconds
+API_ENDPOINT = CLOUD_ERROR_LOGS_API if REMOTE_MODE else LOCAL_ERROR_LOGS_API
 
 # Page configuration
 st.set_page_config(
@@ -94,8 +105,34 @@ col4.metric("Critical", stats.get("critical", 0))
 
 # Function to refresh the error data
 def refresh_error_data():
-    # Parse the error log file and get new entries
-    new_errors = parse_error_log(ERROR_LOG_PATH, db.get_last_line_position())
+    new_errors = []
+    
+    # Choose between local log file parsing or remote API
+    if REMOTE_MODE:
+        try:
+            st.sidebar.info("Remote Mode: Fetching logs from cloud deployment")
+            # Use requests to fetch error logs from the API endpoint
+            import requests
+            headers = {}
+            if API_KEY:
+                headers["Authorization"] = f"Bearer {API_KEY}"
+                
+            response = requests.get(
+                API_ENDPOINT,
+                headers=headers,
+                params={"limit": 100}  # Adjust as needed
+            )
+            
+            if response.status_code == 200:
+                new_errors = response.json()
+                st.sidebar.success(f"Retrieved {len(new_errors)} logs from API")
+            else:
+                st.sidebar.error(f"API Error: {response.status_code} - {response.text}")
+        except Exception as e:
+            st.sidebar.error(f"Failed to fetch remote logs: {str(e)}")
+    else:
+        # Parse the local error log file and get new entries
+        new_errors = parse_error_log(ERROR_LOG_PATH, db.get_last_line_position())
     
     # Add new errors to the database
     for error in new_errors:
