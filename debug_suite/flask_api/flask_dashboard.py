@@ -96,12 +96,8 @@ def set_status(error_id):
     save_statuses(statuses)
     # Update error log entry
     update_error_log_status(error_id, status)
-    # Trigger Windsurf/Cascade webhook if status is 'Fixed' or 'Complete'
-    if status.lower() in ("fixed", "complete"):
-        try:
-            trigger_windsurf_webhook(error_id, status)
-        except Exception as e:
-            print(f"Failed to trigger Windsurf/Cascade webhook: {e}")
+    # Log the action to error.log for audit trail
+    log_action_entry(error_id, status)
     return jsonify({"message": f"Status for error {error_id} set to {status}"})
 
 
@@ -127,14 +123,17 @@ def update_error_log_status(error_id, new_status):
             f.writelines(updated_lines)
 
 
-def trigger_windsurf_webhook(error_id, status):
-    """Placeholder for Windsurf/Cascade webhook integration."""
-    import requests
-    WINDSURF_WEBHOOK_URL = os.environ.get("WINDSURF_WEBHOOK_URL", "https://your-windsurf-cascade-webhook-url")
-    payload = {"error_id": error_id, "status": status}
-    headers = {"Content-Type": "application/json"}
-    response = requests.post(WINDSURF_WEBHOOK_URL, json=payload, headers=headers, timeout=5)
-    response.raise_for_status()
+def log_action_entry(error_id, status):
+    """Append an action entry to error.log for audit trail."""
+    from datetime import datetime
+    action_entry = {
+        "action": "status_update",
+        "error_id": error_id,
+        "new_status": status,
+        "timestamp": datetime.utcnow().isoformat() + "Z"
+    }
+    with open(ERROR_LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(action_entry) + "\n")
 
 @app.route("/api/errors/<error_id>/status", methods=["GET"])
 def get_status(error_id):
