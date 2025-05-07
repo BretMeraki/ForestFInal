@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Always be aware of the whole codebase when you are examining modules, and use that context to inform your future decisions.

@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Use every tool at your disposal to fix errors. For errors that are sticky, stay focused on fixing that single error until it's done and don't move to another one, no exceptions. Don't jump to another error until you have guaranteed that the one youre working on is fixed. Run a test after every error and explicity tell me whether or not its fixed. When you finish a test, identify the error you're working on and tell me whether or not it's fixed

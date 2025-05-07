@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Explain where we are with the test, how far we have to go, and why the number of errors keeps jumping back up when it appears that we were reducing them.

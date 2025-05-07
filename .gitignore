@@ -1,0 +1,60 @@
+# Rotating error log
+error.log
+last_test_run.log
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# macOS system files
+.DS_Store
+
+# Streamlit and other caches
+.cache/
+
+# Node modules (if any)
+node_modules/
+
+# Environment files (do not deploy secrets)
+.env
+
+# Editor/project settings
+.vscode/
+.idea/
+
+# Alembic migration cache
+alembic/**/__pycache__/
+
+# Test cache
+.pytest_cache/
+
+# Local database and error dashboard artifacts
+error_db.json
+
+# Ignore all dashboard and app __pycache__
+debug_suite/__pycache__/
+debug_suite/*.pyc
+debug_suite/*.pyo
+forest_app/__pycache__/
+forest_app/**/*.pyc
+forest_app/**/*.pyo
+tests/__pycache__/
+tests/**/*.pyc
+tests/**/*.pyo
+
+# Ignore all .mypy_cache and .coverage if present
+.mypy_cache/
+.coverage
+
+# Ignore all Markdown context/rule files
+.cursor/
+
+# Ignore Docker/Netlify artifacts if not core
+*.log
+*.sqlite3

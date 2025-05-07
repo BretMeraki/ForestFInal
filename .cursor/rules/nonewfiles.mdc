@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Never create a new file or directory without asking me first. Always ask either yes, or no.

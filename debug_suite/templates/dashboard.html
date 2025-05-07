@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Debug Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f6f8fa; }
+        .error-card { margin-bottom: 1.5rem; }
+        .explanation { font-size: 1.05em; color: #2c3e50; }
+        .stacktrace { font-family: monospace; font-size: 0.95em; background: #f8f9fa; padding: 0.5em; border-radius: 4px; }
+        .badge-status { font-size: 0.95em; }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <h1 class="mb-4">🐞 Forest Debug Dashboard</h1>
+    <form class="mb-3" method="post" style="display:flex;align-items:center;gap:1rem;">
+        <label for="endpoint_select" class="form-label mb-0">Error Source:</label>
+        <select id="endpoint_select" name="endpoint_select" class="form-select" style="width:auto;display:inline-block;">
+            {% for opt in endpoint_options %}
+            <option value="{{opt}}" {% if selected_endpoint==opt %}selected{% endif %}>{{opt}}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-outline-primary" type="submit">Switch</button>
+        <span class="ms-2">Currently viewing: <b>{{selected_endpoint}}</b> endpoint</span>
+    </form>
+    <form class="row g-3 mb-4" method="get">
+        <div class="col-md-2">
+            <label>Status</label>
+            <select name="status" class="form-select">
+                {% for opt in ['All', 'New', 'In Progress', 'Fixed', 'Ignored'] %}
+                <option value="{{opt}}" {% if status==opt %}selected{% endif %}>{{opt}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label>Severity</label>
+            <select name="severity" class="form-select">
+                {% for opt in ['All', 'CRITICAL', 'ERROR', 'WARNING', 'INFO'] %}
+                <option value="{{opt}}" {% if severity==opt %}selected{% endif %}>{{opt}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label>Search</label>
+            <input type="text" name="search" class="form-control" value="{{search}}" placeholder="Find error by keyword...">
+        </div>
+        <div class="col-md-2 align-self-end">
+            <button class="btn btn-success w-100" type="submit">Filter</button>
+        </div>
+        <div class="col-md-2 align-self-end">
+            <a href="/" class="btn btn-outline-secondary w-100">Reset</a>
+        </div>
+    </form>
+    <div class="mb-4">
+        <span class="badge bg-primary badge-status">Total: {{stats.total}}</span>
+        <span class="badge bg-success badge-status">Fixed: {{stats.fixed}}</span>
+        <span class="badge bg-warning text-dark badge-status">New Today: {{stats.new_today}}</span>
+        <a href="/critical" style="text-decoration:none;">
+            <span class="badge bg-danger badge-status {% if critical_tab %}border border-dark border-2{% endif %}">Critical: {{stats.critical}}</span>
+        </a>
+    </div>
+    {% if critical_tab %}
+        <div class="mb-3">
+            <a href="/" class="btn btn-outline-secondary">← Back to All Errors</a>
+        </div>
+    {% endif %}
+    {% if errors %}
+        {% for error in errors %}
+        <div class="card error-card">
+            <div class="card-body">
+                <h5 class="card-title">{{error.level}} | {{error.timestamp}} | <span class="text-muted">{{error.module}}</span></h5>
+                <p class="card-text"><strong>{{error.message}}</strong></p>
+                <span class="badge bg-info text-dark badge-status">{{error.error_type}}</span>
+                <span class="badge bg-secondary badge-status">Status: {{error.status}}</span>
+                <div class="mt-2 explanation">
+                    <div class="mb-2">
+                        <strong>What is this?</strong><br>
+                        {{ error.explanation or 'No summary available.' }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>What does it affect?</strong><br>
+                        {% if error.module %}
+                            This affects the <b>{{ error.module }}</b> module.
+                        {% else %}
+                            The affected module is unknown.
+                        {% endif %}
+                        {% if error.file_path %}<br>File: <code>{{ error.file_path }}</code>{% endif %}
+                        {% if error.line_number %} at line <code>{{ error.line_number }}</code>{% endif %}
+                    </div>
+                    <div class="mb-2">
+                        <strong>How do I fix it?</strong><br>
+                        {% if error.fix_suggestion %}
+                            {{ error.fix_suggestion }}
+                        {% else %}
+                            Please review the error message and stack trace for more details. If unsure, try searching the error type or message for solutions.
+                        {% endif %}
+                    </div>
+                </div>
+                {% if error.stack_trace %}
+                    <details class="mt-2">
+                        <summary>Stack Trace</summary>
+                        <div class="stacktrace">{{error.stack_trace}}</div>
+                    </details>
+                {% endif %}
+                <form class="row mt-3" method="post" action="/error/{{error.id}}/status">
+                    <div class="col-auto">
+                        <input type="hidden" name="status" value="Fixed">
+                        <button class="btn btn-outline-success btn-sm" type="submit">Mark Fixed</button>
+                    </div>
+                    <div class="col-auto">
+                        <input type="hidden" name="status" value="In Progress">
+                        <button class="btn btn-outline-primary btn-sm" type="submit">In Progress</button>
+                    </div>
+                    <div class="col-auto">
+                        <input type="hidden" name="status" value="Ignored">
+                        <button class="btn btn-outline-secondary btn-sm" type="submit">Ignore</button>
+                    </div>
+                </form>
+                <form class="row mt-2" method="post" action="/error/{{error.id}}/delete" onsubmit="return confirm('Are you sure you want to delete this error?');">
+                    <div class="col-auto">
+                        <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-success">No errors matching your filters. 🎉</div>
+    {% endif %}
+</div>
+</body>
+</html>

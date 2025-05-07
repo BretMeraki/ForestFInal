@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When examining a file or module, you are to review every line present in that file and nothing less. Never cut off your review or your overview at an arbitrary line like 200, for example.
