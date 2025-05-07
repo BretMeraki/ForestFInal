@@ -10,6 +10,17 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+@app.route("/")
+def index():
+    return """
+    <h2>Forest Debug Suite API</h2>
+    <ul>
+        <li><a href=\"/api/status\">/api/status</a></li>
+        <li><a href=\"/api/errors\">/api/errors</a></li>
+        <li><a href=\"/api/errors/&lt;error_id&gt;/priority\">/api/errors/&lt;error_id&gt;/priority</a></li>
+    </ul>
+    """
+
 ERROR_LOG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../error.log'))
 PRIORITY_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'error_priorities.json'))
 
