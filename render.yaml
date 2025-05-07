@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: forest-debug-api
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python debug_suite/flask_api/flask_dashboard.py
-    plan: free
