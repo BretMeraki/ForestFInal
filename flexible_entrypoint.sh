@@ -44,6 +44,7 @@ elif [ "$DEPLOYMENT_MODE" = "cloud" ]; then
     KEY_FILE_PATH="/tmp/gcp_key.json"
     # Your Cloud SQL Instance Connection Name
     INSTANCE_CONNECTION_NAME=${INSTANCE_CONNECTION_NAME:-"winged-verbena-457705-p3:us-central1:forestapp"}
+    echo "🌐 Using Cloud SQL Instance: $INSTANCE_CONNECTION_NAME"
     # --- End Configuration ---
     
     # Check if GCP_SA_KEY environment variable is set (required for cloud mode)

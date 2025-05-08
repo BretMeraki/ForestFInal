@@ -43,24 +43,59 @@ engine = None
 Base = declarative_base()
 
 # --- Attempt to Create SQLAlchemy Engine and Redefine SessionLocal ---
-# Get database connection string from environment variables
-db_connection_string = os.getenv('DB_CONNECTION_STRING')
+# Check deployment mode to determine database connection approach
+deployment_mode = os.getenv('DEPLOYMENT_MODE', 'local').lower()
+logger.info(f"Running in {deployment_mode.upper()} deployment mode")
 
-# If not found, try alternative environment variables
-if not db_connection_string:
-    db_connection_string = os.getenv('SQLALCHEMY_DATABASE_URL')
-    if not db_connection_string:
-        db_connection_string = os.getenv('DATABASE_URL')
-        if not db_connection_string:
-            # Fallback to a local SQLite database if no connection string is found
-            db_connection_string = 'sqlite:///./forest_app.db'
-            logger.warning(f"No database connection string found in environment variables. Using fallback: {db_connection_string}")
-        else:
-            logger.info(f"Using DATABASE_URL for database connection")
+# Get database connection string based on deployment mode
+if deployment_mode == 'cloud':
+    # For cloud mode, check for cloud SQL connection string first
+    db_connection_string = os.getenv('GOOGLE_CLOUD_SQL_CONNECTION_STRING')
+    if db_connection_string:
+        logger.info("Using Google Cloud SQL connection string for database")
     else:
-        logger.info(f"Using SQLALCHEMY_DATABASE_URL for database connection")
-else:
-    logger.info(f"Using DB_CONNECTION_STRING for database connection")
+        # Fall back to standard connection strings if cloud-specific one is not found
+        db_connection_string = os.getenv('DB_CONNECTION_STRING')
+        if not db_connection_string:
+            db_connection_string = os.getenv('SQLALCHEMY_DATABASE_URL')
+            if not db_connection_string:
+                db_connection_string = os.getenv('DATABASE_URL')
+                if not db_connection_string:
+                    logger.error("No database connection string found for CLOUD mode")
+                    raise ValueError("Cloud deployment requires a database connection string")
+                else:
+                    logger.info("Using DATABASE_URL for cloud database connection")
+            else:
+                logger.info("Using SQLALCHEMY_DATABASE_URL for cloud database connection")
+        else:
+            logger.info("Using DB_CONNECTION_STRING for cloud database connection")
+            
+    # Log instance connection name for cloud deployment
+    instance_name = os.getenv('INSTANCE_CONNECTION_NAME')
+    if instance_name:
+        logger.info(f"Using Cloud SQL instance: {instance_name}")
+    else:
+        logger.warning("INSTANCE_CONNECTION_NAME not found in environment variables")
+
+else:  # Local mode
+    # Get database connection string from environment variables
+    db_connection_string = os.getenv('DB_CONNECTION_STRING')
+    
+    # If not found, try alternative environment variables
+    if not db_connection_string:
+        db_connection_string = os.getenv('SQLALCHEMY_DATABASE_URL')
+        if not db_connection_string:
+            db_connection_string = os.getenv('DATABASE_URL')
+            if not db_connection_string:
+                # Fallback to a local SQLite database if no connection string is found
+                db_connection_string = 'sqlite:///./forest_app.db'
+                logger.warning(f"No database connection string found in environment variables. Using fallback: {db_connection_string}")
+            else:
+                logger.info(f"Using DATABASE_URL for local database connection")
+        else:
+            logger.info(f"Using SQLALCHEMY_DATABASE_URL for local database connection")
+    else:
+        logger.info(f"Using DB_CONNECTION_STRING for local database connection")
 
 # Log the connection string (with password redacted)
 if 'postgresql' in db_connection_string:
