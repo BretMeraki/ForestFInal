@@ -17,8 +17,7 @@ RUN curl -o /usr/local/bin/cloud-sql-proxy https://storage.googleapis.com/cloud-
     chmod +x /usr/local/bin/cloud-sql-proxy
 
 COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 COPY forest_app/ /app/forest_app/
