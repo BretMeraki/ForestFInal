@@ -34,6 +34,7 @@ from forest_app.config.constants import (
 )
 # Import helpers needed if _update_withering stays here
 from forest_app.core.soft_deadline_manager import hours_until_deadline
+from forest_app.core.services.withering_manager import WitheringManager
 
 logger = logging.getLogger(__name__)
 
@@ -167,54 +168,9 @@ class ForestOrchestrator:
 
     # ───────────────────────── 3. UTILITY & DELEGATION ──────────────────────
 
-    # Keeping _update_withering here for now, could be moved to its own class
-    def _update_withering(self, snap: MemorySnapshot):
-        """Adjusts withering level based on inactivity and deadlines."""
-        # (Implementation is the same as the original orchestrator version)
-        if not hasattr(snap, 'withering_level'): snap.withering_level = 0.0
-        if not hasattr(snap, 'component_state') or not isinstance(snap.component_state, dict): snap.component_state = {}
-        if not hasattr(snap, 'task_backlog') or not isinstance(snap.task_backlog, list): snap.task_backlog = []
-
-        current_path = getattr(snap, "current_path", "structured")
-        now_utc = datetime.now(timezone.utc)
-        last_iso = snap.component_state.get("last_activity_ts")
-        idle_hours = 0.0
-        if last_iso and isinstance(last_iso, str):
-            try:
-                # Ensure TZ info for comparison
-                last_dt_aware = datetime.fromisoformat(last_iso.replace("Z", "+00:00"))
-                if last_dt_aware.tzinfo is None: last_dt_aware = last_dt_aware.replace(tzinfo=timezone.utc)
-                idle_delta = now_utc - last_dt_aware
-                idle_hours = max(0.0, idle_delta.total_seconds() / 3600.0)
-            except ValueError: logger.warning("Could not parse last_activity_ts: %s", last_iso)
-            except Exception as ts_err: logger.exception("Error processing last_activity_ts: %s", ts_err)
-        elif last_iso is not None: logger.warning("last_activity_ts is not a string: %s", type(last_iso))
-
-        idle_coeff = WITHERING_IDLE_COEFF.get(current_path, WITHERING_IDLE_COEFF["structured"])
-        idle_penalty = idle_coeff * idle_hours
-
-        overdue_hours = 0.0
-        if is_enabled(Feature.SOFT_DEADLINES) and current_path != "open" and isinstance(snap.task_backlog, list):
-            try:
-                overdue_list = []
-                for task in snap.task_backlog:
-                    if isinstance(task, dict) and task.get("soft_deadline"):
-                        overdue = hours_until_deadline(task) # Use imported helper
-                        if isinstance(overdue, (int, float)) and overdue < 0:
-                            overdue_list.append(abs(overdue))
-                if overdue_list: overdue_hours = max(overdue_list)
-            except Exception as e: logger.error("Error calculating overdue hours: %s", e) # Simplified error handling
-        elif not is_enabled(Feature.SOFT_DEADLINES):
-            logger.debug("Skipping overdue hours calculation: SOFT_DEADLINES feature disabled.")
-
-        soft_coeff = WITHERING_OVERDUE_COEFF.get(current_path, 0.0) if is_enabled(Feature.SOFT_DEADLINES) else 0.0
-        soft_penalty = soft_coeff * overdue_hours
-
-        current_withering = getattr(snap, 'withering_level', 0.0)
-        if not isinstance(current_withering, (int, float)): current_withering = 0.0
-        new_level = float(current_withering) + idle_penalty + soft_penalty
-        snap.withering_level = clamp01(new_level * WITHERING_DECAY_FACTOR)
-        logger.debug(f"Withering updated: Level={snap.withering_level:.4f} (IdleHrs={idle_hours:.2f}, OverdueHrs={overdue_hours:.2f})")
+    def _update_withering(self, snapshot: MemorySnapshot) -> None:
+        """Updates the withering level using the WitheringManager."""
+        WitheringManager.update_withering(snapshot)
 
 
     # Example: Keeping get_primary_active_seed here, but could be moved to SeedManager
