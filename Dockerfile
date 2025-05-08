@@ -10,8 +10,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
-    graphviz && \
-    rm -rf /var/lib/apt/lists/*
+    graphviz \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl -o /usr/local/bin/cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.15.3/cloud-sql-proxy.linux.amd64 && \
     chmod +x /usr/local/bin/cloud-sql-proxy

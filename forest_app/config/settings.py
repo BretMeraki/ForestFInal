@@ -1,10 +1,11 @@
-# forest_app/config/settings.py (Added Withering Flag)
+# forest_app/config/settings.py
 
 import logging
 import os
-from pydantic_settings import BaseSettings, SettingsConfigDict # Correct import
-from typing import Optional, Dict, Any, List
-from pydantic import Field, HttpUrl
+import secrets
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional, Dict, Any, List, Union, Literal
+from pydantic import Field, HttpUrl, validator
 
 logger = logging.getLogger(__name__)
 
@@ -24,17 +25,49 @@ class MCPServerConfig(BaseSettings):
 class AppSettings(BaseSettings):
     """
     Application settings loaded from environment variables.
-    Includes configurations for specific engines AND feature flags.
-    Ensures all flags defined in Feature Enum have a corresponding setting.
+    Includes configurations for specific engines, feature flags, and deployment mode.
+    
+    The USE_CLOUD_MODE toggle controls whether the application uses cloud resources
+    or local resources. This provides a single switch for deployment mode.
     """
-    # --- Required environment variables ---
-    GOOGLE_API_KEY: str = "test_api_key"
+    # --- Deployment Mode Toggle ---
+    USE_CLOUD_MODE: bool = False
+    
+    # --- Database Connection ---
+    # We prefer DB_CONNECTION_STRING but support legacy env vars
     DB_CONNECTION_STRING: str = "postgresql://test:test@localhost:5432/test_db"
-
+    DATABASE_URL: Optional[str] = None
+    SQLALCHEMY_DATABASE_URL: Optional[str] = None
+    
+    # --- API Keys ---
+    GOOGLE_API_KEY: str = "test_api_key"  # Required for all modes
+    
+    # --- Security ---
+    SECRET_KEY: str = Field(default_factory=lambda: secrets.token_hex(32))
+    
+    # --- Cloud-Specific Variables (required when USE_CLOUD_MODE=True) ---
+    GCP_SA_KEY: Optional[str] = None
+    SENTRY_DSN: Optional[str] = None
+    
     # --- Optional with defaults (Core LLM/App) ---
     GEMINI_MODEL_NAME: str = "gemini-1.5-flash-latest"
     GEMINI_ADVANCED_MODEL_NAME: str = "gemini-1.5-pro-latest"
     LLM_TEMPERATURE: float = 0.7
+    
+    @validator('DB_CONNECTION_STRING', pre=True)
+    def set_db_connection(cls, v, values):
+        """Use DATABASE_URL or SQLALCHEMY_DATABASE_URL if DB_CONNECTION_STRING is not set"""
+        if not v:
+            if values.get('DATABASE_URL'):
+                return values.get('DATABASE_URL')
+            elif values.get('SQLALCHEMY_DATABASE_URL'):
+                return values.get('SQLALCHEMY_DATABASE_URL')
+        return v
+    
+    @property
+    def is_cloud_mode(self) -> bool:
+        """Helper to check if cloud mode is enabled"""
+        return self.USE_CLOUD_MODE
 
     # --- Optional Engine Configurations ---
     # (These configure engines IF they are enabled by flags below)

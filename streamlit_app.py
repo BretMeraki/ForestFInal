@@ -16,7 +16,7 @@ def log_exception(e):
     logging.error(traceback.format_exc())
     
     # Write to a separate error tracking file
-    with open('/Users/bretmeraki/Downloads/ForestFInal-main-16/error.log', 'a') as f:
+    with open(os.path.join(os.getcwd(), 'error.log'), 'a') as f:
         f.write(f"\n{logging.Formatter('%(asctime)s - %(name)s - %(levelname)s: %(message)s').format(logging.LogRecord('__main__', logging.ERROR, '', 0, f'Fatal error in streamlit_app.py startup:', None, None))}\n")
         f.write(traceback.format_exc())
         f.write("\n")
@@ -27,7 +27,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Load environment variables
-env_path = os.path.join(project_root, '.env')
+env_path = os.path.join(project_root, '.env.example') if not os.path.exists(os.path.join(project_root, '.env')) else os.path.join(project_root, '.env')
 load_dotenv(env_path, override=True)
 
 # Configure logging
@@ -35,7 +35,7 @@ logging.basicConfig(
     level=os.getenv('LOG_LEVEL', 'INFO'),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("/Users/bretmeraki/Downloads/ForestFInal-main-16/error.log"),
+        logging.FileHandler(os.path.join(os.getcwd(), 'error.log')),
         logging.StreamHandler()
     ]
 )

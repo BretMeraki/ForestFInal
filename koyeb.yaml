@@ -18,6 +18,18 @@ services:
     envs:
       - key: PORT
         value: 8000
+      - key: USE_CLOUD_MODE
+        value: "True"
+      - key: DB_CONNECTION_STRING
+        secret: DB_CONNECTION_STRING
+      - key: GOOGLE_API_KEY
+        secret: GOOGLE_API_KEY
+      - key: SECRET_KEY
+        secret: SECRET_KEY
+      - key: GCP_SA_KEY
+        secret: GCP_SA_KEY
+      - key: SENTRY_DSN
+        secret: SENTRY_DSN
     entrypoint: uvicorn forest_app.core.main:app --host 0.0.0.0 --port 8000
     scaling:
       min: 1
@@ -39,6 +51,18 @@ services:
     envs:
       - key: PORT
         value: 8080
+      - key: USE_CLOUD_MODE
+        value: "True"
+      - key: DB_CONNECTION_STRING
+        secret: DB_CONNECTION_STRING
+      - key: GOOGLE_API_KEY
+        secret: GOOGLE_API_KEY
+      - key: SECRET_KEY
+        secret: SECRET_KEY
+      - key: GCP_SA_KEY
+        secret: GCP_SA_KEY
+      - key: SENTRY_DSN
+        secret: SENTRY_DSN
     entrypoint: python debug_suite/flask_api/flask_dashboard.py
     scaling:
       min: 1
