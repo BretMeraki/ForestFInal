@@ -33,9 +33,9 @@ uvicorn[standard]==0.30.0 # Example: Use the actual latest stable version found
 psycopg2-binary==2.9.9 # Example: Use the actual latest stable version found
 
 # llm library
-google-generativeai==0.6.0
-google-ai-generativelanguage==0.6.4
-google-api-core==2.24.2
+google-generativeai==0.5.4
+google-ai-generativelanguage==0.5.4
+google-api-core==2.17.1
 google-api-python-client==2.169.0
 google-auth==2.40.1
 tqdm==4.67.1
@@ -47,7 +47,7 @@ python-jose[cryptography]==3.3.0
 
 # --- Streamlit front end dependencies ---
 streamlit-cookies-manager
-protobuf==3.20.3
+protobuf==4.21.12
 # --- END PINNED VERSIONS ---
 
 # --- ADDED SENTRY SDK ---
