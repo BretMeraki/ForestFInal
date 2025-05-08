@@ -3,7 +3,12 @@
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
+import os
 from typing import Generator
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env'))
 
 # --- Settings Import (Using Pydantic settings object) ---
 try:
@@ -38,7 +43,30 @@ engine = None
 Base = declarative_base()
 
 # --- Attempt to Create SQLAlchemy Engine and Redefine SessionLocal ---
-# Check if the connection string was successfully retrieved from settings
+# Get database connection string from environment variables
+db_connection_string = os.getenv('DB_CONNECTION_STRING')
+
+# If not found, try alternative environment variables
+if not db_connection_string:
+    db_connection_string = os.getenv('SQLALCHEMY_DATABASE_URL')
+    if not db_connection_string:
+        db_connection_string = os.getenv('DATABASE_URL')
+        if not db_connection_string:
+            # Fallback to a local SQLite database if no connection string is found
+            db_connection_string = 'sqlite:///./forest_app.db'
+            logger.warning(f"No database connection string found in environment variables. Using fallback: {db_connection_string}")
+        else:
+            logger.info(f"Using DATABASE_URL for database connection")
+    else:
+        logger.info(f"Using SQLALCHEMY_DATABASE_URL for database connection")
+else:
+    logger.info(f"Using DB_CONNECTION_STRING for database connection")
+
+# Log the connection string (with password redacted)
+if 'postgresql' in db_connection_string:
+    safe_connection_string = db_connection_string.replace(db_connection_string.split('@')[0].split(':')[-1], '******')
+    logger.info(f"Database connection string: {safe_connection_string}")
+
 if db_connection_string:
     try:
         SQLALCHEMY_DATABASE_URL = db_connection_string

@@ -2,6 +2,7 @@
 import requests
 import json
 import logging
+import os
 from typing import Dict, List, Union, Optional, Any
 
 # Define constants used within this module
@@ -22,8 +23,34 @@ def call_forest_api(
     data: Optional[Dict[str, Any]] = None,
     params: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
-    # Import os here to avoid circular import
-    import os
+    # Debug mode for testing without a real backend
+    if os.getenv('STREAMLIT_DEBUG_MODE', '').lower() == 'true' and api_token == "debug_token_for_testing":
+        # Return mock responses for specific endpoints
+        if endpoint == "/onboarding/set_goal" and method == "POST":
+            logger.debug("DEBUG MODE: Returning mock response for /onboarding/set_goal")
+            return {
+                "status_code": 200,
+                "data": {"status": "success", "onboarding_status": "needs_context"}
+            }
+        elif endpoint == "/onboarding/set_context" and method == "POST":
+            logger.debug("DEBUG MODE: Returning mock response for /onboarding/set_context")
+            return {
+                "status_code": 200,
+                "data": {"status": "success", "onboarding_status": "completed"}
+            }
+        elif endpoint == "/hta/state" and method == "GET":
+            logger.debug("DEBUG MODE: Returning mock response for /hta/state")
+            return {
+                "status_code": 200,
+                "data": {"nodes": [], "edges": [], "root": "mock_root"}
+            }
+        elif endpoint == "/users/me" and method == "GET":
+            logger.debug("DEBUG MODE: Returning mock response for /users/me")
+            return {
+                "status_code": 200,
+                "data": {"email": "test@example.com", "id": 1, "is_active": True, "onboarding_status": "needs_goal"}
+            }
+    # OS is now imported at the top of the file
 
     # Use environment variable or passed backend_url, with localhost as final fallback
     if backend_url is None:
