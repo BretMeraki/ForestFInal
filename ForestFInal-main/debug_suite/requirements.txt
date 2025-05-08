@@ -1,0 +1,2 @@
+streamlit-cookies-manager
+protobuf==3.20.3

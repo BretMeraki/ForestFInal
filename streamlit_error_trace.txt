@@ -1,0 +1,18 @@
+Exception: `set_page_config()` can only be called once per app page, and must be called as the first Streamlit command in your script.
+
+For more information refer to the [docs](https://docs.streamlit.io/develop/api-reference/configuration/st.set_page_config).
+
+Traceback (most recent call last):
+  File "/Users/bretmeraki/Downloads/ForestFInal-main-16/streamlit_app.py", line 58, in <module>
+    from forest_app.front_end.streamlit_app import *
+  File "/Users/bretmeraki/Downloads/ForestFInal-main-16/forest_app/front_end/streamlit_app.py", line 19, in <module>
+    st.set_page_config(page_title="Forest OS", layout="wide", initial_sidebar_state="expanded")
+  File "/Users/bretmeraki/Downloads/ForestFInal-main-16/venv/lib/python3.9/site-packages/streamlit/runtime/metrics_util.py", line 444, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+  File "/Users/bretmeraki/Downloads/ForestFInal-main-16/venv/lib/python3.9/site-packages/streamlit/commands/page_config.py", line 273, in set_page_config
+    ctx.enqueue(msg)
+  File "/Users/bretmeraki/Downloads/ForestFInal-main-16/venv/lib/python3.9/site-packages/streamlit/runtime/scriptrunner_utils/script_run_context.py", line 192, in enqueue
+    raise StreamlitSetPageConfigMustBeFirstCommandError()
+streamlit.errors.StreamlitSetPageConfigMustBeFirstCommandError: `set_page_config()` can only be called once per app page, and must be called as the first Streamlit command in your script.
+
+For more information refer to the [docs](https://docs.streamlit.io/develop/api-reference/configuration/st.set_page_config).

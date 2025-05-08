@@ -1,0 +1,74 @@
+# Docker Compose file for local development
+services:
+  db:
+    image: postgres:15
+    container_name: local-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: woozyBoi0!
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.local  # Use local-specific Dockerfile
+    container_name: forest-app
+    restart: always
+    env_file:
+      - .env
+    environment:
+      # Deployment mode toggle
+      DEPLOYMENT_MODE: "local"
+      # Local database connection (container networking)
+      DATABASE_URL: postgresql+psycopg2://postgres:woozyBoi0!@db:5432/postgres
+      SQLALCHEMY_DATABASE_URL: postgresql+psycopg2://postgres:woozyBoi0!@db:5432/postgres
+      DB_CONNECTION_STRING: postgresql+psycopg2://postgres:woozyBoi0!@db:5432/postgres
+      # Local security settings
+      SECRET_KEY: forest_os_dev_secret_key_local
+      # Explicitly disable cloud features
+      USE_CLOUD_SQL_PROXY: "False"
+      ENABLE_CLOUD_SERVICES: "False"
+      LOCAL_DEVELOPMENT: "True"
+      # Mock API keys for local testing
+      GOOGLE_API_KEY: "mock_api_key_for_local_dev"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./forest_app:/app/forest_app
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+    depends_on:
+      - db
+    entrypoint: ["/app/flexible_entrypoint.sh"]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.local  # Use local-specific Dockerfile
+    container_name: forest-frontend
+    restart: always
+    env_file:
+      - .env
+    environment:
+      DEPLOYMENT_MODE: "local"
+      BACKEND_URL: http://app:8000
+      STREAMLIT_SERVER_PORT: 8501
+      # Explicitly disable cloud features
+      LOCAL_DEVELOPMENT: "True"
+    command: streamlit run forest_app/front_end/streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./forest_app:/app/forest_app
+      - ./.streamlit:/app/.streamlit
+    depends_on:
+      - app
+      - db
+
+volumes:
+  postgres_data:
