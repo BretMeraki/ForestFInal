@@ -29,7 +29,7 @@ class AppSettings(BaseSettings):
     """
     # --- Required environment variables ---
     GOOGLE_API_KEY: str = "test_api_key"
-    DB_CONNECTION_STRING: str = "postgresql://test:test@localhost:5432/test_db"
+    DB_CONNECTION_STRING: str = "postgresql://postgres:postgres@localhost:5432/forest_db"
 
     # --- Optional with defaults (Core LLM/App) ---
     GEMINI_MODEL_NAME: str = "gemini-1.5-flash-latest"

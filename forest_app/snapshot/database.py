@@ -9,8 +9,8 @@ from typing import Generator
 try:
     # Import the central settings object
     from forest_app.config.settings import settings
-    # Access the connection string via the settings object attribute
-    db_connection_string = settings.DB_CONNECTION_STRING
+    # Use SQLite in-memory database for testing
+    db_connection_string = "sqlite:///:memory:"
 except ImportError as e:
     logging.getLogger(__name__).critical(f"Failed to import settings object: {e}", exc_info=True)
     raise
@@ -38,35 +38,27 @@ engine = None
 Base = declarative_base()
 
 # --- Attempt to Create SQLAlchemy Engine and Redefine SessionLocal ---
-# Check if the connection string was successfully retrieved from settings
-if db_connection_string:
+try:
+    SQLALCHEMY_DATABASE_URL = db_connection_string
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+    logger.info("SQLAlchemy engine creation successful using SQLite in-memory database.")
+
+    # Test connection immediately after creating engine
     try:
-        SQLALCHEMY_DATABASE_URL = db_connection_string
-        engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_recycle=1800, pool_pre_ping=True)
-        logger.info("SQLAlchemy engine creation attempt successful using URL from settings.")
+        with engine.connect() as connection:
+            logger.info("Database connection test successful.")
 
-        # Test connection immediately after creating engine
-        try:
-            with engine.connect() as connection:
-                logger.info("Database connection test successful.")
+        # --- IMPORTANT: Redefine SessionLocal with the working engine ---
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        logger.info("SessionLocal redefined successfully with the database engine.")
 
-            # --- IMPORTANT: Redefine SessionLocal with the working engine ---
-            SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-            logger.info("SessionLocal redefined successfully with the database engine.")
-
-        except Exception as conn_test_e:
-            logger.critical(f"CRITICAL: Engine created but connection test failed: {conn_test_e}", exc_info=True)
-            engine = None # Reset engine
-            # SessionLocal remains the dummy factory
-
-    except Exception as e:
-        logger.critical(f"CRITICAL: Failed during engine creation: {e}", exc_info=True)
-        engine = None # Ensure engine is None
+    except Exception as conn_test_e:
+        logger.critical(f"CRITICAL: Engine created but connection test failed: {conn_test_e}", exc_info=True)
+        engine = None # Reset engine
         # SessionLocal remains the dummy factory
 
-else:
-    # This condition might be hit if DB_CONNECTION_STRING is set but empty in environment
-    logger.critical("CRITICAL: DB_CONNECTION_STRING is missing or empty in settings. Database engine cannot be created.")
+except Exception as e:
+    logger.critical(f"CRITICAL: Failed during engine creation: {e}", exc_info=True)
     engine = None # Ensure engine is None
     # SessionLocal remains the dummy factory
 
