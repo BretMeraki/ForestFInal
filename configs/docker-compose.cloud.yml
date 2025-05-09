@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: forest-app
+    restart: always
+    env_file:
+      - .env
+    environment:
+      # Set the deployment mode to cloud
+      DEPLOYMENT_MODE: "cloud"
+      # All other environment variables should be provided by the deployment platform
+      # This ensures we're using proper environment variable injection from platform secrets
+      USE_CLOUD_SQL_PROXY: "True"
+    ports:
+      - "8000:8000"
+    volumes:
+      # Limit volumes in cloud deployment
+      - app_logs:/app/logs
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: forest-frontend
+    restart: always
+    env_file:
+      - .env
+    environment:
+      # Set deployment mode to cloud
+      DEPLOYMENT_MODE: "cloud"
+      # BACKEND_URL will be injected during deployment
+      STREAMLIT_SERVER_PORT: 8501
+    command: streamlit run forest_app/front_end/streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - app_logs:/app/logs
+      - ./.streamlit:/app/.streamlit
+    depends_on:
+      - app
+
+# Persistent volumes
+volumes:
+  app_logs:

@@ -1,0 +1,14 @@
+{
+  "environment_variables": {
+    "BACKEND_URL": null,
+    "DATABASE_URL": null,
+    "SECRET_KEY": null,
+    "DB_CONNECTION_STRING": null,
+    "APP_HOST": null,
+    "APP_PORT": null,
+    "LOG_LEVEL": null
+  },
+  "python_version": "3.9.6 (default, Mar 12 2025, 20:22:46) \n[Clang 17.0.0 (clang-1700.0.13.3)]",
+  "python_executable": "/Users/bretmeraki/Downloads/ForestFInal-main-16/venv/bin/python3",
+  "current_directory": "/Users/bretmeraki/Downloads/ForestFInal-main-16"
+}

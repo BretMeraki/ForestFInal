@@ -1,0 +1,35 @@
+FROM python:3.11-slim-bullseye
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app:/app/forest_app \
+    LOCAL_DEVELOPMENT=True
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    graphviz && \
+    rm -rf /var/lib/apt/lists/*
+
+# No Cloud SQL Proxy for local development
+# This is the key difference from the cloud Dockerfile
+
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# For local development, we'll mount the code volume
+# so just create the directory structure
+RUN mkdir -p /app/forest_app
+RUN mkdir -p /app/alembic
+
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+EXPOSE 8000
+
+ENTRYPOINT ["/app/entrypoint.sh"]
