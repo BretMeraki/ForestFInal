@@ -12,9 +12,6 @@ venv/
 venv-powershell/
 venv*
 
-# Environment variables
-.env
-
 # Editor directories and files
 .idea
 .vscode
