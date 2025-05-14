@@ -1,19 +1,19 @@
 $schema: "./schemas/tasklist.schema.json"
 meta:
-  prdVersion: "v4.1 (Post-Audit MVP Refinement)" # Updated PRD version
+  prdVersion: "v4.1 (Post-Audit MVP Refinement)"
   generatedDate: '2025-05-13' # Current date
   notes: >-
-    This task list is derived from PRD v4.1 (Post-Audit MVP Refinement), considering 
-    the existing codebase. Tasks are phased. Focus on completing tasks in earlier 
-    phases before moving to later ones. Dependencies are key for sequencing. 
-    Frontend will be Next.js/React. # Updated notes
+    This task list is derived from PRD v4.1 (Post-Audit MVP Refinement), considering
+    the existing codebase. Tasks are phased. Focus on completing tasks in earlier
+    phases before moving to later ones. Dependencies are key for sequencing.
+    Frontend will be React Native (iOS primary). # UPDATED for mobile-first
 tasks:
   - id: 0
     phase: P0
-    title: 'P0.1: Finalize Core Project Setup & Foundational Standards'
+    title: 'P0.1: Finalize Core Project Setup & Foundational Standards (Backend Focused)'
     description: >-
       Solidify project structure, Python environment (3.11.8 as per PRD, current runtime.txt is 3.12.4 - reconcile),
-      configurations, performance targets, data integrity strategies, and developer guidelines,
+      configurations, performance targets, data integrity strategies, and developer guidelines for the backend,
       aligning existing setup with PRD v4.1.
     details: >-
       1. **Environment & Config (PRD Sec 8-P0):
@@ -21,30 +21,30 @@ tasks:
            - Solidify secure `SECRET_KEY` handling (from `settings.py`, `.env`).
            - Review `settings.py`: Ensure all feature flags from `core/feature_flags.py` (PRD v4.1 Section 6) are present and defaults align with MVP strategy. Add any missing configs (e.g., for audit log, idempotency keys if needed centrally).
            - Finalize `.env.example` based on `settings.py`.
-           - Deliverable: `Performance-First Developer Quickstart` guide (PRD Sec 8-P0).
+           - Deliverable: `Performance-First Developer Quickstart` guide (PRD Sec 8-P0) - focused on backend.
            - Deliverable: Initial `Data Validation Rules Catalog` (PRD Sec 3, 8-P0).
-      2. **Performance & Integrity Standards (PRD Sec 2, 3, 8-P0):
-           - Document and confirm P75 latency targets & 0.1% error budget (PRD Sec 2).
+      2. **Performance & Integrity Standards (PRD Sec 2, 3, 8-P0 - Backend):
+           - Document and confirm P75 latency targets & 0.1% error budget for API/backend operations (PRD Sec 2).
            - Document initial strategies for transactional consistency (REPEATABLE READ default), basic audit trail structure/format, and initial design considerations for API idempotency (PRD Sec 3, 8-P0).
       3. **Alembic Setup (PRD Sec 8-P0):
            - Verify `alembic.ini` (uses `DB_CONNECTION_STRING` - good) and `env.py` correctly load DB URL and `Base` metadata from `forest_app.persistence.models` for migrations.
-      4. **RequestContext & Middleware (PRD Sec 3.1):
-           - Refine existing `forest_app.core.models.RequestContext` to include `timestamp_utc`, `feature_flags`, and Pydantic `model_config(frozen=True, extra='forbid', ...)`. Implement `@lru_cache` for `has_feature` (ensure `self` is hashable or adapt cache strategy if instance method used on mutable `self`).
+      4. **RequestContext & Middleware (PRD Sec 3.1 - Backend):
+           - Refine existing `forest_app.core.models.RequestContext` to include `timestamp_utc`, `feature_flags`, and Pydantic `model_config(frozen=True, extra='forbid', ...)`. Implement `@lru_cache` for `has_feature`.
            - Implement/Verify `get_request_context` FastAPI dependency in `forest_app.dependencies.py`.
            - Implement/Verify `PerformanceMiddleware` and/or enhance existing `LoggingMiddleware` in `forest_app.main.py` for API timing, `X-Process-Time` header, and `trace_id` logging.
     testStrategy: >-
-      Verify Python version alignment. Test env var loading, `SECRET_KEY` security.
-      Confirm Alembic offline/online migrations run. Benchmark `RequestContext` and `PerformanceMiddleware`.
-      Review all P0 deliverables.
+      Verify Python version alignment for backend. Test env var loading, `SECRET_KEY` security.
+      Confirm Alembic offline/online migrations run. Benchmark backend `RequestContext` and `PerformanceMiddleware`.
+      Review all P0 backend deliverables.
     status: done
     dependencies: []
     priority: critical
   - id: 1
     phase: P0
-    title: 'P0.2: Solidify Core SQLAlchemy Models & Initial Migrations'
+    title: 'P0.2: Solidify Core SQLAlchemy Models & Initial Migrations (Backend)'
     description: >-
       Finalize SQLAlchemy models (`User`, `HTATree`, `HTANode`, `MemorySnapshot`, `TaskFootprint`, `ReflectionLog`)
-      with all PRD v4.1 requirements (UUID PKs, JSONB, critical indexes). Generate/update Alembic migrations.
+      with all PRD v4.1 requirements (UUID PKs, JSONB, critical indexes). Generate/update Alembic migrations. This supports the backend data persistence.
     details: >-
       1. **`UserModel.id` to UUID (PRD Task #6 related):
            - Modify `UserModel` in `forest_app.persistence.models.py` to use `id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)`.
@@ -53,38 +53,38 @@ tasks:
            - Ensure `manifest` field is `Mapped[dict] = mapped_column(JSONB, nullable=True)`.
            - Add GIN index: `Index("ix_hta_trees_manifest_gin", HTATreeModel.manifest, postgresql_using="gin")` in `__table_args__` or dedicated migration.
       3. **`HTANodeModel` Indexing (PRD Sec 3.2):
-           - Add/Verify B-Tree indexes: `Index("ix_hta_nodes_tree_id_status", HTANodeModel.tree_id, HTANodeModel.status)`, `Index("ix_hta_nodes_tree_id_is_major_phase_status", HTANodeModel.tree_id, HTANodeModel.is_major_phase, HTANodeModel.status)`, `Index("ix_hta_nodes_parent_id_status", HTANodeModel.parent_id, HTANodeModel.status)`. Ensure `roadmap_step_id` and `is_major_phase` are also indexed as needed (your `is_major_phase` is already indexed - good).
+           - Add/Verify B-Tree indexes: `Index("ix_hta_nodes_tree_id_status", HTANodeModel.tree_id, HTANodeModel.status)`, `Index("ix_hta_nodes_tree_id_is_major_phase_status", HTANodeModel.tree_id, HTANodeModel.is_major_phase, HTANodeModel.status)`, `Index("ix_hta_nodes_parent_id_status", HTANodeModel.parent_id, HTANodeModel.status)`. Ensure `roadmap_step_id` and `is_major_phase` are also indexed.
       4. **`MemorySnapshotModel` Enhancements (PRD Sec 4):
            - Ensure `snapshot_data` is JSONB. Add `Index("ix_memory_snapshots_user_id_created_at", MemorySnapshotModel.user_id, MemorySnapshotModel.created_at.desc())`.
-      5. **`TaskFootprintModel`, `ReflectionLogModel`:** Review fields in `forest_app.persistence.models.py` against PRD v4.1 intent for basic audit/memory (e.g., timestamps, relevant IDs, type of event/reflection).
-      6. **Alembic Migrations:** Generate/update Alembic revision(s) in `alembic/versions/` to capture ALL schema changes (UUIDs, JSONB types, new indexes). Test `upgrade` and `downgrade` paths thoroughly. Consolidate or manage sequence with existing `f5b76ed1b9bd_...` migration.
+      5. **`TaskFootprintModel`, `ReflectionLogModel`:** Review fields in `forest_app.persistence.models.py` against PRD v4.1 intent for basic audit/memory.
+      6. **Alembic Migrations:** Generate/update Alembic revision(s) to capture ALL schema changes. Test `upgrade` and `downgrade` paths.
     testStrategy: >-
       Verify Alembic migrations apply/rollback. Unit test model creation/relationships.
-      Manually inspect DB schema for indexes. Query performance tests for indexed fields will come with feature implementation.
+      Manually inspect DB schema for indexes.
     status: done
     dependencies:
       - 0
     priority: critical
   - id: 2
     phase: P0
-    title: 'P0.3: Setup Foundational Monitoring, Logging & Alerting'
+    title: 'P0.3: Setup Foundational Monitoring, Logging & Alerting (Backend)'
     description: >-
       Configure tools and basic infrastructure for structured logging (LLM calls, API latencies, DB ops)
-      and alerting on P75 latency targets & 0.1% error budget, as per PRD v4.1.
+      and alerting on P75 latency targets & 0.1% error budget for the backend, as per PRD v4.1.
     details: >-
       1. **Structured Logging (PRD Sec 3, 8-P0):
            - Enhance `LoggingMiddleware` in `forest_app.main.py` to ensure `trace_id` from `RequestContext` (Task #P0.1) is included in all request-related logs.
-           - Configure `python-json-logger` (from `requirements.txt`) for structured JSON log output for easier parsing by Sentry or other tools.
-      2. **Metrics Collection Foundation (PRD Sec 2, 8-P0):
+           - Configure `python-json-logger` for structured JSON log output for Sentry or other tools.
+      2. **Metrics Collection Foundation (PRD Sec 2, 8-P0 - Backend):
            - Ensure `PerformanceMiddleware` (Task #P0.1) or enhanced `LoggingMiddleware` correctly logs API latencies.
-           - `BaseLLMService` (Task #P1.1) will be responsible for logging LLM call details (count, timing, tokens, errors).
-           - Plan for logging key DB operation timings (e.g., in `forest_app.persistence.repository.py` methods or via SQLAlchemy event listeners - P1 implementation).
-      3. **Alerting Setup (PRD Sec 2, 8-P0):
-           - Configure Sentry (using `SENTRY_DSN` from `settings.py`) or chosen platform for alerts if P75 latency targets or 0.1% error budget are breached. Also for critical error rate spikes.
+           - `BaseLLMService` (Task #P1.1) will log LLM call details.
+           - Plan for logging key DB operation timings.
+      3. **Alerting Setup (PRD Sec 2, 8-P0 - Backend):
+           - Configure Sentry (using `SENTRY_DSN`) for alerts if backend P75 latency targets or 0.1% error budget are breached. Also for critical error rate spikes.
            - Ensure this is operational by end of P1.
     testStrategy: >-
-      Verify logs are structured, include `trace_id`, and are sent to Sentry (if configured).
-      Confirm API latencies are logged. Test basic alert mechanism by simulating a condition that breaches a defined threshold.
+      Verify backend logs are structured, include `trace_id`, and are sent to Sentry.
+      Confirm API latencies are logged. Test basic backend alert mechanism.
     status: done
     dependencies:
       - 0
@@ -92,58 +92,57 @@ tasks:
     priority: high
   - id: 3
     phase: P0
-    title: 'P0.4: Implement Core Pydantic Data Models (Manifest/Step)'
+    title: 'P0.4: Implement Core Pydantic Data Models (Manifest/Step - Shared)'
     description: >-
       Develop performance-optimized Pydantic models for `RoadmapStep` and `RoadmapManifest`
-      with validation, internal indexing for efficient operations, and helper methods, as per PRD v4.1.
+      with validation, internal indexing for efficient operations, and helper methods, as per PRD v4.1. These models are critical for backend logic and API contracts.
     details: >-
       1. **Refine `RoadmapStep` (`core/roadmap_models.py`) (PRD Sec 3.2):
-           - Set `model_config = ConfigDict(frozen=True, extra='forbid', validate_assignment=False, populate_by_name=True, validate_default=False, arbitrary_types_allowed=True)`.
-           - Change `dependencies: List[UUID]` to `dependencies: FrozenSet[UUID] = Field(default_factory=frozenset)`. Add `@validator('dependencies', pre=True)` to convert lists.
-           - Add `created_at: datetime = Field(default_factory=...)`, `updated_at: datetime = Field(default_factory=...)`.
-           - Ensure `hta_metadata: Dict[str, Any] = Field(default_factory=dict)` for `is_major_phase` etc.
+           - Set `model_config = ConfigDict(frozen=True, extra='forbid', ...)`.
+           - Change `dependencies: List[UUID]` to `dependencies: FrozenSet[UUID] = Field(default_factory=frozenset)`. Add validator.
+           - Add `created_at: datetime`, `updated_at: datetime`.
+           - Ensure `hta_metadata: Dict[str, Any]` for `is_major_phase` etc.
       2. **Refine `RoadmapManifest` (`core/roadmap_models.py`) (PRD Sec 3.2):
            - Set `model_config = ConfigDict(extra='forbid', ...) `.
-           - Implement internal indexes in `__init__` (via `_build_indexes()`): `_step_index`, `_dependency_graph`, `_reverse_dependency_graph`, `_topological_sort_cache` (these should be private instance variables, not Pydantic fields unless carefully managed with `exclude=True` for serialization).
-           - Add `created_at: datetime`, `updated_at: datetime`. Manage `updated_at` on logical mutations (often means creating new manifest instances if steps are immutable).
+           - Implement internal indexes (`_step_index`, `_dependency_graph`, etc.).
+           - Add `created_at: datetime`, `updated_at: datetime`. Manage `updated_at`.
       3. **Implement Helper Methods on `RoadmapManifest` (PRD Sec 3.2.1):
-           - `get_step_by_id`, `update_step_status` (returns new manifest), `add_step` (returns new manifest), `get_pending_actionable_steps`, `get_major_phases`.
+           - `get_step_by_id`, `update_step_status`, `add_step`, `get_pending_actionable_steps`, `get_major_phases`.
       4. **Implement Cached Dependency Algorithms on `RoadmapManifest`:
-           - `check_circular_dependencies()` (details in Task #P1.2). Consider caching strategy if manifest is immutable vs. mutable.
-           - `get_topological_sort()` (builds/uses `_topological_sort_cache`). Invalidate cache or create new manifest on changes.
+           - `check_circular_dependencies()` (details in Task #P1.2).
+           - `get_topological_sort()`.
       5. **Validation:** Ensure models incorporate rules from `Data Validation Rules Catalog` (Task #P0.1).
     testStrategy: >-
-      Unit test model creation, validation (from Validation Catalog), internal index building, helper methods.
+      Unit test model creation, validation, internal index building, helper methods.
       Benchmark operations with various manifest sizes.
     status: done
     dependencies:
       - 0
     priority: critical
-  - id: 4
+  - id: 4 # Backend Task
     phase: P1
-    title: 'P1.1: Implement LLM Service (Base & Gemini)'
+    title: 'P1.1: Implement LLM Service (Base & Gemini - Backend)'
     description: >-
       Refine/Complete `BaseLLMService` and `GoogleGeminiService` (`integrations/llm_service.py`)
-      to be fully async, with robust retry (exponential backoff), timeout, fallback, token controls,
-      audit logging, and DI integration. Implement `PromptAugmentationService` and `ContextTrimmer`.
+      to be fully async, with robust retry, timeout, fallback, token controls,
+      audit logging, and DI integration. Implement `PromptAugmentationService` and `ContextTrimmer`. This is a backend service.
     details: >-
       1. **BaseLLMService (`integrations/llm_service.py`) (PRD Sec 3.3):
-           - Ensure `generate_content_async` (or similar methods like `generate_text_async`, `generate_json_async`) are robust and truly non-blocking.
-           - Implement/Verify retry logic using `tenacity` (from `requirements.txt`) respecting API idempotency (Task #P0.1 strategy).
-           - Implement `asyncio.wait_for` for timeouts and clear fallbacks.
-           - Implement `_record_metrics` method for audit logging (count, timing, tokens, errors - to system from Task #P0.3).
-           - Implement lightweight caching for identical, small, repeatable calls (PRD Sec 3.4).
-           - Defer/Disable `PredictivePrefetchService` for MVP (PRD Sec 9).
+           - Ensure `generate_content_async` methods are robust and non-blocking.
+           - Implement/Verify retry logic using `tenacity` respecting API idempotency.
+           - Implement `asyncio.wait_for` for timeouts and fallbacks.
+           - Implement `_record_metrics` for audit logging (to system from Task #P0.3).
+           - Implement lightweight caching.
+           - Defer/Disable `PredictivePrefetchService` for MVP.
       2. **GoogleGeminiService (subclass of `BaseLLMService`) (PRD Sec 3.3):
-           - Use Google AI client's `generate_content_async`.
-           - Implement `max_output_tokens` enforcement.
-           - Use `settings.GEMINI_MODEL_NAME` and `settings.GEMINI_ADVANCED_MODEL_NAME` from `config/settings.py`.
+           - Use Google AI client's `generate_content_async`. Implement `max_output_tokens`.
+           - Use `settings.GEMINI_MODEL_NAME` and `settings.GEMINI_ADVANCED_MODEL_NAME`.
       3. **PromptAugmentationService (PRD Sec 5):
-           - Create new service (e.g., in `core/services/`) for pre-pending/appending standard instructions (supportive tone, output structure requests) to prompts. Load templates efficiently.
+           - Create new service for pre-pending/appending standard instructions to prompts. Load templates efficiently.
       4. **ContextTrimmer (`utils/context_trimmer.py` or similar) (PRD Sec 3.5):
-           - Implement `ContextTrimmer` to cap `recent_tasks_log` and apply heuristics to `journey_summary` to optimize token usage. Integrate into LLM calls where full context is passed.
+           - Implement `ContextTrimmer` to cap `recent_tasks_log` and `journey_summary`. Integrate into LLM calls.
     testStrategy: >-
-      Test LLM service layer overhead (<1ms excluding API call). Verify async behavior, retry logic, timeouts, fallbacks.
+      Test LLM service layer overhead. Verify async behavior, retry logic, timeouts, fallbacks.
       Confirm token controls and metrics logging. Test `ContextTrimmer` effectiveness.
     status: done
     dependencies:
@@ -152,50 +151,49 @@ tasks:
       - 2
       - 3
     priority: critical
-  - id: 5
+  - id: 5 # Backend Task
     phase: P1
-    title: 'P1.2: Implement Circular Dependency Check & Comprehensive Error Handling'
+    title: 'P1.2: Implement Circular Dependency Check & Comprehensive Error Handling (Backend)'
     description: >-
       Finalize circular dependency detection for `RoadmapManifest` and implement a comprehensive
-      error handling strategy with supportive user messages, as per PRD v4.1.
+      error handling strategy in the backend with supportive API error responses, as per PRD v4.1.
     details: >-
       1. **Circular Dependency Check (`RoadmapManifest` method or `utils/dependency_utils.py`) (PRD Sec 3.2):
-           - Implement/Finalize `RoadmapManifest.check_circular_dependencies()` (from Task #P0.4) using Tarjan's or similar. Ensure it identifies specific steps in cycles and provides detailed info.
-      2. **Comprehensive Error Handling Strategy (PRD Sec 2, 3, 5):
-           - Define base `ForestError(Exception)` and specific errors (`CircularDependencyError`, `LLMError`, `DatabaseError`, `DataConsistencyError`, `TransactionFailureError`, `ValidationError`) in `utils/error_handling.py` (create if not existing).
-           - Implement FastAPI exception handlers in `main.py` to return standardized JSON error responses (with `trace_id` from `RequestContext`) and appropriate HTTP status codes. Messages must align with initial supportive principles (Task #P0.1) and later the Voice & Tone Guide (Task #P2.5).
-           - Ensure robust error logging for all caught exceptions, including full context and `trace_id` (Task #P0.3).
+           - Implement/Finalize `RoadmapManifest.check_circular_dependencies()` (from Task #P0.4) using Tarjan's or similar.
+      2. **Comprehensive Error Handling Strategy (PRD Sec 2, 3, 5 - Backend):
+           - Define base `ForestError(Exception)` and specific errors in `utils/error_handling.py`.
+           - Implement FastAPI exception handlers in `main.py` to return standardized JSON error responses (with `trace_id`) and appropriate HTTP status codes. API error messages should be supportive for the mobile client to interpret.
+           - Ensure robust error logging for all caught exceptions (Task #P0.3).
     testStrategy: >-
-      Test circular dependency detection with various patterns. Verify error messages are supportive.
-      Test FastAPI error handlers return correct status codes and formatted, user-friendly responses.
-      Test specific error types are raised and handled correctly.
+      Test circular dependency detection. Verify API error responses are supportive, correctly formatted, and have correct status codes.
+      Test specific error types are raised and handled correctly in the backend.
     status: complete
     dependencies:
       - 0
       - 1
       - 3
     priority: high
-  - id: 6
+  - id: 6 # Backend Task
     phase: P1
-    title: 'P1.3: Implement RoadmapParser (Goal to Manifest)'
+    title: 'P1.3: Implement RoadmapParser (Goal to Manifest - Backend)'
     description: >-
       Finalize `RoadmapParser` (likely in `core/onboarding_service.py` or new `roadmap_parser.py`)
       to transform user goals into a validated `RoadmapManifest` (10-20 steps) using the LLM service,
-      with supportive prompting, error handling, and audit logging, as per PRD v4.1.
+      with supportive prompting, error handling, and audit logging, as per PRD v4.1. This is a backend service.
     details: >-
-      1. **RoadmapParser Logic (Consider placing in `core/services/roadmap_parser.py` or enhancing `OnboardingService`) (PRD Sec 3.4, 8-P1):
+      1. **RoadmapParser Logic (PRD Sec 3.4, 8-P1):
            - `parse_goal_to_manifest(goal, context, request_context)` uses `LLMService` (Task #P1.1) and `PromptAugmentationService` (Task #P1.1).
-           - LLM Prompt: Focus on supportive scaffolding (approachable, 10-20 steps per PRD Sec 2), `is_major_phase` identification, clarity, efficiency, structured JSON output (PRD Sec 5).
-           - Manifest Validation: Use `RoadmapManifest.check_circular_dependencies()` (Task #P1.2), `get_topological_sort()` (Task #P0.4), and Pydantic validations. Adhere to 10-20 node target.
-           - Error Handling: Graceful, supportive messages (Task #P1.2).
-           - Implement basic audit logging for manifest generation events (PRD Sec 3).
+           - LLM Prompt: Focus on supportive scaffolding (10-20 steps), `is_major_phase` identification, clarity, efficiency, structured JSON output.
+           - Manifest Validation: Use `RoadmapManifest.check_circular_dependencies()` (Task #P1.2), `get_topological_sort()` (Task #P0.4), Pydantic validations. Adhere to 10-20 node target.
+           - Error Handling: Graceful, supportive API error responses.
+           - Implement basic audit logging for manifest generation events.
       2. **Onboarding API Endpoint (`routers/onboarding.py`) (PRD Sec 8-P1):
-           - Refine `POST /onboarding/set_goal_and_context` (or similar consolidation of your existing `/set_goal` and `/add_context`) to take goal & context, call `RoadmapParser.parse_goal_to_manifest`, then call `HTAService.generate_initial_hta_from_manifest` (Task #P1.4).
-           - Ensure endpoint meets P75 < 6s target and uses 202 Accepted if at risk (PRD Sec 3.4, Task #P0.1).
-           - Collect informal P1 user feedback on language/tone from this flow (PRD Sec 8-P1).
+           - Refine `POST /onboarding/set_goal_and_context` to call `RoadmapParser.parse_goal_to_manifest`, then `HTAService.generate_initial_hta_from_manifest` (Task #P1.4).
+           - Ensure endpoint meets P75 < 6s target (backend processing) and uses 202 Accepted if at risk.
+           - Collect informal P1 user feedback on language/tone (via mobile app interactions).
     testStrategy: >-
-      Test `RoadmapParser` with various goals/contexts for quality of 10-20 step manifests, LLM prompt effectiveness, validation logic.
-      Performance test the full onboarding endpoint. Verify supportive error messages. Test audit log entries.
+      Test `RoadmapParser` for quality of manifests, LLM prompt effectiveness, validation logic.
+      Performance test the full onboarding API endpoint. Verify supportive API error responses. Test audit log entries.
     status: complete
     dependencies:
       - 0
@@ -205,24 +203,23 @@ tasks:
       - 4
       - 5
     priority: critical
-  - id: 7
+  - id: 7 # Backend Task
     phase: P1
-    title: 'P1.4: Implement HTAService (Manifest to HTA Tree & Core Ops)'
+    title: 'P1.4: Implement HTAService (Manifest to HTA Tree & Core Ops - Backend)'
     description: >-
       Refine `HTAService` (`core/services/hta_service.py`) to generate HTA trees from manifests,
       manage HTA/Manifest synchronization, and support core operations with transactional consistency,
-      audit logging, and data integrity, as per PRD v4.1.
+      audit logging, and data integrity, as per PRD v4.1. This is a backend service.
     details: >-
       1. **HTAService Methods (PRD Sec 3.4, 8-P1):
-           - `generate_initial_hta_from_manifest(manifest: RoadmapManifest, user_id: UUID, request_context: RequestContext) -> HTATreeModel`: Use `manifest.get_topological_sort()`. Convert `RoadmapStep`s to `HTANodeModel`s. Store `manifest.model_dump_json()` in `HTATreeModel.manifest`. Ensure <1s target (PRD Sec 2). Implement with transactional consistency and audit logging.
-           - Review and align existing methods like `initialize_task_hierarchy`, `update_task_state` (likely becomes `update_node_status`), `get_task_hierarchy` (for `GET /hta/state`), `load_tree`, `save_tree` with PRD v4.1. Emphasize `RoadmapManifest` as the source of truth for structure, with `HTANodeModel` primarily for status and HTA-specific metadata/state. All mutations must be transactional and audited (PRD Sec 3).
+           - `generate_initial_hta_from_manifest(manifest: RoadmapManifest, user_id: UUID, request_context: RequestContext) -> HTATreeModel`: Use `manifest.get_topological_sort()`. Convert `RoadmapStep`s to `HTANodeModel`s. Store `manifest.model_dump_json()` in `HTATreeModel.manifest`. Ensure <1s target. Transactional and audited.
+           - Review and align existing methods. Emphasize `RoadmapManifest` as source of truth. All mutations transactional and audited.
       2. **HTA/Tree API Endpoints (`routers/hta.py`, new `/trees` router if needed) (PRD Sec 8-P1):
-           - `GET /hta/state` (or similar): Retrieves HTA view derived from `HTATreeModel.manifest` and `HTANodeModel` statuses.
-           - `POST /trees` (if not fully covered by onboarding Task #P1.3): Endpoint to create a new tree. Must be idempotent if applicable (PRD Sec 3, Task #P0.1).
+           - `GET /hta/state` (or similar): Retrieves HTA view for the mobile client.
+           - `POST /trees`: Endpoint to create a new tree. Must be idempotent if applicable.
     testStrategy: >-
       Test `generate_initial_hta_from_manifest` for speed (<1s) and correctness.
-      Test transactional integrity of all HTA/Manifest modifying operations (simulated failures, rollbacks).
-      Verify audit logs. Test API endpoints.
+      Test transactional integrity of HTA/Manifest modifying operations. Verify audit logs. Test API endpoints.
     status: complete
     dependencies:
       - 1
@@ -230,424 +227,430 @@ tasks:
       - 3
       - 6
     priority: critical
-  - id: 8
+  - id: 8 # Backend Task
     phase: P1
-    title: 'P1.5: Implement Task Completion & Basic Positive Reinforcement'
+    title: 'P1.5: Implement Task Completion & Basic Positive Reinforcement (Backend Logic & API)'
     description: >-
       Refine `CompletionProcessor` (`core/processors/completion_processor.py`) for task/node completion,
-      ensuring HTA/Manifest sync, `MemorySnapshot` updates, audit logging, idempotency,
-      and basic supportive reinforcement, as per PRD v4.1.
+      ensuring HTA/Manifest sync, `MemorySnapshot` updates, audit logging, idempotency.
+      API will provide basic supportive reinforcement messages for the mobile client, as per PRD v4.1.
     details: >-
       1. **CompletionProcessor (PRD F4.1, 8-P1):
-           - `process_node_completion(...)`: Update `HTANodeModel.status` and corresponding `RoadmapStep.status` in `RoadmapManifest` (via `RoadmapManifest.update_step_status` helper from Task #P0.4) transactionally.
-           - `MemorySnapshot` (`persistence/models.py`, `core/snapshot.py`): Create/update `MemorySnapshotModel`, log to `recent_tasks_log`, `confidence_building_interactions` (PRD Sec 4).
-           - Positive Reinforcement: Basic template messages for MVP, aligned with initial supportive principles (Task #P0.1). Stronger if `HTANodeModel.is_major_phase=True`.
+           - `process_node_completion(...)`: Update `HTANodeModel.status` and corresponding `RoadmapStep.status` in `RoadmapManifest` transactionally.
+           - `MemorySnapshot`: Create/update `MemorySnapshotModel`, log to `recent_tasks_log`, `confidence_building_interactions`.
+           - Positive Reinforcement: Backend generates basic template messages for API response. Stronger if `HTANodeModel.is_major_phase=True`.
            - Update `HTANodeModel.branch_triggers.current_completion_count` (for Task #P2.1).
            - Implement with full transactional consistency and audit logging.
-      2. **Task Completion API Endpoint (`routers/core.py` -> `POST /complete_task` or `routers/hta.py` -> `POST /nodes/{node_id}/complete`) (PRD Sec 8-P1):
-           - Call `CompletionProcessor`. Design for idempotency (PRD Sec 3, Task #P0.1).
-           - UI should use optimistic updates (<100ms perceived completion - PRD Sec 7).
+      2. **Task Completion API Endpoint (`routers/hta.py` -> `POST /nodes/{node_id}/complete`) (PRD Sec 8-P1):
+           - Call `CompletionProcessor`. Design for idempotency.
+           - Mobile UI should use optimistic updates (perceived completion <100ms on device - PRD Sec 7).
     testStrategy: >-
-      Test completion updates HTA node & manifest step transactionally (verify rollback on failure).
-      Verify `MemorySnapshot`. Test reinforcement messages. Test API endpoint idempotency.
+      Test completion updates HTA node & manifest transactionally. Verify `MemorySnapshot`. Test reinforcement message generation by API. Test API endpoint idempotency.
       Verify audit logs. Check backend processing time (<1s).
-    status: complete # Updated
+    status: complete # User stated this is done
     dependencies:
       - 1
       - 2
       - 3
       - 7
     priority: critical
-  - id: 9
+  - id: 9 # Frontend Task - REFACTORED for React Native
     phase: P1
-    title: 'P1.6: Implement Initial Next.js/React Frontend (Core Loop)' # MODIFIED
-    description: >- # MODIFIED
-      Develop the initial Next.js/React frontend for goal input, roadmap display (e.g., interactive path/tree),
-      task completion, loading states, and error feedback, as per PRD v4.1 and chosen new brand identity.
-    details: >- # MODIFIED
-      1. **Onboarding UI (Next.js/React Components):
-           - Forms/components to submit goal/context to onboarding API endpoints (Task #P1.3).
-           - Structure within Next.js (e.g., `pages/onboarding`, `components/onboarding`).
-      2. **Roadmap Display (Next.js/React Components) (PRD Sec 7):
-           - Interactive visualization for the HTA (derived from `RoadmapManifest`), potentially as a path or collapsible tree.
-           - Efficiently display 10-20 nodes. Consider React-based virtualization or pagination if performance with custom visuals is a concern.
-           - Visually distinguish major phases and task statuses, incorporating the "glowing node" concept for actionable items.
-      3. **Task Interaction (Next.js/React Components):** UI elements (buttons, interactive nodes) to trigger task completion (Task #P1.5 API).
-      4. **Common UI Elements (Next.js/React Components) (PRD Sec 7):
-           - Optimistic UI updates for task completion using React state management.
-           - Skeleton loaders/micro-animations for operations >~200ms (e.g., using Framer Motion or CSS animations).
-           - Clear loading indicators for backend processes >1-2s.
-           - Graceful, clear, non-judgmental error feedback using React components, aligned with supportive principles and new Voice & Tone Guide (once available).
-    testStrategy: >- # MODIFIED
-      Test core onboarding flow via the Next.js/React UI. Verify roadmap display is clear, interactive, and responsive.
-      Test API integrations, component interactions, optimistic updates, and loading states.
-      Review error messages for clarity and supportive tone. Conduct basic usability testing.
-      Use React Testing Library / Jest for component tests, Cypress/Playwright for E2E tests against the UI.
+    title: 'P1.6: Implement Initial React Native Frontend (Core Loop - iOS Primary)'
+    description: >-
+      Develop the initial React Native frontend (iOS primary) for goal input, roadmap display (interactive path/tree),
+      task completion, loading states, and error feedback, as per PRD v4.1 functional goals, adapted for mobile.
+    details: >-
+      1. **Project Setup & Core Navigation (React Native - iOS):**
+           - Initialize React Native project. Setup iOS environment.
+           - Implement core navigation structure (e.g., using React Navigation - stack, tabs).
+      2. **Onboarding UI (React Native Components - iOS):**
+           - Forms/components for goal/context input, integrating with onboarding API (Task #P1.3).
+           - iOS-centric design and UX.
+      3. **Roadmap Display (React Native Components - iOS) (PRD Sec 7 adapted):**
+           - Interactive visualization of HTA (from `RoadmapManifest`), optimized for iOS screens.
+           - Efficiently display 10-20 nodes (e.g., collapsible sections, scrollable views).
+           - Visually distinguish major phases, task statuses, "glowing node" concept for actionable items, adhering to iOS HIG.
+      4. **Task Interaction (React Native Components - iOS):** UI elements (buttons, gestures) to trigger task completion API (Task #P1.5).
+      5. **Common UI Elements (React Native Components - iOS) (PRD Sec 7 adapted):**
+           - Optimistic UI updates for task completion using mobile state management (e.g., Zustand, Redux).
+           - Skeleton loaders/micro-animations suitable for mobile performance.
+           - Clear loading indicators for backend processes.
+           - Graceful, non-judgmental error feedback (toasts, alerts), aligned with Voice & Tone Guide.
+           - Basic accessibility considerations for iOS (VoiceOver).
+    testStrategy: >-
+      Test core onboarding flow via the React Native iOS app. Verify roadmap display is clear, interactive, and performs well on iOS.
+      Test API integrations, component interactions, optimistic updates, loading states.
+      Review error messages for clarity and supportive tone. Conduct basic usability testing on iOS devices/simulators.
+      Use React Native Testing Library / Jest for component tests, Detox/Appium for E2E tests on iOS.
     status: pending
     dependencies:
       - 6 # Onboarding API for goal input
-      - 7 # HTAService for roadmap display
-      - 8 # CompletionProcessor for task completion
+      - 7 # HTAService for roadmap display data
+      - 8 # CompletionProcessor API for task completion
     priority: critical
-  - id: 10
+  - id: 10 # Backend + Frontend Task - REFACTORED for React Native
     phase: P2
-    title: 'P2.1: Implement HTA Dynamic Expansion (Backend & Basic UI)'
+    title: 'P2.1: Implement HTA Dynamic Expansion (Backend & React Native UI - iOS)'
     description: >-
       Implement backend logic (LLM generates new `RoadmapSteps`, HTA/Manifest updated transactionally/audited/idempotent)
-      and basic UI in Next.js/React for dynamic branch expansion with collaborative framing, as per PRD v4.1.
+      and basic React Native UI (iOS) for dynamic branch expansion with collaborative framing, as per PRD v4.1.
     details: >-
-      1. **BranchExpansionService (New service or extend `HTAService`) (PRD F4.2, 8-P2):
-           - `expand_branch(node_id, additional_context, request_context)`: Retrieve parent `HTANodeModel`. Call LLM (Task #P1.1) with collaborative prompt (initial version) to generate new `RoadmapStep`s. Update `RoadmapManifest` (Task #P0.4 `add_step`) and create new `HTANodeModel`s transactionally, with audit logging. Ensure P75 < 3s target.
-           - Expansion Triggers: `CompletionProcessor` (Task #P1.5) updates `HTANodeModel.branch_triggers`. Logic to set `expand_now` or allow user-initiated expansion via API.
-      2. **API Endpoint (`routers/hta.py` or similar) (PRD F4.2):
+      1. **BranchExpansionService (Backend - New service or extend `HTAService`) (PRD F4.2, 8-P2):
+           - `expand_branch(node_id, additional_context, request_context)`: Retrieve parent. Call LLM (Task #P1.1) to generate new `RoadmapStep`s. Update `RoadmapManifest` (Task #P0.4 `add_step`) and create new `HTANodeModel`s transactionally, audited. P75 < 3s target.
+           - Expansion Triggers: `CompletionProcessor` (Task #P1.5) updates `HTANodeModel.branch_triggers`. Logic for user-initiated expansion via API.
+      2. **API Endpoint (Backend - `routers/hta.py` or similar) (PRD F4.2):
            - `POST /nodes/{node_id}/expand`: Calls expansion service. Design for idempotency.
-      3. **Next.js/React Frontend (PRD Sec 8-P2):** # MODIFIED
-           - UI components to trigger expansion (e.g., button on a node).
-           - Display new sub-tasks/challenges smoothly within the existing path/tree visualization, with collaborative intro message.
+      3. **React Native Frontend (iOS - PRD Sec 8-P2 adapted):**
+           - UI components (e.g., button on a node) to trigger expansion API.
+           - Display new sub-tasks smoothly within the existing mobile roadmap visualization, with collaborative intro message.
     testStrategy: >-
-      Test expansion service performance (<3s), transactional integrity, audit logging, idempotency.
-      Verify LLM prompt's collaborative framing. Test Next.js/React UI components for clarity and collaborative feel.
-      Validate expansion trigger logic and visual updates in the frontend.
+      Test backend expansion service performance (<3s), transactional integrity, audit logging, idempotency.
+      Verify LLM prompt's collaborative framing. Test React Native iOS UI components for clarity and collaborative feel.
+      Validate expansion trigger logic and visual updates in the iOS frontend.
     status: pending
     dependencies:
       - 3 # RoadmapManifest (Pydantic Models)
-      - 4 # LLM Service
-      - 7 # HTAService
-      - 8 # CompletionProcessor
-      - 9 # Initial Next.js/React Frontend
+      - 4 # LLM Service (Backend)
+      - 7 # HTAService (Backend)
+      - 8 # CompletionProcessor (Backend)
+      - 9 # Initial React Native Frontend
     priority: high
-  - id: 11
+  - id: 11 # Backend + Frontend Task - REFACTORED for React Native
     phase: P2
-    title: 'P2.2: Implement Basic Phase Completion Logic & UI Notifications'
+    title: 'P2.2: Implement Basic Phase Completion Logic & UI Notifications (Backend & React Native UI - iOS)'
     description: >-
-      Implement backend logic (`core/phase_notification_service.py` or `HTAService`)
-      for detecting major phase completion (PhaseLogic-HTA Flow) and basic Next.js/React UI notifications
+      Implement backend logic for detecting major phase completion and basic React Native UI notifications (iOS)
       with encouraging, supportive language, as per PRD v4.1.
     details: >-
-      1. **Phase Completion Logic (Enhance `core/phase_notification_service.py` or integrate into `HTAService`) (PRD F4.4, 8-P2):
-           - `check_phase_completion(...)`: Detect if all tasks under an `is_major_phase` node are complete (using `HTANodeModel` statuses and `RoadmapManifest` structure).
-           - `find_next_phase(...)`: Identify next logical major phase from `RoadmapManifest` (using topological sort, dependencies). Target >90% accuracy.
-           - Generate basic congratulatory messages (template-based initially, aligned with initial supportive principles from Task #P0.1).
-      2. **Integration with Task Completion (Task #P1.5):
+      1. **Phase Completion Logic (Backend - Enhance `core/phase_notification_service.py` or integrate into `HTAService`) (PRD F4.4, 8-P2):
+           - `check_phase_completion(...)`: Detect if all tasks under an `is_major_phase` node are complete.
+           - `find_next_phase(...)`: Identify next logical major phase. Target >90% accuracy.
+           - Generate basic congratulatory messages (template-based).
+      2. **Integration with Task Completion (Backend - Task #P1.5):
            - `CompletionProcessor` calls `check_phase_completion`.
-      3. **Next.js/React Frontend UI Notification Components (PRD Sec 8-P2):** # MODIFIED
-           - Use React-based toast libraries, custom modal components, or other notification patterns.
-           - Display completed phase, next phase suggestion, gentle cues. Use celebratory, non-pressuring tone consistent with the evolving Voice & Tone guide.
+      3. **React Native Frontend UI Notification Components (iOS - PRD Sec 8-P2 adapted):**
+           - Use native iOS notification patterns (e.g., Toasts, Alerts via React Native libraries or custom components).
+           - Display completed phase, next phase suggestion. Celebratory, non-pressuring tone (Voice & Tone guide).
     testStrategy: >-
-      Test phase completion detection accuracy (>90%). Verify next phase suggestion logic.
-      Test notification messages for supportive tone in the Next.js/React UI.
-      Unit test backend logic with various manifest structures. Test frontend component display.
+      Test backend phase completion detection accuracy (>90%). Verify next phase suggestion logic.
+      Test notification messages for supportive tone in the React Native iOS UI.
+      Unit test backend logic. Test frontend component display on iOS.
     status: pending
     dependencies:
-      - 1
-      - 3
-      - 8
-      - 9
+      - 1 # SQLAlchemy Models (Backend)
+      - 3 # RoadmapManifest (Pydantic Models - Shared)
+      - 8 # CompletionProcessor (Backend)
+      - 9 # Initial React Native Frontend
     priority: high
-  - id: 12
+  - id: 12 # Process Task
     phase: "P2.5"
     title: 'P2.5: Define Core Brand Identity & Metaphor Sprint'
     description: >-
       Run qualitative user sessions and workshops to explore, define, and validate a
-      resonant core metaphor, brand identity, terminology, and emotional tone for the product.
-      Produce a 'Brand Hypotheses' document outlining the chosen direction(s).
+      resonant core metaphor, brand identity, terminology, and emotional tone for the product (mobile-first context).
+      Produce a 'Brand Hypotheses' document.
     details: >-
-      1. **Goal:** Identify and define a core metaphor, brand name (if applicable), terminology, and tone that genuinely resonate with target users and align with the product's value proposition of guided goal achievement, moving away from previously considered themes.
+      1. **Goal:** Identify and define a core metaphor, brand name (if applicable), terminology, and tone that genuinely resonate with target mobile users (iOS primary) and align with the product's value proposition.
       2. **Activities:**
-           - Conduct user interviews and workshops to understand desired experiences, emotional connections, and language around personal goals and progress.
-           - Brainstorm and develop 2-3 distinct brand identity/metaphor candidates.
-           - Perform initial resonance testing of these candidates with a small user group.
-           - Define key terminology and sample voice/tone characteristics for the leading candidate(s).
-      3. **Output (Deliverable):** "Brand Hypotheses" document detailing the top 1-2 brand identity/metaphor choices, supporting user insights, key terminology, and foundational voice/tone guidelines.
+           - Conduct user interviews/workshops focusing on mobile app experiences, emotional connections, language around goals on mobile.
+           - Brainstorm and develop 2-3 distinct brand identity/metaphor candidates suitable for a mobile app.
+           - Perform initial resonance testing with target iOS users.
+           - Define key terminology and sample voice/tone characteristics.
+      3. **Output (Deliverable):** "Brand Hypotheses" document detailing choices, user insights, key terminology, and foundational voice/tone guidelines for the mobile app.
     testStrategy: >-
-      Analyze qualitative feedback for strong themes and clear preferences.
-      Ensure the 'Brand Hypotheses' document provides a testable and actionable foundation for P3 validation and UI/UX design.
+      Analyze qualitative feedback. Ensure 'Brand Hypotheses' document provides a testable foundation for P3 validation and mobile UI/UX design.
     status: pending
-    dependencies: # P2.5 depends on the core loop being testable by users
-      - 6 # RoadmapParser (generates initial plan)
-      - 7 # HTAService (creates HTA from plan)
-      - 8 # CompletionProcessor (allows task completion)
-      - 9 # Initial Next.js/React Frontend (allows users to interact with P1 loop)
-      - 10 # Dynamic Expansion (part of P2 core loop)
-      - 11 # Phase Completion (part of P2 core loop)
+    dependencies: # Depends on the core mobile loop being testable by users
+      - 6 # RoadmapParser API (Backend)
+      - 7 # HTAService API (Backend)
+      - 8 # CompletionProcessor API (Backend)
+      - 9 # Initial React Native Frontend (iOS)
+      - 10 # Dynamic Expansion (Backend & iOS UI)
+      - 11 # Phase Completion (Backend & iOS UI)
     priority: high
-  - id: 13
+  - id: 13 # Backend + Frontend Task - REFACTORED for React Native
     phase: P3
-    title: 'P3.1: Implement HTA Branch Re-scoping (Backend & Basic UI)'
+    title: 'P3.1: Implement HTA Branch Re-scoping (Backend & React Native UI - iOS)'
     description: >-
-      Implement two-phase API (preview/confirm) for re-scoping, collaborative LLM prompting,
-      transactional/audited updates, idempotency, and supportive Next.js/React UI, as per PRD v4.1.
+      Implement two-phase API for re-scoping, collaborative LLM prompting,
+      transactional/audited updates, idempotency (Backend), and supportive React Native UI (iOS), as per PRD v4.1.
     details: >-
-      1. **Re-scoping Service (in `HTAService` or new service) (PRD F4.3, 8-P3):
-           - `generate_rescope_preview(...)`: LLM generates revised `RoadmapStep`s. Create diff. Store preview (e.g., Redis/DB cache with TTL). Return diff summary & token.
-           - `apply_rescope_changes(...)`: Apply to `RoadmapManifest` & `HTANodeModel`s transactionally, with audit logging, if confirmed.
-           - LLM Prompt: Collaborative framing, validate user's input, guided by initial principles (Task #P0.1) and then Voice & Tone Guide (Task #P3.2) (PRD Sec 8-P3).
+      1. **Re-scoping Service (Backend - in `HTAService` or new service) (PRD F4.3, 8-P3):
+           - `generate_rescope_preview(...)`: LLM generates revised `RoadmapStep`s. Create diff. Store preview. Return diff summary & token.
+           - `apply_rescope_changes(...)`: Apply to `RoadmapManifest` & `HTANodeModel`s transactionally, audited.
+           - LLM Prompt: Collaborative framing, validate input, guided by Voice & Tone Guide (Task #P3.2).
            - Performance: LLM part <3s; diff/commit quick.
-      2. **API Endpoints & DTOs (`routers/hta.py` or similar) (PRD F4.3):
+      2. **API Endpoints & DTOs (Backend - `routers/hta.py` or similar) (PRD F4.3):
            - `POST /nodes/{node_id}/rescope/preview`, `POST /nodes/{node_id}/rescope/confirm`.
-           - DTOs: `RescapeRequest`, `RescapePreviewResponse` (with `collaborative_framing`), `RescapeConfirmRequest`, `RescapeConfirmResponse` (with `acknowledgment`). Design for idempotency.
-      3. **Next.js/React Frontend (PRD F4.3, 8-P3):** # MODIFIED
-           - `RescopePreview` React component displaying supportive diff visualization, user controls for confirm/cancel, and feedback options.
-           - Ensure UI aligns with new Voice & Tone guide.
+           - DTOs: `RescapeRequest`, `RescapePreviewResponse`, `RescapeConfirmRequest`, `RescapeConfirmResponse`. Idempotent.
+      3. **React Native Frontend (iOS - PRD F4.3, 8-P3 adapted):**
+           - `RescopePreview` React Native component displaying supportive diff visualization, user controls for confirm/cancel, feedback options.
+           - Ensure UI aligns with new Voice & Tone guide and iOS HIG.
     testStrategy: >-
-      Test re-scoping preview/confirm flows, transactional integrity, audit logging, idempotency.
-      Verify collaborative messaging. Test performance. User test Next.js/React UI for supportiveness and control.
+      Test backend re-scoping preview/confirm flows, transactional integrity, audit logging, idempotency.
+      Verify collaborative messaging from API. Test performance. User test React Native iOS UI for supportiveness and control.
     status: pending
     dependencies:
-      - 3 # RoadmapManifest (Pydantic Models)
-      - 4 # LLM Service
-      - 7 # HTAService
-      - 10 # Dynamic Expansion (as re-scoping modifies the HTA structure)
+      - 3 # RoadmapManifest (Pydantic Models - Shared)
+      - 4 # LLM Service (Backend)
+      - 7 # HTAService (Backend)
+      - 10 # Dynamic Expansion (for HTA structure modification context)
       - 12 # Brand Identity Sprint (for Voice & Tone inputs)
-      - 9 # Also depends on the Next.js frontend being established
+      - 9  # Initial React Native Frontend
     priority: high
-  - id: 14
+  - id: 14 # Process + Frontend Task - REFACTORED for React Native
     phase: P3
-    title: 'P3.2: Conduct UX, Performance & Brand Validation Sprint; Finalize Voice & Tone Guide'
+    title: 'P3.2: Conduct UX, Performance & Brand Validation Sprint (React Native iOS App); Finalize Voice & Tone Guide'
     description: >-
-      Run formal validation sprint (3-5 users) for usability, perceived performance of the Next.js/React app,
+      Run formal validation sprint (3-5 users) for usability, perceived performance of the React Native iOS app,
       and new brand resonance. Refine and finalize 1-page 'Voice & Tone Guide', as per PRD v4.1.
-    details: >- # MODIFIED to mention Next.js/React app
-      1. **Execute Validation Sprint (PRD Sec 8-P3):
-           - Test core flows within the Next.js/React application: roadmap creation, completion, expansion, re-scoping, phase notifications.
-           - Measure perceived vs. actual latency of the frontend and backend.
-           - Collect qualitative feedback on supportive scaffolding, responsiveness, and language in the Next.js/React UI.
-           - **Brand Validation**: Test "Brand Hypotheses" (Task #P2.5 output) with the new brand elements implemented or mocked in the UI; assess metaphor resonance, voice/tone clarity and supportiveness.
+    details: >-
+      1. **Execute Validation Sprint (PRD Sec 8-P3 adapted for mobile):
+           - Test core flows within the React Native iOS application: roadmap creation, completion, expansion, re-scoping, phase notifications.
+           - Measure perceived vs. actual latency of the mobile app and backend API calls.
+           - Collect qualitative feedback on supportive scaffolding, responsiveness, and language in the React Native iOS UI.
+           - **Brand Validation**: Test "Brand Hypotheses" (Task #P2.5 output) with new brand elements in the iOS UI; assess metaphor resonance, voice/tone clarity.
       2. **Deliverables / Outputs:**
-           - Prioritized list of top usability issues & performance bottlenecks for the Next.js/React app.
+           - Prioritized list of top usability issues & performance bottlenecks for the React Native iOS app.
            - Summary of user confidence impact.
-           - **Finalized 1-page "Voice & Tone Guide" (Deliverable)**: Based on P2.5 & P3 feedback. Include principles, approved terminology, do/don't examples, LLM prompting guidance. DoD: ≥80% positive resonance with new metaphor/voice from P2.5/P3 feedback participants (PRD Sec 2).
-    testStrategy: >- # MODIFIED
-      Record user sessions with the Next.js/React application. Compare perceived vs. actual latency.
-      Standardized scoring for feedback. Use report to guide P4 optimizations. Ensure Voice & Tone Guide is actionable.
+           - **Finalized 1-page "Voice & Tone Guide" (Deliverable)**: Based on P2.5 & P3 mobile feedback. Include principles, approved terminology, do/don't examples, LLM prompting guidance. DoD: ≥80% positive resonance from P3 feedback participants.
+    testStrategy: >-
+      Record user sessions with the React Native iOS application. Compare perceived vs. actual latency.
+      Standardized scoring for feedback. Use report to guide P4 mobile optimizations. Ensure Voice & Tone Guide is actionable.
     status: pending
-    dependencies: # Depends on all features being testable in the Next.js/React UI
-      - 8 # Task Completion
-      - 9 # Initial Next.js/React UI
-      - 10 # Dynamic Expansion UI
-      - 11 # Phase Completion UI
+    dependencies: # Depends on all features being testable in the React Native iOS UI
+      - 8 # Task Completion (Backend API)
+      - 9 # Initial React Native iOS UI
+      - 10 # Dynamic Expansion (Backend API & iOS UI)
+      - 11 # Phase Completion (Backend API & iOS UI)
       - 12 # Brand Hypotheses
-      - 13 # Re-scoping UI
+      - 13 # Re-scoping (Backend API & iOS UI)
     priority: critical
-  - id: 15
+  - id: 15 # Backend Task
     phase: P3
-    title: 'P3.3: Implement End-to-End (E2E) Testing Framework (API-focused)'
+    title: 'P3.3: Implement End-to-End (E2E) Testing Framework (API-focused - Backend)'
     description: >-
-      Establish an E2E testing framework using `pytest` and `httpx` (or similar) for API-level tests
-      covering core user journeys and data consistency, as per PRD v4.1.
-      (Note: UI E2E tests with Cypress/Playwright are part of UI task test strategies).
+      Establish an E2E testing framework using `pytest` and `httpx` for API-level tests
+      covering core user journeys and data consistency (supporting the mobile app), as per PRD v4.1.
     details: >-
       1. **Framework Setup (PRD Sec 8-P3):
-           - Configure `pytest` with `httpx` for making API calls to a test instance of the application.
-           - Setup test data generation/management for E2E scenarios (e.g., pre-defined user, initial goal states).
+           - Configure `pytest` with `httpx` for API calls to a test instance of the backend.
+           - Setup test data generation/management for E2E scenarios.
       2. **Core Journey API Tests:**
-           - Full onboarding flow (set goal/context -> get manifest/HTA).
-           - Sequence of task completions leading to branch expansion.
-           - Sequence of task completions leading to phase completion.
-           - Re-scoping (preview & confirm).
+           - Full onboarding flow API.
+           - Sequence of task completions API calls leading to branch expansion.
+           - Sequence of task completions API calls leading to phase completion.
+           - Re-scoping API calls (preview & confirm).
       3. **Key Validations in E2E Tests:**
-           - Data consistency in `RoadmapManifest` (persisted in `HTATreeModel.manifest`) and `HTANodeModel` statuses across operations.
-           - Correct API response status codes and basic payload structure.
-           - Transactional integrity checks where feasible at E2E level (e.g., a failed expansion API call doesn't leave partial data visible via subsequent GET calls).
-           - Basic auth/authz for endpoints (once Task #P4.3 is substantially complete, these tests can be enhanced).
+           - Data consistency in `RoadmapManifest` and `HTANodeModel` statuses across API operations.
+           - Correct API response status codes and payload structure.
+           - Transactional integrity checks at API E2E level.
+           - Basic auth/authz for API endpoints (enhance with Task #P4.3).
     testStrategy: >-
-      API E2E tests run in CI. Cover happy paths for core flows. Ensure tests are reliable and clear on failure.
-      Tests should clean up their data or run against a fresh test DB instance.
+      API E2E tests run in CI. Cover happy paths for core API flows. Ensure tests are reliable.
+      Tests should clean up data or run against a fresh test DB.
     status: pending
     dependencies:
-      - 13 # Depends on re-scoping APIs being available for full journey testing
+      - 13 # Depends on re-scoping APIs being available
     priority: high
-  - id: 16
+  - id: 16 # Backend Task
     phase: P3
-    title: 'P3.4: Create Automated Tests for Phase Completion Logic'
+    title: 'P3.4: Create Automated Tests for Phase Completion Logic (Backend)'
     description: >-
-      Implement automated unit/integration tests simulating task completions to verify major phase detection
+      Implement automated unit/integration tests simulating task completions to verify backend major phase detection
       and next-phase suggestion logic (from Task #P2.2), as per PRD v4.1.
     details: >-
       1. **Test Harness (`tests/core/test_phase_completion.py` or similar) (PRD Sec 8-P3):
-           - Create test fixtures for `RoadmapManifest`s with various phase structures and dependencies.
-           - Mock `HTAService` and `CompletionProcessor` interactions as needed for focused testing of phase logic.
+           - Create test fixtures for `RoadmapManifest`s with various phase structures.
+           - Mock `HTAService` and `CompletionProcessor` interactions as needed.
       2. **Simulate Task Completions:** Programmatically update statuses in test `RoadmapManifest` instances and `HTANodeModel` mocks.
       3. **Verify Phase Logic (from Task #P2.2):
-           - Correct detection of major phase completion by the `PhaseManager` (or equivalent logic).
+           - Correct detection of major phase completion by backend logic.
            - Accurate next major phase suggestion (>90% accuracy PRD target).
-           - Test edge cases: no next phase, multiple possible next phases (how to prioritize?), etc.
-      4. **Test Notification Triggers:** Ensure conditions for triggering phase completion notifications (even if just internal events at this stage) are met correctly.
+           - Test edge cases.
+      4. **Test Notification Triggers (Backend events):** Ensure conditions for backend events related to phase completion notifications are met.
     testStrategy: >-
       Cover diverse manifest structures. Test different completion sequences.
-      Validate accuracy of next phase suggestions against PRD metric. Integrate into CI.
+      Validate accuracy of next phase suggestions. Integrate into CI.
     status: pending
     dependencies:
-      - 8  # CompletionProcessor
-      - 11 # Phase Completion Logic (backend part)
+      - 8  # CompletionProcessor (Backend)
+      - 11 # Phase Completion Logic (Backend part)
     priority: high
-  - id: 17
+  - id: 17 # Frontend Task - REFACTORED for React Native
     phase: P4
-    title: 'P4.1: Implement UX, Performance & Branding Optimizations (Next.js/React Frontend)' # MODIFIED
-    description: >- # MODIFIED
-      Apply critical fixes and refinements to the Next.js/React frontend based on P3 Validation Sprint feedback,
+    title: 'P4.1: Implement UX, Performance & Branding Optimizations (React Native iOS Frontend)'
+    description: >-
+      Apply critical fixes and refinements to the React Native iOS frontend based on P3 Validation Sprint feedback,
       focusing on usability, performance, and full alignment with the new Voice & Tone Guide, as per PRD v4.1.
-    details: >- # MODIFIED
+    details: >-
       1. **UX & Performance Refinement Checkpoint (PRD Sec 8-P4):
-           - Review P3 validation report (Task #P3.2). Prioritize and implement fixes for the Next.js/React application.
-      2. **LLM Operations & UI Copy (PRD Sec 5, 7, 8-P4):
-           - Refine LLM prompts for efficiency AND ensure strict alignment with the finalized Voice & Tone Guide (Task #P3.2).
-           - Update ALL user-facing UI copy (error messages, notifications, button labels, onboarding text in the Next.js/React app) to be fully consistent with the Voice & Tone Guide.
-      3. **UI Component Optimization (Next.js/React) (PRD Sec 7):
-           - Address P3 usability issues in the Next.js/React components.
-           - If roadmap display (e.g., "glowing path") with 10-20 nodes was slow, investigate optimization (React.memo, virtualization, code splitting, efficient state updates, or server components in Next.js). Ensure animations/transitions are smooth.
-      4. **Re-validate Key Fixes:** Informally with 1-2 original P3 testers if major changes were made to the Next.js/React app.
-    testStrategy: >- # MODIFIED
-      Targeted testing of all fixes in the Next.js/React frontend. Re-run key P3 test scenarios.
-      Performance profile optimized areas using browser dev tools and React profiler.
-      Thorough review of all UI text against the new Voice & Tone Guide.
+           - Review P3 validation report (Task #P3.2). Prioritize and implement fixes for the React Native iOS application.
+      2. **LLM Operations (Backend Prompts) & UI Copy (Mobile App) (PRD Sec 5, 7, 8-P4):
+           - Refine LLM prompts (backend) for efficiency AND ensure strict alignment with finalized Voice & Tone Guide (Task #P3.2).
+           - Update ALL user-facing UI copy (error messages, notifications, button labels, onboarding text in the React Native iOS app) to be fully consistent with the Voice & Tone Guide.
+      3. **UI Component Optimization (React Native iOS) (PRD Sec 7):
+           - Address P3 usability issues in React Native iOS components.
+           - If roadmap display with 10-20 nodes was slow on iOS, investigate optimization (React.memo, FlatList/SectionList optimizations, native modules if needed, efficient state updates). Ensure animations/transitions are smooth (e.g., using Reanimated).
+      4. **Re-validate Key Fixes (iOS):** Informally with 1-2 original P3 testers if major changes were made to the iOS app.
+    testStrategy: >-
+      Targeted testing of all fixes in the React Native iOS frontend. Re-run key P3 test scenarios on iOS.
+      Performance profile optimized areas using XCode Instruments, React Native Flipper/Profiler.
+      Thorough review of all iOS UI text against the new Voice & Tone Guide.
     status: pending
     dependencies:
       - 14 # P3 Validation Sprint Report & Finalized Voice & Tone Guide
     priority: critical
-  - id: 18
+  - id: 18 # Backend Task
     phase: P4
-    title: 'P4.2: Conduct Chaos / Fault-Injection Testing'
+    title: 'P4.2: Conduct Chaos / Fault-Injection Testing (Backend)'
     description: >-
-      Perform targeted chaos/fault-injection testing in a staging environment to verify system resilience,
+      Perform targeted chaos/fault-injection testing for the backend in a staging environment to verify system resilience,
       data integrity, and rollback mechanisms, as per PRD v4.1.
     details: >-
       1. **Planning (PRD Sec 3, 8-P4):
-           - Identify critical data-modifying API endpoints and service operations.
-           - Define fault scenarios: DB errors (connection loss, write failure during transaction), LLM API timeouts/errors during multi-step operations (e.g., manifest generation, expansion).
-      2. **Execution (Staging/Test Environment) (PRD Sec 8-P4):
-           - Manually trigger or script faults during critical operations.
-           - Verify transactional rollback: check database state and API responses to ensure data consistency or reversion to pre-operation state.
-           - Verify error handling: check for graceful error messages (aligned with Voice & Tone Guide) and detailed server logs (with `trace_id`).
-           - Verify audit trail (Task #P0.1 strategy, P1 impl.) captures relevant failure/rollback details.
-      3. **Review & Iterate:** Document findings. Address critical resilience gaps found.
+           - Identify critical data-modifying API endpoints and backend service operations.
+           - Define fault scenarios: DB errors, LLM API timeouts/errors during multi-step operations.
+      2. **Execution (Staging/Test Environment - Backend) (PRD Sec 8-P4):
+           - Manually trigger or script faults during critical backend operations.
+           - Verify transactional rollback: check database state and API responses.
+           - Verify error handling: check for graceful API error messages and detailed server logs.
+           - Verify audit trail captures failure/rollback details.
+      3. **Review & Iterate:** Document findings. Address critical backend resilience gaps.
     testStrategy: >-
-      Focus on atomicity of operations and data consistency post-failure.
-      Ensure no partial updates or corrupted data. Check logs for clear error reporting and evidence of rollback.
+      Focus on atomicity of backend operations and data consistency post-failure.
+      Ensure no partial updates or corrupted data from backend perspective. Check logs for clear error reporting.
     status: pending
     dependencies:
       - 15 # E2E API Testing Framework (useful for verification)
-      - 17 # UX, Perf & Branding Opt (ensures system is relatively stable before chaos)
+      - 17 # UX, Perf & Branding Opt (ensures frontend is stable for context, though this is backend focused)
     priority: high
-  - id: 19
+  - id: 19 # Backend Task
     phase: P4
-    title: 'P4.3: Implement Basic API Security'
+    title: 'P4.3: Implement Basic API Security (Backend)'
     description: >-
-      Implement JWT authentication (`core/security.py`), basic rate limiting, robust request validation,
-      CORS, and security headers for API endpoints, as per PRD v4.1.
+      Implement JWT authentication, basic rate limiting, robust request validation,
+      CORS for potential future web client, and security headers for backend API endpoints, as per PRD v4.1.
     details: >-
       1. **Authentication (PRD Sec 8-P4):
-           - Finalize JWT-based authentication using `passlib`, `python-jose` as established in `core/security.py`. Ensure your `/token` endpoint in `routers/auth.py` is robust.
-           - Secure token management. Integrate `OAuth2PasswordBearer` dependency (`get_current_active_user` from `dependencies.py`) into all protected API endpoints.
-      2. **Rate Limiting:** Implement basic per-user or per-IP rate limiting for key mutating endpoints (e.g., using `slowapi`).
-      3. **Request Validation:** Ensure all API endpoints use Pydantic models for comprehensive request body/param validation, referencing `Data Validation Rules Catalog` (Task #P0.1).
-      4. **CORS:** Configure `CORSMiddleware` in `main.py` for the Next.js/React frontend, limiting origins for production.
-      5. **Security Headers:** Add basic set via middleware (e.g., `Content-Security-Policy` - lenient for MVP, `X-Content-Type-Options`, `X-Frame-Options`).
+           - Finalize JWT-based authentication using `passlib`, `python-jose` in `core/security.py`. Ensure `/token` endpoint is robust.
+           - Secure token management. Integrate `OAuth2PasswordBearer` dependency into all protected API endpoints.
+      2. **Rate Limiting:** Implement basic per-user or per-IP rate limiting for key mutating API endpoints (e.g., using `slowapi`).
+      3. **Request Validation:** Ensure all API endpoints use Pydantic models for comprehensive request body/param validation, referencing `Data Validation Rules Catalog`.
+      4. **CORS:** Configure `CORSMiddleware` in `main.py` thoughtfully, anticipating potential future web clients (can be restrictive initially).
+      5. **Security Headers:** Add basic set via middleware for API responses.
     testStrategy: >-
-      Test authentication flows (token gen, validation, protected endpoints). Test rate limits.
-      Send invalid/malformed requests to verify validation and error responses. Check CORS and security headers.
+      Test authentication flows (token gen, validation, protected API endpoints). Test rate limits.
+      Send invalid/malformed requests to API to verify validation. Check CORS and security headers from API.
     status: pending
     dependencies:
-      - 17 # Frontend stable enough to test auth flows against
+      - 17 # Mobile Frontend stable enough to test auth flows against backend
     priority: high
-  - id: 20
+  - id: 20 # Documentation Task (covers both)
     phase: P4
-    title: 'P4.4: Finalize Documentation & Develop Data Recovery Playbook'
+    title: 'P4.4: Finalize Documentation (Backend & Mobile App) & Develop Data Recovery Playbook (Backend)'
     description: >-
-      Complete all internal documentation ('Quickstart', 'Validation Catalog'),
-      ensure user-facing text (Next.js/React app) aligns with new 'Voice & Tone Guide',
-      and develop a basic 'Data Recovery Playbook', as per PRD v4.1.
-    details: >- # MODIFIED
+      Complete all internal documentation ('Quickstart' for backend & mobile, 'Validation Catalog'),
+      ensure user-facing text (React Native iOS app) aligns with 'Voice & Tone Guide',
+      and develop a basic 'Data Recovery Playbook' for the backend, as per PRD v4.1.
+    details: >-
       1. **Internal Documentation (PRD Sec 8-P4):
-           - Update/finalize 'Performance-First Developer Quickstart' (Task #P0.1).
-           - Update 'Data Validation Rules Catalog' (Task #P0.1) with any new rules.
-           - Document P(n+1) optimization strategies and key architectural decisions (including Next.js/React frontend choices).
-      2. **User-Facing Text Finalization (PRD Sec 7, 8-P4):
-           - Final sweep of ALL UI text in the Next.js/React app, error messages, and LLM prompt templates (user-visible parts) for 100% compliance with the new 'Voice & Tone Guide' (Task #P3.2).
-      3. **Data Recovery Playbook (Deliverable) (PRD Sec 3, 8-P4):
-           - Outline basic procedures for: identifying data inconsistencies (via audit logs or queries), snapshotting DB, restoring from backup (assuming backup strategy for DB), and (last resort) steps for manually correcting malformed `RoadmapManifest` JSONB or orphaned `HTANodeModel` records. Primarily for developer/admin use.
+           - Update/finalize 'Performance-First Developer Quickstart' (Task #P0.1 - backend; create initial for mobile dev setup).
+           - Update 'Data Validation Rules Catalog' (Task #P0.1).
+           - Document P(n+1) optimization strategies and key architectural decisions (including React Native frontend choices).
+      2. **User-Facing Text Finalization (React Native iOS App - PRD Sec 7, 8-P4):
+           - Final sweep of ALL UI text in the React Native iOS app, error messages, and LLM prompt templates (user-visible parts via API) for 100% compliance with the 'Voice & Tone Guide' (Task #P3.2).
+      3. **Data Recovery Playbook (Backend - Deliverable) (PRD Sec 3, 8-P4):
+           - Outline basic procedures for backend data: identifying inconsistencies, snapshotting DB, restoring from backup, and manually correcting malformed data.
     testStrategy: >-
-      Review all documentation. Manually verify UI texts in Next.js/React app against the new Voice & Tone guide.
-      Walk through Data Recovery Playbook scenarios conceptually or against a test DB.
+      Review all documentation. Manually verify UI texts in React Native iOS app against Voice & Tone guide.
+      Walk through Data Recovery Playbook scenarios conceptually for backend data.
     status: pending
     dependencies:
       - 14 # Voice & Tone Guide
-      - 17 # UX, Perf & Branding Opt (ensures UI text is near final)
-      - 18 # Chaos testing (may inform recovery)
+      - 17 # UX, Perf & Branding Opt for React Native iOS app (ensures UI text is near final)
+      - 18 # Chaos testing (may inform backend recovery)
     priority: high
-  - id: 21
+  - id: 21 # Deployment Prep Task - REFACTORED
     phase: P4
-    title: 'P4.5: Finalize Koyeb Deployment Configuration'
+    title: 'P4.5: Finalize Backend Koyeb Deployment Config & iOS App Release Prep'
     description: >-
-      Finalize Dockerfile for backend, Koyeb service configurations (`koyeb.yaml` or UI) for backend and Next.js frontend,
-      environment variable setup for production, and deployment/rollback documentation, as per PRD v4.1.
-    details: >- # MODIFIED
+      Finalize Dockerfile for backend, Koyeb service configurations for backend,
+      environment variable setup for production (backend & mobile app calling backend),
+      iOS app build/release pipeline documentation, and backend deployment/rollback documentation, as per PRD v4.1.
+    details: >-
       1. **Production Dockerfile (Backend - PRD Sec 8-P4):
-           - Base on `python:3.11.8-slim` (reconcile with Task #P0.1 Python version). `WORKDIR /app`. `COPY requirements.txt`, `pip install`. `COPY . .`. ENV `PYTHONPATH`, `PORT`. Non-root user. CMD `uvicorn forest_app.main:app --host 0.0.0.0 --port $PORT` (or use `entrypoint.sh` if it handles this).
-      2. **Next.js Frontend Deployment (Koyeb):**
-           - Configure Koyeb service for deploying the Next.js application (e.g., using built-in Node.js buildpacks, Docker image for Next.js, or static site hosting if applicable after build).
-           - Ensure proper environment variables for the Next.js app (e.g., `NEXT_PUBLIC_API_URL`).
-      3. **Koyeb Secure Environment Variables:** Finalize list of all production env vars for both backend and frontend. Document secure configuration in Koyeb (DB, LLM keys, `SECRET_KEY`, `SENTRY_DSN`, frontend API URLs etc.).
-      4. **Koyeb Service Configuration (PRD Sec 8-P4):
-           - Define instance sizes, scaling (min/max 1 for MVP), health checks (e.g., `/health` for backend, appropriate check for Next.js app), restart policies, custom domains via `koyeb.yaml` or UI.
-      5. **Database Migration Strategy for Deployment:** Ensure Alembic migrations (Task #P0.2) are applied via `deploy.py` script or Koyeb build step for the backend. Document rollback.
-      6. **Deployment Documentation:** Finalize deployment and rollback procedures for both backend and Next.js frontend. Your `deploy.py` and `pre_deploy_check.py` are good starts for backend.
-    testStrategy: >- # MODIFIED
-      Build final backend Docker image. Test deployment of backend and Next.js frontend to a Koyeb staging/test service.
-      Verify all production env vars are loaded correctly for both services. Test health checks.
-      Execute DB migration via deployment. Test deployment rollback scenario for both services.
+           - Base on `python:3.11.8-slim`. `WORKDIR /app`. `COPY requirements.txt`, `pip install`. `COPY . .`. ENV `PYTHONPATH`, `PORT`. Non-root user. CMD `uvicorn ...`.
+      2. **React Native iOS App Release Preparation:**
+           - Document build process for release candidates (e.g., using EAS Build, XCode build commands).
+           - Document TestFlight setup and internal/external testing procedures.
+           - Prepare App Store Connect listing details (metadata, screenshots, descriptions - can be drafted).
+      3. **Koyeb Secure Environment Variables (Backend & Mobile App Config):** Finalize list of all production env vars for backend. Document secure configuration in Koyeb. Document API URLs and any keys the mobile app will need, and how they are built/configured into the app.
+      4. **Koyeb Service Configuration (Backend - PRD Sec 8-P4):
+           - Define instance sizes, scaling, health checks (`/health` for backend), restart policies, custom domains for the backend API.
+      5. **Database Migration Strategy for Backend Deployment:** Ensure Alembic migrations are applied via `deploy.py` script or Koyeb build step for the backend. Document rollback.
+      6. **Deployment Documentation:** Finalize backend deployment/rollback procedures to Koyeb. Document iOS app submission process to TestFlight/App Store.
+    testStrategy: >-
+      Build final backend Docker image. Test deployment of backend to Koyeb staging.
+      Perform test builds of the iOS app, deploy to TestFlight.
+      Verify all production env vars are loaded correctly for backend and configured for mobile app. Test backend health checks.
+      Execute backend DB migration via deployment. Test backend deployment rollback.
     status: pending
     dependencies:
       - 0 # Core project setup (Python version for backend Docker)
-      - 1 # Alembic migrations setup
-      - 2 # Sentry DSN for logging
-      - 19 # API Security (CORS for frontend)
+      - 1 # Alembic migrations setup (Backend)
+      - 2 # Sentry DSN for logging (Backend)
+      - 19 # API Security (Backend)
       - 20 # Finalized documentation
     priority: critical
-  - id: 22
+  - id: 22 # Deployment Task - REFACTORED
     phase: P5
-    title: 'P5.1: Deploy MVP to Koyeb Production & Conduct Self-Evaluation'
+    title: 'P5.1: Deploy Backend to Koyeb Production & Release iOS MVP'
     description: >-
-      Execute final deployment of backend and Next.js/React frontend to Koyeb production.
+      Execute final deployment of backend to Koyeb production. Submit and release React Native iOS app to the App Store (via TestFlight first).
       Conduct thorough self-testing, monitor initial metrics, document findings, and plan P(n+1), as per PRD v4.1.
-    details: >- # MODIFIED
-      1. **Deploy to Koyeb Production (PRD Sec 8-P5):
-           - Follow finalized deployment procedures for both backend and Next.js/React frontend (Task #P4.5).
-           - Perform post-deployment smoke tests on the integrated application.
-      2. **Comprehensive Self-Testing & Monitoring:**
-           - Execute all core user flows via the Next.js/React frontend.
-           - Verify data integrity, performance against targets (both frontend and backend), error budget adherence using production monitoring (Task #P0.3).
-           - Evaluate supportive scaffolding and new brand voice in the live Next.js/React application.
-           - Monitor LLM API usage/costs, Sentry for errors from both frontend and backend.
-      3. **Documentation & P(n+1) Planning:**
+    details: >-
+      1. **Deploy Backend to Koyeb Production (PRD Sec 8-P5 adapted):
+           - Follow finalized backend deployment procedures (Task #P4.5).
+           - Perform post-deployment smoke tests on the backend API.
+      2. **Release React Native iOS App:**
+           - Submit final iOS build to TestFlight for final checks.
+           - Promote build to App Store for review and release.
+      3. **Comprehensive Self-Testing & Monitoring (Post-Release):**
+           - Execute all core user flows via the released iOS app.
+           - Verify data integrity, backend performance against targets, error budget adherence using production monitoring.
+           - Evaluate supportive scaffolding and new brand voice in the live iOS app.
+           - Monitor LLM API usage/costs (backend), Sentry for errors (backend & mobile app if Sentry is integrated).
+      4. **Documentation & P(n+1) Planning:**
            - Create MVP evaluation report: strengths, weaknesses, bugs, performance observations (covering full stack).
-           - Prioritize P(n+1) enhancements (PRD Sec 9, stretch tasks like #23, #24), technical debt, and optimizations.
+           - Prioritize P(n+1) enhancements, technical debt, and optimizations.
     testStrategy: >-
-      Closely monitor logs and metrics for 24-72 hours. Perform core flows as 'first user' on the production Next.js/React app.
-      Review audit logs. Execute key steps from Data Recovery Playbook (Task #P4.4) on a non-production restored copy if any concerns.
+      Closely monitor backend logs and metrics for 24-72 hours. Perform core flows as 'first user' on the production iOS app.
+      Review backend audit logs. Conceptually execute key steps from Data Recovery Playbook if concerns arise. Monitor App Store reviews/feedback.
     status: pending
     dependencies:
-      - 21 # Finalized Koyeb deployment config
+      - 21 # Finalized Koyeb deployment config & iOS Release Prep
     priority: critical
-  - id: 23
+  - id: 23 # Stretch goal - REFACTORED for React Native
     phase: "P(n+1)"
-    title: 'Stretch: Implement Next Phase Kick-off LLM Call'
+    title: 'Stretch: Implement Next Phase Kick-off LLM Call (Mobile)'
     description: >-
       Implement opt-in contextual LLM call to refine the start of the next phase based on recent progress
-      (PRD F4.4.4, Sec 9 - Out of Scope for Lean MVP).
+      (PRD F4.4.4, Sec 9 - Out of Scope for Lean MVP), with UI in React Native iOS app.
     details: >-
       1. This is a P(n+1) feature as per PRD v4.1 Section 9.
-      2. If implemented, involves: new LLM prompt, `HTAService` method, opt-in API, UI components in Next.js/React, transactional updates.
+      2. If implemented, involves: new LLM prompt (backend), `HTAService` method (backend), opt-in API (backend), UI components in React Native (iOS), transactional updates.
     testStrategy: >-
-      Test LLM prompt effectiveness, user acceptance, impact on plan coherence, and UX of opt-in flow in Next.js/React.
+      Test LLM prompt effectiveness, user acceptance, impact on plan coherence, and UX of opt-in flow in React Native iOS app.
     status: deferred
     dependencies: []
     priority: low
-  - id: 24
+  - id: 24 # Stretch goal (Backend related)
     phase: "P(n+1)"
-    title: 'Stretch: Implement Optional MCP Server Wrapper'
+    title: 'Stretch: Implement Optional MCP Server Wrapper (Backend)'
     description: >-
-      Create a Model Context Protocol (MCP) server interface for integration with other AI tools
+      Create a Model Context Protocol (MCP) server interface for the backend for integration with other AI tools
       (PRD Sec 7.1, Sec 9 - Out of Scope for Lean MVP).
     details: >-
       1. This is a P(n+1) feature as per PRD v4.1 Section 9.
