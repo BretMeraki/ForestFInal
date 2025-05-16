@@ -6,6 +6,7 @@ goals to concrete, focused needs and actions. It enables users to start with vag
 intentions and naturally discover what they truly need through interaction and reflection.
 """
 
+<<<<<<< HEAD
 import logging
 import asyncio
 from typing import Any, Dict, List, Optional, Set, Union
@@ -26,6 +27,26 @@ logger = logging.getLogger(__name__)
 class DiscoveryPattern:
     """Models a discovered pattern in the user's journey."""
     
+=======
+import json
+import logging
+import uuid
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
+
+from forest_app.core.cache_service import cacheable
+from forest_app.core.event_bus import EventBus, EventData, EventType
+from forest_app.core.services.enhanced_hta_service import EnhancedHTAService
+from forest_app.integrations.llm import LLMClient
+from forest_app.modules.hta_tree import HTATree
+
+logger = logging.getLogger(__name__)
+
+
+class DiscoveryPattern:
+    """Models a discovered pattern in the user's journey."""
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(
         self,
         pattern_id: str,
@@ -34,11 +55,19 @@ class DiscoveryPattern:
         confidence: float,
         evidence: List[Dict[str, Any]],
         discovered_at: str,
+<<<<<<< HEAD
         category: str = "general"
     ):
         """
         Initialize a discovery pattern.
         
+=======
+        category: str = "general",
+    ):
+        """
+        Initialize a discovery pattern.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             pattern_id: Unique identifier for the pattern
             name: Short name for the pattern
@@ -55,6 +84,7 @@ class DiscoveryPattern:
         self.evidence = evidence
         self.discovered_at = discovered_at
         self.category = category
+<<<<<<< HEAD
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'DiscoveryPattern':
@@ -85,20 +115,67 @@ class DiscoveryJourneyService:
     """
     Service for managing the user's journey from abstract to concrete goals.
     
+=======
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "DiscoveryPattern":
+        """Create a pattern from a dictionary."""
+        return cls(
+            pattern_id=data.get("pattern_id", str(uuid.uuid4())),
+            name=data.get("name", ""),
+            description=data.get("description", ""),
+            confidence=data.get("confidence", 0.0),
+            evidence=data.get("evidence", []),
+            discovered_at=data.get(
+                "discovered_at", datetime.now(timezone.utc).isoformat()
+            ),
+            category=data.get("category", "general"),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "pattern_id": self.pattern_id,
+            "name": self.name,
+            "description": self.description,
+            "confidence": self.confidence,
+            "evidence": self.evidence,
+            "discovered_at": self.discovered_at,
+            "category": self.category,
+        }
+
+
+class DiscoveryJourneyService:
+    """
+    Service for managing the user's journey from abstract to concrete goals.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     This service builds on the EnhancedHTAService to specifically support the
     discovery journey use case, where users begin with abstract goals and
     gradually discover their true needs through interaction and reflection.
     """
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(
         self,
         hta_service: EnhancedHTAService,
         llm_client: LLMClient,
+<<<<<<< HEAD
         event_bus: Optional[EventBus] = None
     ):
         """
         Initialize the discovery journey service.
         
+=======
+        event_bus: Optional[EventBus] = None,
+    ):
+        """
+        Initialize the discovery journey service.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             hta_service: Enhanced HTA service for tree operations
             llm_client: LLM client for pattern discovery
@@ -107,6 +184,7 @@ class DiscoveryJourneyService:
         self.hta_service = hta_service
         self.llm_client = llm_client
         self.event_bus = event_bus or EventBus.get_instance()
+<<<<<<< HEAD
         
         # Register event listeners
         self._register_event_listeners()
@@ -130,12 +208,42 @@ class DiscoveryJourneyService:
         """
         Handle reflection events to identify emergent patterns.
         
+=======
+
+        # Register event listeners
+        self._register_event_listeners()
+
+        logger.info("DiscoveryJourneyService initialized")
+
+    def _register_event_listeners(self):
+        """Register event listeners for the discovery journey."""
+        # Listen for reflections that might indicate emergent patterns
+        self.event_bus.subscribe(
+            EventType.REFLECTION_ADDED, self._handle_reflection_event
+        )
+
+        # Listen for task completions to analyze for patterns
+        self.event_bus.subscribe(
+            EventType.TASK_COMPLETED, self._handle_task_completed_event
+        )
+
+        # Listen for mood recordings to track emotional patterns
+        self.event_bus.subscribe(EventType.MOOD_RECORDED, self._handle_mood_event)
+
+        logger.debug("Registered event listeners for DiscoveryJourneyService")
+
+    async def _handle_reflection_event(self, event: EventData):
+        """
+        Handle reflection events to identify emergent patterns.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         This is triggered when a user adds a reflection, which is a prime
         opportunity to discover their true needs and interests.
         """
         user_id = event.user_id
         if not user_id:
             return
+<<<<<<< HEAD
         
         # Schedule background analysis if the reflection seems meaningful
         reflection_content = event.payload.get('content', '')
@@ -151,23 +259,50 @@ class DiscoveryJourneyService:
         """
         Handle task completion events to track patterns in engagement.
         
+=======
+
+        # Schedule background analysis if the reflection seems meaningful
+        reflection_content = event.payload.get("content", "")
+        if len(reflection_content) > 50:  # Only analyze substantial reflections
+            await self._schedule_pattern_analysis(
+                user_id=user_id,
+                context_type="reflection",
+                content=reflection_content,
+                metadata=event.metadata,
+            )
+
+    async def _handle_task_completed_event(self, event: EventData):
+        """
+        Handle task completion events to track patterns in engagement.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         This tracks which types of tasks the user engages with most,
         which can reveal their true interests and needs.
         """
         user_id = event.user_id
         if not user_id:
             return
+<<<<<<< HEAD
         
         # Extract relevant data
         task_id = event.payload.get('task_id')
         task_title = event.payload.get('title', '')
         has_reflection = event.payload.get('has_reflection', False)
         
+=======
+
+        # Extract relevant data
+        task_id = event.payload.get("task_id")
+        task_title = event.payload.get("title", "")
+        has_reflection = event.payload.get("has_reflection", False)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # If task has reflection, it's more meaningful
         if has_reflection and task_id:
             await self._add_engagement_signal(
                 user_id=user_id,
                 task_id=task_id,
+<<<<<<< HEAD
                 signal_type='completion_with_reflection',
                 signal_strength=0.8,  # Higher weight for tasks with reflection
                 metadata={
@@ -180,23 +315,48 @@ class DiscoveryJourneyService:
         """
         Handle mood recording events to track emotional responses.
         
+=======
+                signal_type="completion_with_reflection",
+                signal_strength=0.8,  # Higher weight for tasks with reflection
+                metadata={
+                    "task_title": task_title,
+                    "timestamp": event.payload.get(
+                        "timestamp", datetime.now(timezone.utc).isoformat()
+                    ),
+                },
+            )
+
+    async def _handle_mood_event(self, event: EventData):
+        """
+        Handle mood recording events to track emotional responses.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Emotional responses are key indicators of what truly matters to the user,
         and can reveal patterns not evident in explicit content.
         """
         user_id = event.user_id
         if not user_id:
             return
+<<<<<<< HEAD
         
         # Extract mood data
         mood = event.payload.get('mood', '')
         context = event.payload.get('context', '')
         
+=======
+
+        # Extract mood data
+        mood = event.payload.get("mood", "")
+        context = event.payload.get("context", "")
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         if mood and context:
             # Add to emotional pattern tracking
             await self._add_emotional_data_point(
                 user_id=user_id,
                 mood=mood,
                 context=context,
+<<<<<<< HEAD
                 timestamp=event.payload.get('timestamp', datetime.now(timezone.utc).isoformat())
             )
     
@@ -210,6 +370,19 @@ class DiscoveryJourneyService:
         """
         Schedule a background pattern analysis task.
         
+=======
+                timestamp=event.payload.get(
+                    "timestamp", datetime.now(timezone.utc).isoformat()
+                ),
+            )
+
+    async def _schedule_pattern_analysis(
+        self, user_id: str, context_type: str, content: str, metadata: Dict[str, Any]
+    ) -> None:
+        """
+        Schedule a background pattern analysis task.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             context_type: Type of context (reflection, task, etc.)
@@ -219,11 +392,19 @@ class DiscoveryJourneyService:
         # Use task queue for background processing
         await self.hta_service.task_queue.enqueue(
             self._analyze_for_emergent_patterns,
+<<<<<<< HEAD
             user_id, context_type, content, metadata,
+=======
+            user_id,
+            context_type,
+            content,
+            metadata,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             priority=3,  # Medium priority
             metadata={
                 "type": "discovery_analysis",
                 "user_id": user_id,
+<<<<<<< HEAD
                 "context_type": context_type
             }
         )
@@ -241,23 +422,47 @@ class DiscoveryJourneyService:
         This deep analysis looks for underlying patterns in the user's reflections,
         task completions, and emotional responses to discover their true needs.
         
+=======
+                "context_type": context_type,
+            },
+        )
+
+    async def _analyze_for_emergent_patterns(
+        self, user_id: str, context_type: str, content: str, metadata: Dict[str, Any]
+    ) -> Optional[List[DiscoveryPattern]]:
+        """
+        Analyze content for emergent patterns in the user's journey.
+
+        This deep analysis looks for underlying patterns in the user's reflections,
+        task completions, and emotional responses to discover their true needs.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             context_type: Type of context being analyzed
             content: Content to analyze
             metadata: Additional context metadata
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             List of discovered patterns or None if analysis failed
         """
         try:
             # Get historical context for the user
             historical_data = await self._get_user_journey_data(user_id)
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Prepare analysis prompt
             prompt = self._create_pattern_discovery_prompt(
                 context_type=context_type,
                 content=content,
+<<<<<<< HEAD
                 historical_data=historical_data
             )
             
@@ -300,19 +505,73 @@ class DiscoveryJourneyService:
         """
         Create a prompt for pattern discovery analysis.
         
+=======
+                historical_data=historical_data,
+            )
+
+            # Request analysis from LLM
+            analysis_response = await self.llm_client.generate(prompt)
+
+            # Parse the response into pattern objects
+            patterns = self._parse_pattern_analysis(analysis_response)
+
+            # If patterns discovered, store them
+            if patterns:
+                await self._store_discovered_patterns(user_id, patterns)
+
+                # Publish event for discovered patterns
+                for pattern in patterns:
+                    await self.event_bus.publish(
+                        {
+                            "event_type": EventType.INSIGHT_DISCOVERED,
+                            "user_id": user_id,
+                            "payload": {
+                                "pattern_name": pattern.name,
+                                "pattern_description": pattern.description,
+                                "confidence": pattern.confidence,
+                                "category": pattern.category,
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                            },
+                        }
+                    )
+
+            return patterns
+
+        except Exception as e:
+            logger.error(f"Error analyzing for emergent patterns: {e}")
+            return None
+
+    def _create_pattern_discovery_prompt(
+        self, context_type: str, content: str, historical_data: Dict[str, Any]
+    ) -> str:
+        """
+        Create a prompt for pattern discovery analysis.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             context_type: Type of context being analyzed
             content: Content to analyze
             historical_data: Historical user journey data
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Prompt string for LLM analysis
         """
         # Extract relevant historical data
+<<<<<<< HEAD
         previous_reflections = historical_data.get('reflections', [])
         previous_patterns = historical_data.get('patterns', [])
         emotional_data = historical_data.get('emotional_journey', [])
         
+=======
+        previous_reflections = historical_data.get("reflections", [])
+        previous_patterns = historical_data.get("patterns", [])
+        emotional_data = historical_data.get("emotional_journey", [])
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Create prompt with context
         prompt = f"""
         As a guide helping someone discover their true needs and interests, analyze this new information:
@@ -321,7 +580,15 @@ class DiscoveryJourneyService:
         {content}
         
         PREVIOUS REFLECTIONS (most recent first):
+<<<<<<< HEAD
         {self._format_list_for_prompt(previous_reflections[-5:], include_timestamps=True)}
+=======
+        {
+            self._format_list_for_prompt(
+                previous_reflections[-5:], include_timestamps=True
+            )
+        }
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         
         EMOTIONAL JOURNEY (most recent first):
         {self._format_list_for_prompt(emotional_data[-5:], include_timestamps=True)}
@@ -340,10 +607,15 @@ class DiscoveryJourneyService:
         5. Evidence from the reflections and emotional journey that supports this pattern
         
         Format your response as JSON with this structure:
+<<<<<<< HEAD
         {
           "patterns": [
             {
               "name": "Pattern name",
+=======
+        {"patterns": [
+            {"name": "Pattern name",
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
               "description": "Detailed description",
               "confidence": 0.8,
               "category": "interests",
@@ -356,18 +628,29 @@ class DiscoveryJourneyService:
         
         If no clear patterns emerge yet, respond with an empty patterns array.
         """
+<<<<<<< HEAD
         
         return prompt
     
+=======
+
+        return prompt
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def _format_list_for_prompt(
         self,
         items: List[Dict[str, Any]],
         include_timestamps: bool = False,
+<<<<<<< HEAD
         include_confidence: bool = False
+=======
+        include_confidence: bool = False,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ) -> str:
         """Format a list of items for inclusion in a prompt."""
         if not items:
             return "None available yet."
+<<<<<<< HEAD
             
         formatted = []
         for item in items:
@@ -390,10 +673,35 @@ class DiscoveryJourneyService:
         Args:
             analysis_text: Raw LLM response text
             
+=======
+
+        formatted = []
+        for item in items:
+            line = f"- {item.get('name') or item.get('content') or item.get('description', 'Item')}"
+
+            if include_timestamps and "timestamp" in item:
+                line += f" (at {item['timestamp']})"
+
+            if include_confidence and "confidence" in item:
+                line += f" (confidence: {item['confidence']})"
+
+            formatted.append(line)
+
+        return "\n".join(formatted)
+
+    def _parse_pattern_analysis(self, analysis_text: str) -> List[DiscoveryPattern]:
+        """
+        Parse LLM response into pattern objects.
+
+        Args:
+            analysis_text: Raw LLM response text
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             List of DiscoveryPattern objects
         """
         patterns = []
+<<<<<<< HEAD
         
         try:
             # Extract JSON from response
@@ -414,10 +722,33 @@ class DiscoveryJourneyService:
                         evidence=pattern_data.get('evidence', []),
                         discovered_at=datetime.now(timezone.utc).isoformat(),
                         category=pattern_data.get('category', 'general')
+=======
+
+        try:
+            # Extract JSON from response
+            start_idx = analysis_text.find("{")
+            end_idx = analysis_text.rfind("}") + 1
+
+            if start_idx >= 0 and end_idx > start_idx:
+                json_str = analysis_text[start_idx:end_idx]
+                data = json.loads(json_str)
+
+                # Parse patterns
+                for pattern_data in data.get("patterns", []):
+                    pattern = DiscoveryPattern(
+                        pattern_id=str(uuid.uuid4()),
+                        name=pattern_data.get("name", ""),
+                        description=pattern_data.get("description", ""),
+                        confidence=pattern_data.get("confidence", 0.0),
+                        evidence=pattern_data.get("evidence", []),
+                        discovered_at=datetime.now(timezone.utc).isoformat(),
+                        category=pattern_data.get("category", "general"),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                     )
                     patterns.append(pattern)
         except Exception as e:
             logger.error(f"Error parsing pattern analysis: {e}")
+<<<<<<< HEAD
         
         return patterns
     
@@ -429,13 +760,32 @@ class DiscoveryJourneyService:
             user_id: User identifier
             patterns: List of discovered patterns
             
+=======
+
+        return patterns
+
+    async def _store_discovered_patterns(
+        self, user_id: str, patterns: List[DiscoveryPattern]
+    ) -> bool:
+        """
+        Store discovered patterns in the user's journey data.
+
+        Args:
+            user_id: User identifier
+            patterns: List of discovered patterns
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             True if successful, False otherwise
         """
         try:
             # Convert patterns to dictionaries
             pattern_dicts = [pattern.to_dict() for pattern in patterns]
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Store in semantic memory
             for pattern in patterns:
                 await self.hta_service.semantic_memory_manager.store_memory(
@@ -444,27 +794,47 @@ class DiscoveryJourneyService:
                     metadata={
                         "pattern": pattern.to_dict(),
                         "user_id": user_id,
+<<<<<<< HEAD
                         "timestamp": datetime.now(timezone.utc).isoformat()
                     },
                     importance=0.8  # Patterns are highly important
                 )
             
+=======
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                    importance=0.8,  # Patterns are highly important
+                )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return True
         except Exception as e:
             logger.error(f"Error storing discovered patterns: {e}")
             return False
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     async def _add_engagement_signal(
         self,
         user_id: str,
         task_id: str,
         signal_type: str,
         signal_strength: float,
+<<<<<<< HEAD
         metadata: Dict[str, Any]
     ) -> None:
         """
         Add an engagement signal to track user interest patterns.
         
+=======
+        metadata: Dict[str, Any],
+    ) -> None:
+        """
+        Add an engagement signal to track user interest patterns.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             task_id: Task identifier
@@ -482,6 +852,7 @@ class DiscoveryJourneyService:
                     "task_id": task_id,
                     "signal_type": signal_type,
                     "signal_strength": signal_strength,
+<<<<<<< HEAD
                     "timestamp": metadata.get('timestamp', datetime.now(timezone.utc).isoformat()),
                     **metadata
                 },
@@ -500,6 +871,24 @@ class DiscoveryJourneyService:
         """
         Add an emotional data point to track emotional patterns.
         
+=======
+                    "timestamp": metadata.get(
+                        "timestamp", datetime.now(timezone.utc).isoformat()
+                    ),
+                    **metadata,
+                },
+                importance=signal_strength,  # Importance proportional to signal strength
+            )
+        except Exception as e:
+            logger.error(f"Error adding engagement signal: {e}")
+
+    async def _add_emotional_data_point(
+        self, user_id: str, mood: str, context: str, timestamp: str
+    ) -> None:
+        """
+        Add an emotional data point to track emotional patterns.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             mood: Recorded mood
@@ -509,10 +898,24 @@ class DiscoveryJourneyService:
         try:
             # Determine importance based on emotional intensity
             importance = 0.5  # Default importance
+<<<<<<< HEAD
             intense_moods = ['excited', 'inspired', 'joyful', 'frustrated', 'anxious', 'sad']
             if any(intense_mood in mood.lower() for intense_mood in intense_moods):
                 importance = 0.7  # Higher importance for intense emotions
             
+=======
+            intense_moods = [
+                "excited",
+                "inspired",
+                "joyful",
+                "frustrated",
+                "anxious",
+                "sad",
+            ]
+            if any(intense_mood in mood.lower() for intense_mood in intense_moods):
+                importance = 0.7  # Higher importance for intense emotions
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Store in semantic memory
             await self.hta_service.semantic_memory_manager.store_memory(
                 event_type="emotional_data",
@@ -521,6 +924,7 @@ class DiscoveryJourneyService:
                     "user_id": user_id,
                     "mood": mood,
                     "context": context,
+<<<<<<< HEAD
                     "timestamp": timestamp
                 },
                 importance=importance
@@ -528,14 +932,30 @@ class DiscoveryJourneyService:
         except Exception as e:
             logger.error(f"Error adding emotional data point: {e}")
     
+=======
+                    "timestamp": timestamp,
+                },
+                importance=importance,
+            )
+        except Exception as e:
+            logger.error(f"Error adding emotional data point: {e}")
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     @cacheable(key_pattern="user:{0}:journey_data", ttl=300)  # 5 minutes
     async def _get_user_journey_data(self, user_id: str) -> Dict[str, Any]:
         """
         Get comprehensive user journey data for pattern analysis.
+<<<<<<< HEAD
         
         Args:
             user_id: User identifier
             
+=======
+
+        Args:
+            user_id: User identifier
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with journey data
         """
@@ -544,6 +964,7 @@ class DiscoveryJourneyService:
             reflections = await self.hta_service.semantic_memory_manager.query_memories(
                 query=f"Get reflections for user {user_id}",
                 k=20,
+<<<<<<< HEAD
                 event_types=["reflection", "task_completion"]
             )
             
@@ -565,10 +986,38 @@ class DiscoveryJourneyService:
                 event_types=["engagement_signal"]
             )
             
+=======
+                event_types=["reflection", "task_completion"],
+            )
+
+            patterns = await self.hta_service.semantic_memory_manager.query_memories(
+                query=f"Get discovered patterns for user {user_id}",
+                k=10,
+                event_types=["discovery_pattern"],
+            )
+
+            emotional_journey = (
+                await self.hta_service.semantic_memory_manager.query_memories(
+                    query=f"Get emotional data for user {user_id}",
+                    k=20,
+                    event_types=["emotional_data", "mood_recorded"],
+                )
+            )
+
+            engagement_signals = (
+                await self.hta_service.semantic_memory_manager.query_memories(
+                    query=f"Get engagement signals for user {user_id}",
+                    k=20,
+                    event_types=["engagement_signal"],
+                )
+            )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Extract pattern objects from memories
             extracted_patterns = []
             for pattern_memory in patterns:
                 if (
+<<<<<<< HEAD
                     isinstance(pattern_memory, dict) and
                     pattern_memory.get('metadata') and
                     pattern_memory['metadata'].get('pattern')
@@ -608,30 +1057,84 @@ class DiscoveryJourneyService:
         This is used when the user's goal is still abstract, to create tasks that
         will help them discover what they truly need or want.
         
+=======
+                    isinstance(pattern_memory, dict)
+                    and pattern_memory.get("metadata")
+                    and pattern_memory["metadata"].get("pattern")
+                ):
+                    pattern_data = pattern_memory["metadata"]["pattern"]
+                    extracted_patterns.append(pattern_data)
+
+            # Compile comprehensive journey data
+            journey_data = {
+                "reflections": reflections,
+                "patterns": extracted_patterns,
+                "emotional_journey": emotional_journey,
+                "engagement_signals": engagement_signals,
+            }
+
+            return journey_data
+
+        except Exception as e:
+            logger.error(f"Error getting user journey data: {e}")
+            return {
+                "reflections": [],
+                "patterns": [],
+                "emotional_journey": [],
+                "engagement_signals": [],
+            }
+
+    async def generate_exploratory_tasks(
+        self, user_id: str, tree: HTATree, parent_node_id: str, count: int = 3
+    ) -> List[Dict[str, Any]]:
+        """
+        Generate exploratory tasks designed to help users discover their true needs.
+
+        This is used when the user's goal is still abstract, to create tasks that
+        will help them discover what they truly need or want.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             tree: Current HTA tree
             parent_node_id: Parent node under which to add exploratory tasks
             count: Number of tasks to generate
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             List of task data dictionaries
         """
         try:
             # Get user journey data including discovered patterns
             journey_data = await self._get_user_journey_data(user_id)
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Find parent node
             parent_node = tree.find_node_by_id(parent_node_id)
             if not parent_node:
                 logger.error(f"Parent node {parent_node_id} not found in tree")
                 return []
+<<<<<<< HEAD
             
             # Extract key information
             top_patterns = journey_data.get('patterns', [])[:5]
             recent_reflections = journey_data.get('reflections', [])[:5]
             emotional_data = journey_data.get('emotional_journey', [])[:5]
             
+=======
+
+            # Extract key information
+            top_patterns = journey_data.get("patterns", [])[:5]
+            recent_reflections = journey_data.get("reflections", [])[:5]
+            emotional_data = journey_data.get("emotional_journey", [])[:5]
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Create prompt for LLM
             prompt = f"""
             Generate {count} exploratory tasks to help a user discover their true needs and interests.
@@ -662,6 +1165,7 @@ class DiscoveryJourneyService:
             
             Return a JSON array of {count} task objects.
             """
+<<<<<<< HEAD
             
             # Generate tasks with LLM
             response = await self.llm_client.generate(prompt)
@@ -705,6 +1209,57 @@ class DiscoveryJourneyService:
         except Exception as e:
             logger.error(f"Error parsing task generation response: {e}")
         
+=======
+
+            # Generate tasks with LLM
+            response = await self.llm_client.generate(prompt)
+
+            # Parse response into task objects
+            tasks = self._parse_task_generation(response, count)
+
+            # Add discovery metadata to tasks
+            for task in tasks:
+                task["is_exploratory"] = True
+                task["discovery_phase"] = "exploration"
+                task["generated_at"] = datetime.now(timezone.utc).isoformat()
+
+            return tasks
+
+        except Exception as e:
+            logger.error(f"Error generating exploratory tasks: {e}")
+            return []
+
+    def _parse_task_generation(
+        self, response: str, expected_count: int
+    ) -> List[Dict[str, Any]]:
+        """Parse LLM response into task dictionaries."""
+        tasks = []
+
+        try:
+            # Extract JSON from response
+            start_idx = response.find("[")
+            end_idx = response.rfind("]") + 1
+
+            if start_idx >= 0 and end_idx > start_idx:
+                json_str = response[start_idx:end_idx]
+                tasks = json.loads(json_str)
+
+                # Validate tasks
+                valid_tasks = []
+                for task in tasks:
+                    if (
+                        isinstance(task, dict)
+                        and "title" in task
+                        and "description" in task
+                    ):
+                        valid_tasks.append(task)
+
+                tasks = valid_tasks[:expected_count]  # Limit to expected count
+
+        except Exception as e:
+            logger.error(f"Error parsing task generation response: {e}")
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # If parsing failed, create fallback tasks
         if not tasks:
             tasks = [
@@ -712,6 +1267,7 @@ class DiscoveryJourneyService:
                     "title": "Reflect on a meaningful moment",
                     "description": "Take a few minutes to recall a recent moment when you felt genuinely engaged or fulfilled. What elements of that experience stood out to you?",
                     "duration": 10,
+<<<<<<< HEAD
                     "reflection_prompt": "What does this moment reveal about what matters to you?"
                 }
             ] * expected_count
@@ -734,12 +1290,35 @@ class DiscoveryJourneyService:
             user_id: User identifier
             tree: Current HTA tree
             
+=======
+                    "reflection_prompt": "What does this moment reveal about what matters to you?",
+                }
+            ] * expected_count
+
+        return tasks
+
+    async def evolve_focus_based_on_patterns(
+        self, user_id: str, tree: HTATree
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Evolve the user's focus based on discovered patterns.
+
+        This is called periodically to check if the abstract goal should be
+        refined into something more concrete, based on what we've learned
+        about the user's true needs and interests.
+
+        Args:
+            user_id: User identifier
+            tree: Current HTA tree
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with evolution recommendations or None if not ready
         """
         try:
             # Get journey data including discovered patterns
             journey_data = await self._get_user_journey_data(user_id)
+<<<<<<< HEAD
             
             # Only proceed if we have substantial patterns
             patterns = journey_data.get('patterns', [])
@@ -751,6 +1330,21 @@ class DiscoveryJourneyService:
             if not high_confidence_patterns or len(high_confidence_patterns) < 2:
                 return None
             
+=======
+
+            # Only proceed if we have substantial patterns
+            patterns = journey_data.get("patterns", [])
+            if not patterns or len(patterns) < 2:
+                return None
+
+            # Check confidence levels - only evolve if we have high confidence
+            high_confidence_patterns = [
+                p for p in patterns if p.get("confidence", 0) > 0.7
+            ]
+            if not high_confidence_patterns or len(high_confidence_patterns) < 2:
+                return None
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Create prompt for LLM
             prompt = f"""
             Based on the following patterns discovered in a user's journey, determine if it's time
@@ -774,6 +1368,7 @@ class DiscoveryJourneyService:
             If it's not yet time to evolve (insufficient coherence or confidence),
             set ready_to_evolve to false and explain why in the rationale.
             """
+<<<<<<< HEAD
             
             # Generate evolution recommendation
             response = await self.llm_client.generate(prompt)
@@ -822,6 +1417,70 @@ class DiscoveryJourneyService:
             
             return None
             
+=======
+
+            # Generate evolution recommendation
+            response = await self.llm_client.generate(prompt)
+
+            # Parse recommendation
+            recommendation = self._parse_evolution_recommendation(response)
+
+            # If ready to evolve, publish event
+            if recommendation and recommendation.get("ready_to_evolve", False):
+                await self.event_bus.publish(
+                    {
+                        "event_type": EventType.USER_GOAL_UPDATED,
+                        "user_id": user_id,
+                        "payload": {
+                            "old_focus": (
+                                tree.root.title if tree and tree.root else "Unknown"
+                            ),
+                            "new_focus": recommendation.get("new_focus", ""),
+                            "rationale": recommendation.get("rationale", ""),
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                        },
+                    }
+                )
+
+            return recommendation
+
+        except Exception as e:
+            logger.error(f"Error evolving focus based on patterns: {e}")
+            return None
+
+    def _parse_evolution_recommendation(
+        self, response: str
+    ) -> Optional[Dict[str, Any]]:
+        """Parse LLM response into evolution recommendation."""
+        try:
+            # Extract JSON from response
+            start_idx = response.find("{")
+            end_idx = response.rfind("}") + 1
+
+            if start_idx >= 0 and end_idx > start_idx:
+                json_str = response[start_idx:end_idx]
+                recommendation = json.loads(json_str)
+
+                # Validate required fields
+                if (
+                    "ready_to_evolve" in recommendation
+                    and "rationale" in recommendation
+                ):
+                    # If ready to evolve, ensure new focus is present
+                    if (
+                        recommendation.get("ready_to_evolve", False)
+                        and "new_focus" not in recommendation
+                    ):
+                        recommendation["ready_to_evolve"] = False
+                        recommendation["rationale"] = (
+                            "Missing new focus in recommendation"
+                        )
+
+                    return recommendation
+
+            return None
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         except Exception as e:
             logger.error(f"Error parsing evolution recommendation: {e}")
             return None

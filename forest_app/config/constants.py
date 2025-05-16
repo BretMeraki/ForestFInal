@@ -7,7 +7,12 @@ used throughout Forest OS. (Version: 2025-04-25 - Reconciled with Rationales)
 
 import logging
 import os
+<<<<<<< HEAD
 from typing import List, Dict, Tuple, Final # Use Final for true constants if desired (Python 3.8+)
+=======
+from typing import (  # Use Final for true constants if desired (Python 3.8+)
+    Dict, Final, Tuple)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # =====================================================================
 # Environment & Paths
@@ -15,7 +20,11 @@ from typing import List, Dict, Tuple, Final # Use Final for true constants if de
 # Database connection string (reads from env var DATABASE_URL, falls back to local sqlite)
 DB_CONNECTION_STRING: Final[str] = os.getenv(
     "DATABASE_URL",
+<<<<<<< HEAD
     "sqlite:///./forest_os_default.db" # Example fallback name
+=======
+    "sqlite:///./forest_os_default.db",  # Example fallback name
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 )
 # RATIONALE: Allow easy override for different environments via environment variable.
 
@@ -59,13 +68,26 @@ ONBOARDING_STATUS_COMPLETED: Final[str] = "completed"
 # Seed Statuses
 SEED_STATUS_ACTIVE: Final[str] = "active"
 SEED_STATUS_COMPLETED: Final[str] = "completed"
+<<<<<<< HEAD
 SEED_STATUS_EVOLVED: Final[str] = "evolved" # Example status
+=======
+SEED_STATUS_EVOLVED: Final[str] = "evolved"  # Example status
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # SEED_STATUS_PAUSED: Final[str] = "paused" # Example status
 # RATIONALE: Defines the lifecycle states for user goals (Seeds).
 
 # Allowed Task Statuses (Used in HTA logic, potentially)
 ALLOWED_TASK_STATUSES: Final[Tuple[str, ...]] = (
+<<<<<<< HEAD
     "pending", "active", "completed", "skipped", "failed", "pruned"
+=======
+    "pending",
+    "active",
+    "completed",
+    "skipped",
+    "failed",
+    "pruned",
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 )
 # RATIONALE: Canonical list of valid states for HTA task nodes.
 
@@ -76,24 +98,53 @@ DEFAULT_SNAPSHOT_SHADOW: Final[float] = 0.5
 # RATIONALE: Neutral midpoint for shadow score (0-1 scale), adjusted via reflection.
 
 # --- MODIFIED LINE BELOW ---
+<<<<<<< HEAD
 DEFAULT_SNAPSHOT_CAPACITY: Final[float] = 0.6 # Changed from 0.5
+=======
+DEFAULT_SNAPSHOT_CAPACITY: Final[float] = 0.6  # Changed from 0.5
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # --- END MODIFICATION ---
 # RATIONALE: Starts users in a balanced resource state (0-1 scale). Adjusted (from 0.5)
 #            to ensure default capacity meets or exceeds the cost of 'medium' tasks (assumed 0.6 based on RESOURCE_MAP/logs)
 #            to prevent immediate blocking of initial HTA tasks.
 DEFAULT_SNAPSHOT_MAGNITUDE: Final[float] = 5.0
 # RATIONALE: Midpoint on a 1–10 scale before any real inputs or task effects.
+<<<<<<< HEAD
 DEFAULT_INITIAL_RELATIONSHIP_INDEX: Final[float] = 0.5 # Keeping original name for this specific one
+=======
+DEFAULT_INITIAL_RELATIONSHIP_INDEX: Final[float] = (
+    0.5  # Keeping original name for this specific one
+)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # RATIONALE: Balanced relational health as a starting point (0-1 scale).
 
 # =====================================================================
 # Development Index Constants
 # =====================================================================
+<<<<<<< HEAD
 DEVELOPMENT_INDEX_KEYS: Final[Tuple[str, ...]] = ( # Use Tuple for immutability
     "happiness", "career", "health", "financial", "relationship",
     "executive_functioning", "social_life", "charisma", "entrepreneurship",
     "family_planning", "generational_wealth", "adhd_risk", "odd_risk",
     "homeownership", "dream_location",
+=======
+DEVELOPMENT_INDEX_KEYS: Final[Tuple[str, ...]] = (  # Use Tuple for immutability
+    "happiness",
+    "career",
+    "health",
+    "financial",
+    "relationship",
+    "executive_functioning",
+    "social_life",
+    "charisma",
+    "entrepreneurship",
+    "family_planning",
+    "generational_wealth",
+    "adhd_risk",
+    "odd_risk",
+    "homeownership",
+    "dream_location",
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 )
 # RATIONALE: Growth dimensions tracked by the system (from original file).
 DEFAULT_DEVELOPMENT_INDEX_VALUE: Final[float] = 0.5
@@ -104,7 +155,17 @@ MAX_DEVELOPMENT_INDEX_VALUE: Final[float] = 1.0
 BASELINE_REFLECTION_NUDGE_AMOUNT: Final[float] = 0.01
 # RATIONALE: Small positive adjustment (~1%) to key indexes based on positive reflection hints.
 POSITIVE_REFLECTION_HINTS: Final[Tuple[str, ...]] = (
+<<<<<<< HEAD
     "grateful", "proud", "excited", "optimistic", "happy", "joyful", "achieved"
+=======
+    "grateful",
+    "proud",
+    "excited",
+    "optimistic",
+    "happy",
+    "joyful",
+    "achieved",
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 )
 # RATIONALE: Keywords indicating positive sentiment used to trigger baseline index nudge.
 BASELINE_NUDGE_KEYS: Final[Tuple[str, ...]] = ("happiness", "social_life", "charisma")
@@ -220,7 +281,13 @@ TASK_DEFAULT_MAGNITUDE: Final[float] = DEFAULT_SNAPSHOT_MAGNITUDE
 
 # Base magnitude associated with different task tiers (example values)
 TASK_TIER_BASE_MAGNITUDE: Final[Dict[str, float]] = {
+<<<<<<< HEAD
     "Bud": 3.0, "Bloom": 5.0, "Blossom": 7.0,
+=======
+    "Bud": 3.0,
+    "Bloom": 5.0,
+    "Blossom": 7.0,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 }
 # RATIONALE: Sets a baseline magnitude based on the task's assigned tier/complexity.
 
@@ -241,13 +308,22 @@ DEFAULT_RESOURCE_VALUE: Final[float] = 0.5
 # =====================================================================
 WITHERING_IDLE_COEFF: Final[Dict[str, float]] = {
     "structured": 0.025,  # ~2.5% per-day decay for structured users.
+<<<<<<< HEAD
     "blended":    0.015,   # Gentler decay for blended mode.
     "open":       0.0,     # No decay for freeform mode.
+=======
+    "blended": 0.015,  # Gentler decay for blended mode.
+    "open": 0.0,  # No decay for freeform mode.
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 }
 # RATIONALE: Rate of engagement decay based on user path and idle time.
 WITHERING_OVERDUE_COEFF: Final[Dict[str, float]] = {
     "structured": 0.012,  # 1.2% per-day penalty for missed deadlines.
+<<<<<<< HEAD
     "blended":    0.005,   # Reduced pressure in blended.
+=======
+    "blended": 0.005,  # Reduced pressure in blended.
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Open mode has no deadlines, so no coefficient needed.
 }
 # RATIONALE: Rate of engagement decay based on user path and overdue tasks.
@@ -269,7 +345,15 @@ REFLECTION_SHADOW_NUDGE_BASE: Final[float] = 0.05
 # NOTE: Review if these constants are still needed or should be moved/renamed
 # For example, MAGNITUDE_THRESHOLDS was defined slightly differently here than proposed for HarmonicFramework/Resonance. Using the one from the user's file for now.
 MAGNITUDE_THRESHOLDS: Final[Dict[str, float]] = {
+<<<<<<< HEAD
     "Seismic": 9.0, "Profound": 7.0, "Rising": 5.0, "Subtle": 3.0, "Dormant": 1.0
+=======
+    "Seismic": 9.0,
+    "Profound": 7.0,
+    "Rising": 5.0,
+    "Subtle": 3.0,
+    "Dormant": 1.0,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 }
 # RATIONALE: Thresholds for describing magnitude levels used in Orchestrator (from original file).
 

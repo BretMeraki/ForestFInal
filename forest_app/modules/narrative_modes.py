@@ -1,7 +1,11 @@
 # forest_app/modules/narrative_modes.py
 
 import logging
+<<<<<<< HEAD
 from typing import Optional, Dict, Any
+=======
+from typing import Any, Dict, Optional
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 try:
@@ -9,6 +13,7 @@ try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
     # Fallback if feature flags module isn't found
+<<<<<<< HEAD
     logger = logging.getLogger("narrative_modes_init") # Specific logger for init issues
     logger.warning("Feature flags module not found in narrative_modes. Feature flag checks will be disabled.")
     class Feature: # Dummy class
@@ -16,6 +21,23 @@ except ImportError:
     def is_enabled(feature: Any) -> bool: # Dummy function
         logger.warning("is_enabled check defaulting to TRUE due to missing feature flags module.")
         return True # Or False, based on desired fallback behavior
+=======
+    logger = logging.getLogger(
+        "narrative_modes_init"
+    )  # Specific logger for init issues
+    logger.warning(
+        "Feature flags module not found in narrative_modes. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        NARRATIVE_MODES = "FEATURE_ENABLE_NARRATIVE_MODES"  # Define the specific flag
+
+    def is_enabled(feature: Any) -> bool:  # Dummy function
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True  # Or False, based on desired fallback behavior
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 
 logger = logging.getLogger(__name__)
@@ -124,8 +146,15 @@ class NarrativeModesEngine:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.NARRATIVE_MODES):
+<<<<<<< HEAD
             logger.debug("Skipping narrative mode determination: NARRATIVE_MODES feature disabled. Returning default mode output.")
             return DEFAULT_MODE_OUTPUT.copy() # Return a copy of the default
+=======
+            logger.debug(
+                "Skipping narrative mode determination: NARRATIVE_MODES feature disabled. Returning default mode output."
+            )
+            return DEFAULT_MODE_OUTPUT.copy()  # Return a copy of the default
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # --- End Check ---
 
         # Feature enabled, proceed with determination logic
@@ -136,14 +165,23 @@ class NarrativeModesEngine:
         selected_mode_name = "default"
         trigger_config = self.config.get("triggers", {})
         threshold_values = self.config.get("thresholds", {})
+<<<<<<< HEAD
         modes_config = self.config.get("modes", {}) # Get modes config once
 
         logger.debug("Determining narrative mode. Input Thresholds: %s", threshold_signals)
+=======
+        modes_config = self.config.get("modes", {})  # Get modes config once
+
+        logger.debug(
+            "Determining narrative mode. Input Thresholds: %s", threshold_signals
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # --- Trigger Logic (Order matters) ---
         if threshold_signals.get("high_abuse"):
             selected_mode_name = trigger_config.get("high_abuse", "gentle_safety")
         elif threshold_signals.get("urgent_repair_required"):
+<<<<<<< HEAD
             selected_mode_name = trigger_config.get("urgent_repair_required", "direct_support")
         elif snapshot_dict.get("capacity", 0.5) < threshold_values.get("low_capacity", 0.2) and \
              snapshot_dict.get("shadow_score", 0.5) > threshold_values.get("high_shadow", 0.8):
@@ -152,6 +190,25 @@ class NarrativeModesEngine:
             selected_mode_name = trigger_config.get("open_path", "symbolic_open")
         elif base_task.get("needs_instructional_mode", False):
             selected_mode_name = trigger_config.get("task_requires_steps", "instructional")
+=======
+            selected_mode_name = trigger_config.get(
+                "urgent_repair_required", "direct_support"
+            )
+        elif snapshot_dict.get("capacity", 0.5) < threshold_values.get(
+            "low_capacity", 0.2
+        ) and snapshot_dict.get("shadow_score", 0.5) > threshold_values.get(
+            "high_shadow", 0.8
+        ):
+            selected_mode_name = trigger_config.get(
+                "low_capacity_high_shadow", "gentle_safety"
+            )
+        elif snapshot_dict.get("current_path") == "open":
+            selected_mode_name = trigger_config.get("open_path", "symbolic_open")
+        elif base_task.get("needs_instructional_mode", False):
+            selected_mode_name = trigger_config.get(
+                "task_requires_steps", "instructional"
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Add other trigger checks here in priority order...
         # elif context.get("milestone_reached", False):
         #     selected_mode_name = trigger_config.get("major_milestone_reached", "celebratory")
@@ -160,12 +217,19 @@ class NarrativeModesEngine:
         # Use selected mode, fall back to default mode from config, then fall back to hardcoded default
         mode_details = modes_config.get(
             selected_mode_name,
+<<<<<<< HEAD
             modes_config.get("default", DEFAULT_MODE_OUTPUT) # Use default from config if selected not found
+=======
+            modes_config.get(
+                "default", DEFAULT_MODE_OUTPUT
+            ),  # Use default from config if selected not found
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         )
 
         # Ensure all keys are present in the final output
         final_mode_output = {
             "mode": selected_mode_name,
+<<<<<<< HEAD
             "style_directive": mode_details.get("style_directive", DEFAULT_MODE_OUTPUT["style_directive"]),
             "tone_override": mode_details.get("tone_override", DEFAULT_MODE_OUTPUT["tone_override"]),
         }
@@ -178,6 +242,29 @@ class NarrativeModesEngine:
         return final_mode_output
 
 
+=======
+            "style_directive": mode_details.get(
+                "style_directive", DEFAULT_MODE_OUTPUT["style_directive"]
+            ),
+            "tone_override": mode_details.get(
+                "tone_override", DEFAULT_MODE_OUTPUT["tone_override"]
+            ),
+        }
+
+        if selected_mode_name != "default":
+            logger.info(
+                "Determined narrative mode: %s -> Details: %s",
+                selected_mode_name,
+                final_mode_output,
+            )
+        else:
+            logger.debug(
+                "Determined narrative mode: default -> Details: %s", final_mode_output
+            )
+
+        return final_mode_output
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def to_dict(self) -> dict:
         """
         Serializes the engine's configuration. Returns empty dict if
@@ -185,7 +272,13 @@ class NarrativeModesEngine:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.NARRATIVE_MODES):
+<<<<<<< HEAD
             logger.debug("Skipping NarrativeModesEngine serialization: NARRATIVE_MODES feature disabled.")
+=======
+            logger.debug(
+                "Skipping NarrativeModesEngine serialization: NARRATIVE_MODES feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return {}
         # --- End Check ---
 
@@ -193,7 +286,10 @@ class NarrativeModesEngine:
         # Return a copy to prevent modification
         return {"config": self.config.copy()}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def update_from_dict(self, data: dict):
         """
         Updates the engine's configuration. Resets config if
@@ -201,7 +297,13 @@ class NarrativeModesEngine:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.NARRATIVE_MODES):
+<<<<<<< HEAD
             logger.debug("Resetting config via update_from_dict: NARRATIVE_MODES feature disabled.")
+=======
+            logger.debug(
+                "Resetting config via update_from_dict: NARRATIVE_MODES feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             self._reset_config()
             return
         # --- End Check ---
@@ -214,6 +316,7 @@ class NarrativeModesEngine:
                 self.config.update(config_update)
                 logger.debug("NarrativeModesEngine config updated from dict.")
             else:
+<<<<<<< HEAD
                 logger.warning("Invalid format for config update in NarrativeModesEngine: Expected dict, got %s.", type(config_update))
                 # Optionally reset to default if format is wrong
                 # self._reset_config()
@@ -223,3 +326,22 @@ class NarrativeModesEngine:
         else:
              logger.warning("Invalid data type passed to NarrativeModesEngine.update_from_dict: Expected dict, got %s. Resetting config.", type(data))
              self._reset_config() # Reset if overall data is wrong type
+=======
+                logger.warning(
+                    "Invalid format for config update in NarrativeModesEngine: Expected dict, got %s.",
+                    type(config_update),
+                )
+                # Optionally reset to default if format is wrong
+                # self._reset_config()
+        elif isinstance(data, dict):
+            logger.debug(
+                "No 'config' key found in data for NarrativeModesEngine update."
+            )
+            # Keep existing config if key is missing
+        else:
+            logger.warning(
+                "Invalid data type passed to NarrativeModesEngine.update_from_dict: Expected dict, got %s. Resetting config.",
+                type(data),
+            )
+            self._reset_config()  # Reset if overall data is wrong type
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

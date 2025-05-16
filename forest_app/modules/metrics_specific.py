@@ -1,7 +1,11 @@
 # forest_app/modules/metrics_specific.py
 
 import logging
+<<<<<<< HEAD
 from typing import Dict, Any, Optional
+=======
+from typing import Any, Dict, Optional
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -13,7 +17,13 @@ class MetricsSpecificEngine:
     emits signals when key thresholds are crossed.
     """
 
+<<<<<<< HEAD
     def __init__(self, alpha: float = 0.3, thresholds: Optional[Dict[str, float]] = None):
+=======
+    def __init__(
+        self, alpha: float = 0.3, thresholds: Optional[Dict[str, float]] = None
+    ):
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # EWMA smoothing factor for momentum updates
         self.alpha = alpha
         # Current overall momentum (0–1 scale)
@@ -24,7 +34,11 @@ class MetricsSpecificEngine:
         self.thresholds = thresholds or {
             "low_capacity": 0.3,
             "high_shadow": 0.7,
+<<<<<<< HEAD
             "low_momentum": 0.3
+=======
+            "low_momentum": 0.3,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         }
 
     def update_from_dict(self, data: Dict[str, Any]):
@@ -36,8 +50,16 @@ class MetricsSpecificEngine:
         # Optionally allow thresholds to be reconfigured
         if "thresholds" in data and isinstance(data["thresholds"], dict):
             self.thresholds.update(data["thresholds"])
+<<<<<<< HEAD
         logger.debug("MetricsSpecificEngine state loaded: momentum=%s, alpha=%s",
                      self.momentum_overall, self.alpha)
+=======
+        logger.debug(
+            "MetricsSpecificEngine state loaded: momentum=%s, alpha=%s",
+            self.momentum_overall,
+            self.alpha,
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -46,10 +68,19 @@ class MetricsSpecificEngine:
         return {
             "momentum_overall": self.momentum_overall,
             "alpha": self.alpha,
+<<<<<<< HEAD
             "thresholds": self.thresholds
         }
 
     def calculate_metric_updates(self, metric_input: Dict[str, Any]) -> Dict[str, float]:
+=======
+            "thresholds": self.thresholds,
+        }
+
+    def calculate_metric_updates(
+        self, metric_input: Dict[str, Any]
+    ) -> Dict[str, float]:
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         """
         Calculates deltas for internal metrics based on new data.
 
@@ -72,7 +103,14 @@ class MetricsSpecificEngine:
 
         logger.debug(
             "Momentum EWMA update: old=%.2f, success=%.1f, new=%.2f, Δ=%.3f",
+<<<<<<< HEAD
             old_mu, success_val, new_mu, momentum_delta
+=======
+            old_mu,
+            success_val,
+            new_mu,
+            momentum_delta,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         )
 
         return {"momentum_delta": momentum_delta}
@@ -84,8 +122,16 @@ class MetricsSpecificEngine:
         delta_mu = deltas.get("momentum_delta", 0.0)
         if delta_mu:
             self.momentum_overall = max(0.0, min(1.0, self.momentum_overall + delta_mu))
+<<<<<<< HEAD
             logger.info("Applied momentum_delta=%.3f → momentum_overall=%.2f",
                         delta_mu, self.momentum_overall)
+=======
+            logger.info(
+                "Applied momentum_delta=%.3f → momentum_overall=%.2f",
+                delta_mu,
+                self.momentum_overall,
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def check_thresholds(self) -> Dict[str, bool]:
         """
@@ -100,7 +146,11 @@ class MetricsSpecificEngine:
         signals = {
             "low_capacity": cap < self.thresholds["low_capacity"],
             "high_shadow": shadow > self.thresholds["high_shadow"],
+<<<<<<< HEAD
             "low_momentum": self.momentum_overall < self.thresholds["low_momentum"]
+=======
+            "low_momentum": self.momentum_overall < self.thresholds["low_momentum"],
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         }
         logger.debug("Threshold signals: %s", signals)
         return signals

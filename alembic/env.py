@@ -4,6 +4,7 @@ import os  # Import the os module
 from logging.config import fileConfig
 
 # Import necessary SQLAlchemy components
+<<<<<<< HEAD
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy import create_engine # Import create_engine explicitly
@@ -11,10 +12,21 @@ from sqlalchemy import create_engine # Import create_engine explicitly
 # Import Alembic context
 from alembic import context
 
+=======
+from sqlalchemy import create_engine  # Import create_engine explicitly
+from sqlalchemy import pool
+
+# Import Alembic context
+from alembic import context
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # --- MODIFY THIS ---
 # Import Base model directly from the models file
 # This avoids importing from forest_app.__init__ which might have circular dependencies
 from forest_app.persistence.models import Base
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # ---------------
 
 # this is the Alembic Config object, which provides
@@ -55,9 +67,15 @@ def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
+<<<<<<< HEAD
         target_metadata=target_metadata, # Pass the metadata for offline checks
         literal_binds=True, # Render SQL statements with literal values
         dialect_opts={"paramstyle": "named"}, # Dialect-specific options
+=======
+        target_metadata=target_metadata,  # Pass the metadata for offline checks
+        literal_binds=True,  # Render SQL statements with literal values
+        dialect_opts={"paramstyle": "named"},  # Dialect-specific options
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     )
 
     # Run migrations within a transaction block
@@ -74,9 +92,17 @@ def run_migrations_online() -> None:
     """
     # --- REVERTED TO EXPLICIT ENV VAR READING ---
     # Get the database URL directly from the environment variable
+<<<<<<< HEAD
     db_url = os.environ.get('DB_CONNECTION_STRING') or \
            os.environ.get('DATABASE_URL') or \
            'postgresql://postgres:postgres@localhost:5432/forest_db'
+=======
+    db_url = (
+        os.environ.get("DB_CONNECTION_STRING")
+        or os.environ.get("DATABASE_URL")
+        or "postgresql://postgres:postgres@localhost:5432/forest_db"
+    )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     print(f"Using database connection string: {db_url[:20]}...")
 
     # Create the SQLAlchemy engine directly using the fetched URL
@@ -89,7 +115,11 @@ def run_migrations_online() -> None:
         # Configure the Alembic context with the connection and metadata
         context.configure(
             connection=connection,
+<<<<<<< HEAD
             target_metadata=target_metadata # Pass the metadata for comparison
+=======
+            target_metadata=target_metadata,  # Pass the metadata for comparison
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         )
 
         # Run migrations within a transaction block

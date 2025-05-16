@@ -1,7 +1,11 @@
 # forest_app/modules/reward_index.py
 
 import logging
+<<<<<<< HEAD
 from typing import Any, Dict # Added Any, Dict
+=======
+from typing import Any, Dict  # Added Any, Dict
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 try:
@@ -9,6 +13,7 @@ try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
     # Fallback if feature flags module isn't found
+<<<<<<< HEAD
     logger = logging.getLogger(__name__) # Ensure logger defined for warning
     logger.warning("Feature flags module not found in reward_index. Feature flag checks will be disabled.")
     class Feature: # Dummy class
@@ -16,19 +21,51 @@ except ImportError:
     def is_enabled(feature: Any) -> bool: # Dummy function
         logger.warning("is_enabled check defaulting to TRUE due to missing feature flags module.")
         return True # Or False, based on desired fallback behavior
+=======
+    logger = logging.getLogger(__name__)  # Ensure logger defined for warning
+    logger.warning(
+        "Feature flags module not found in reward_index. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        REWARDS = "FEATURE_ENABLE_REWARDS"  # Define the specific flag used here
+
+    def is_enabled(feature: Any) -> bool:  # Dummy function
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True  # Or False, based on desired fallback behavior
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # --- Helper for clamping ---
 def _clamp01(value: Any, default: float = 0.5) -> float:
     """Clamps a value to 0.0-1.0, returning default if input is invalid."""
     try:
         return max(0.0, min(1.0, float(value)))
     except (ValueError, TypeError):
+<<<<<<< HEAD
         logger.warning("Invalid value '%s' for clamping, using default %.2f", value, default, exc_info=True)
         return default
 
+=======
+        logger.warning(
+            "Invalid value '%s' for clamping, using default %.2f",
+            value,
+            default,
+            exc_info=True,
+        )
+        return default
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 class RewardIndex:
     """
     Tracks the reward-related state, which influences offering generation.
@@ -39,13 +76,21 @@ class RewardIndex:
         - generosity: A float (0.0 to 1.0) indicating the evolving generosity level.
         - desire_signal: A float (0.0 to 1.0) capturing the user's expressed desire for reward/intervention.
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Define default values as class constants for clarity
     DEFAULT_READINESS = 0.5
     DEFAULT_GENEROSITY = 0.5
     DEFAULT_DESIRE = 0.5
 
     def __init__(self):
+<<<<<<< HEAD
         self._reset_state() # Initialize using reset method
+=======
+        self._reset_state()  # Initialize using reset method
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         logger.debug("RewardIndex initialized.")
 
     def _reset_state(self):
@@ -62,7 +107,13 @@ class RewardIndex:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.REWARDS):
+<<<<<<< HEAD
             logger.debug("Skipping RewardIndex serialization: REWARDS feature disabled.")
+=======
+            logger.debug(
+                "Skipping RewardIndex serialization: REWARDS feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return {}
         # --- End Check ---
 
@@ -80,20 +131,42 @@ class RewardIndex:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.REWARDS):
+<<<<<<< HEAD
             logger.debug("Resetting state via update_from_dict: REWARDS feature disabled.")
+=======
+            logger.debug(
+                "Resetting state via update_from_dict: REWARDS feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             self._reset_state()
             return
         # --- End Check ---
 
         if not isinstance(data, dict):
+<<<<<<< HEAD
             logger.warning("Invalid data format for update_from_dict: %s. Resetting state.", type(data))
+=======
+            logger.warning(
+                "Invalid data format for update_from_dict: %s. Resetting state.",
+                type(data),
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             self._reset_state()
             return
 
         # Load values, using clamp helper for validation and range enforcement
         self.readiness = _clamp01(data.get("readiness"), default=self.DEFAULT_READINESS)
+<<<<<<< HEAD
         self.generosity = _clamp01(data.get("generosity"), default=self.DEFAULT_GENEROSITY)
         self.desire_signal = _clamp01(data.get("desire_signal"), default=self.DEFAULT_DESIRE)
+=======
+        self.generosity = _clamp01(
+            data.get("generosity"), default=self.DEFAULT_GENEROSITY
+        )
+        self.desire_signal = _clamp01(
+            data.get("desire_signal"), default=self.DEFAULT_DESIRE
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         logger.debug("RewardIndex state updated from dict.")
 
     # --- Public methods to potentially update state would go here ---

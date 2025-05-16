@@ -1,5 +1,6 @@
 # forest_app/modules/offering_reward.py
 
+<<<<<<< HEAD
 import json
 import logging
 from datetime import datetime, timezone # Use timezone aware
@@ -7,12 +8,19 @@ from typing import Any, Dict, List, Optional
 
 # Import shared models to prevent circular imports
 from forest_app.modules.shared_models import DesireBase, FinancialMetricsBase
+=======
+import logging
+from typing import Any, Dict, List, Optional
+
+# Import shared models to prevent circular imports
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
     logger = logging.getLogger("offering_reward_init")
+<<<<<<< HEAD
     logger.warning("Feature flags module not found in offering_reward. Feature flag checks will be disabled.")
     class Feature: # Dummy class
         REWARDS = "FEATURE_ENABLE_REWARDS" # Define the specific flag used here
@@ -33,15 +41,59 @@ except ImportError:
     class BaseModel: pass
     def Field(*args, **kwargs): return None
     class ValidationError(Exception): pass
+=======
+    logger.warning(
+        "Feature flags module not found in offering_reward. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        REWARDS = "FEATURE_ENABLE_REWARDS"  # Define the specific flag used here
+        # Include flags checked by dependencies if needed for fallback logic
+        DESIRE_ENGINE = "FEATURE_ENABLE_DESIRE_ENGINE"
+        FINANCIAL_READINESS = "FEATURE_ENABLE_FINANCIAL_READINESS"
+
+    def is_enabled(feature: Any) -> bool:  # Dummy function
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True
+
+
+# --- Pydantic Import ---
+try:
+    from pydantic import BaseModel, Field, ValidationError
+
+    pydantic_import_ok = True
+except ImportError:
+    logging.getLogger("offering_reward_init").critical(
+        "Pydantic not installed. OfferingRouter requires Pydantic."
+    )
+    pydantic_import_ok = False
+
+    class BaseModel:
+        pass
+
+    def Field(*args, **kwargs):
+        return None
+
+    class ValidationError(Exception):
+        pass
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Module & LLM Imports ---
 # Assume these might fail if related features are off or imports broken
 try:
     from forest_app.modules.desire_engine import DesireEngine
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     desire_engine_import_ok = True
 except ImportError:
     logging.getLogger("offering_reward_init").warning("Could not import DesireEngine.")
     desire_engine_import_ok = False
+<<<<<<< HEAD
     class DesireEngine: # Dummy
         def get_top_desires(self, cache, top_n): return ["Default Desire"]
 
@@ -71,6 +123,55 @@ except ImportError as e:
     class LLMValidationError(LLMError): pass
     class LLMConfigurationError(LLMError): pass
     class LLMConnectionError(LLMError): pass
+=======
+
+    class DesireEngine:  # Dummy
+        def get_top_desires(self, cache, top_n):
+            return ["Default Desire"]
+
+
+try:
+    from forest_app.modules.financial_readiness import FinancialReadinessEngine
+
+    financial_engine_import_ok = True
+except ImportError:
+    logging.getLogger("offering_reward_init").warning(
+        "Could not import FinancialReadinessEngine."
+    )
+    financial_engine_import_ok = False
+
+    class FinancialReadinessEngine:  # Dummy
+        readiness = 0.5  # Default dummy value
+
+
+try:
+    from forest_app.integrations.llm import (LLMClient, LLMConfigurationError,
+                                             LLMConnectionError, LLMError,
+                                             LLMValidationError)
+
+    llm_import_ok = True
+except ImportError as e:
+    logging.getLogger("offering_reward_init").critical(
+        f"Failed to import LLM integration components: {e}."
+    )
+    llm_import_ok = False
+
+    class LLMClient:
+        pass
+
+    class LLMError(Exception):
+        pass
+
+    class LLMValidationError(LLMError):
+        pass
+
+    class LLMConfigurationError(LLMError):
+        pass
+
+    class LLMConnectionError(LLMError):
+        pass
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 logger = logging.getLogger(__name__)
 # Rely on global config for level
@@ -78,20 +179,41 @@ logger = logging.getLogger(__name__)
 # --- Define Response Models ---
 # Only define if Pydantic import was successful
 if pydantic_import_ok:
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     class OfferingSuggestion(BaseModel):
         suggestion: str = Field(..., min_length=1)
 
     class OfferingResponseModel(BaseModel):
         suggestions: List[OfferingSuggestion] = Field(..., min_items=1)
+<<<<<<< HEAD
 else:
      class OfferingSuggestion: pass
      class OfferingResponseModel: pass
+=======
+
+else:
+
+    class OfferingSuggestion:
+        pass
+
+    class OfferingResponseModel:
+        pass
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 
 # Define default/error outputs
 DEFAULT_OFFERING_ERROR_MSG = ["Reward suggestion generation is currently unavailable."]
 DEFAULT_OFFERING_DISABLED_MSG = ["Reward suggestions are currently disabled."]
+<<<<<<< HEAD
 DEFAULT_RECORD_ERROR = {"error": "Cannot record acceptance; rewards disabled or error occurred."}
+=======
+DEFAULT_RECORD_ERROR = {
+    "error": "Cannot record acceptance; rewards disabled or error occurred."
+}
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 
 class OfferingRouter:
@@ -103,8 +225,13 @@ class OfferingRouter:
 
     def __init__(
         self,
+<<<<<<< HEAD
         desire_engine: Optional['DesireEngine'] = None,
         financial_engine: Optional['FinancialReadinessEngine'] = None
+=======
+        desire_engine: Optional["DesireEngine"] = None,
+        financial_engine: Optional["FinancialReadinessEngine"] = None,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ):
         self.desire_engine = desire_engine
         self.financial_engine = financial_engine
@@ -122,7 +249,15 @@ class OfferingRouter:
         elif hasattr(snap, key):
             return getattr(snap, key, default)
         # Add more specific checks if snapshot structure is known and complex
+<<<<<<< HEAD
         self.logger.warning("Could not safely retrieve '%s' from snapshot object of type %s", key, type(snap))
+=======
+        self.logger.warning(
+            "Could not safely retrieve '%s' from snapshot object of type %s",
+            key,
+            type(snap),
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return default
 
     def preview_offering_for_task(
@@ -145,7 +280,10 @@ class OfferingRouter:
         """
         return []
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def record_acceptance(
         self,
         snap: Any,
@@ -154,9 +292,15 @@ class OfferingRouter:
         """
         Reward module is disabled for MVP. Always returns an error response.
         """
+<<<<<<< HEAD
         return {"error": "Cannot record acceptance; rewards disabled or error occurred."}
 
 
+=======
+        return {
+            "error": "Cannot record acceptance; rewards disabled or error occurred."
+        }
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     # --- Persistence Methods (If OfferingRouter itself needed state) ---
     # def to_dict(self) -> dict:

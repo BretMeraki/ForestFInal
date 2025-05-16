@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from typing import List, Dict, Any, Optional
 from uuid import UUID
 from datetime import datetime
@@ -5,6 +6,14 @@ import json
 import os
 
 from ..protocols import SemanticMemoryProtocol
+=======
+import json
+import os
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+from uuid import UUID
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 class MemoryEntry:
     def __init__(
@@ -12,13 +21,21 @@ class MemoryEntry:
         memory_type: str,
         content: str,
         timestamp: datetime,
+<<<<<<< HEAD
         metadata: Optional[Dict[str, Any]] = None
+=======
+        metadata: Optional[Dict[str, Any]] = None,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ):
         if not memory_type or not content:
             raise ValueError("memory_type and content must not be empty")
         if not isinstance(timestamp, datetime):
             raise TypeError("timestamp must be a datetime object")
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         self.memory_type = memory_type.strip()
         self.content = content.strip()
         self.timestamp = timestamp
@@ -27,15 +44,23 @@ class MemoryEntry:
     def to_dict(self) -> Dict[str, Any]:
         try:
             return {
+<<<<<<< HEAD
                 'memory_type': self.memory_type,
                 'content': self.content,
                 'timestamp': self.timestamp.isoformat(),
                 'metadata': self.metadata
+=======
+                "memory_type": self.memory_type,
+                "content": self.content,
+                "timestamp": self.timestamp.isoformat(),
+                "metadata": self.metadata,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             }
         except Exception as e:
             raise ValueError(f"Error converting memory to dict: {e}")
 
     @classmethod
+<<<<<<< HEAD
     def from_dict(cls, data: Dict[str, Any]) -> 'MemoryEntry':
         if not isinstance(data, dict):
             raise TypeError("data must be a dictionary")
@@ -51,13 +76,37 @@ class MemoryEntry:
                 content=str(data['content']),
                 timestamp=datetime.fromisoformat(str(data['timestamp'])),
                 metadata=data.get('metadata', {})
+=======
+    def from_dict(cls, data: Dict[str, Any]) -> "MemoryEntry":
+        if not isinstance(data, dict):
+            raise TypeError("data must be a dictionary")
+
+        required_fields = {"memory_type", "content", "timestamp"}
+        missing_fields = required_fields - set(data.keys())
+        if missing_fields:
+            raise ValueError(f"Missing required fields: {missing_fields}")
+
+        try:
+            return cls(
+                memory_type=str(data["memory_type"]),
+                content=str(data["content"]),
+                timestamp=datetime.fromisoformat(str(data["timestamp"])),
+                metadata=data.get("metadata", {}),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             )
         except Exception as e:
             raise ValueError(f"Error creating memory from dict: {e}")
 
+<<<<<<< HEAD
 class SemanticMemoryManager:
     def __init__(self, storage_path: Optional[str] = None):
         self.storage_path = storage_path or 'memory_store.json'
+=======
+
+class SemanticMemoryManager:
+    def __init__(self, storage_path: Optional[str] = None):
+        self.storage_path = storage_path or "memory_store.json"
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         self.memories: List[MemoryEntry] = []
         self.current_context: Dict[str, Any] = {}
         self._load_memories()
@@ -72,6 +121,7 @@ class SemanticMemoryManager:
             raise TypeError("impact must be a number")
         if impact < 0.0 or impact > 1.0:
             raise ValueError("impact must be between 0.0 and 1.0")
+<<<<<<< HEAD
             
         try:
             memory = MemoryEntry(
@@ -83,6 +133,19 @@ class SemanticMemoryManager:
                     'impact': float(impact),
                     'context': self.current_context.copy()
                 }
+=======
+
+        try:
+            memory = MemoryEntry(
+                memory_type="milestone",
+                content=description,
+                timestamp=datetime.utcnow(),
+                metadata={
+                    "node_id": str(node_id),
+                    "impact": float(impact),
+                    "context": self.current_context.copy(),
+                },
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             )
             self.memories.append(memory)
             self._save_memories()
@@ -90,16 +153,21 @@ class SemanticMemoryManager:
             raise ValueError(f"Error storing milestone: {e}")
 
     def store_reflection(
+<<<<<<< HEAD
         self,
         reflection_type: str,
         content: str,
         emotion: Optional[str] = None
+=======
+        self, reflection_type: str, content: str, emotion: Optional[str] = None
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ) -> None:
         """Store a reflection with optional emotional context."""
         if not reflection_type or not content:
             raise ValueError("reflection_type and content must not be empty")
         if emotion is not None and not isinstance(emotion, str):
             raise TypeError("emotion must be a string or None")
+<<<<<<< HEAD
             
         try:
             memory = MemoryEntry(
@@ -111,6 +179,19 @@ class SemanticMemoryManager:
                     'emotion': emotion,
                     'context': self.current_context.copy()
                 }
+=======
+
+        try:
+            memory = MemoryEntry(
+                memory_type="reflection",
+                content=content,
+                timestamp=datetime.utcnow(),
+                metadata={
+                    "reflection_type": reflection_type,
+                    "emotion": emotion,
+                    "context": self.current_context.copy(),
+                },
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             )
             self.memories.append(memory)
             self._save_memories()
@@ -118,15 +199,20 @@ class SemanticMemoryManager:
             raise ValueError(f"Error storing reflection: {e}")
 
     def get_relevant_memories(
+<<<<<<< HEAD
         self,
         context: str,
         limit: int = 5
+=======
+        self, context: str, limit: int = 5
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ) -> List[Dict[str, Any]]:
         """Retrieve memories relevant to the given context."""
         if not isinstance(context, str):
             raise TypeError("context must be a string")
         if not isinstance(limit, int) or limit < 1:
             raise ValueError("limit must be a positive integer")
+<<<<<<< HEAD
             
         try:
             scored_memories = []
@@ -144,15 +230,39 @@ class SemanticMemoryManager:
                 
                 # Check metadata context match
                 memory_context = memory.metadata.get('context', {})
+=======
+
+        try:
+            scored_memories = []
+            context_lower = context.lower()
+
+            for memory in self.memories:
+                if not isinstance(memory, MemoryEntry):
+                    continue
+
+                score = 0.0
+
+                # Check content match
+                if context_lower in memory.content.lower():
+                    score += 1.0
+
+                # Check metadata context match
+                memory_context = memory.metadata.get("context", {})
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 if isinstance(memory_context, dict):
                     for key, value in memory_context.items():
                         if str(value).lower() in context_lower:
                             score += 0.5
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 # Boost recent memories
                 time_diff = (datetime.utcnow() - memory.timestamp).total_seconds()
                 recency_boost = 1.0 / (1.0 + time_diff / 86400.0)  # Decay over days
                 score += recency_boost
+<<<<<<< HEAD
                 
                 # Boost high-impact memories
                 if memory.memory_type == 'milestone':
@@ -163,6 +273,18 @@ class SemanticMemoryManager:
                 if score > 0:
                     scored_memories.append((score, memory))
             
+=======
+
+                # Boost high-impact memories
+                if memory.memory_type == "milestone":
+                    impact = memory.metadata.get("impact", 0.0)
+                    if isinstance(impact, (int, float)):
+                        score *= 1.0 + float(impact)
+
+                if score > 0:
+                    scored_memories.append((score, memory))
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Sort by relevance score and return top memories
             scored_memories.sort(reverse=True, key=lambda x: x[0])
             return [memory.to_dict() for _, memory in scored_memories[:limit]]
@@ -180,9 +302,15 @@ class SemanticMemoryManager:
         if not os.path.exists(self.storage_path):
             self.memories = []
             return
+<<<<<<< HEAD
             
         try:
             with open(self.storage_path, 'r', encoding='utf-8') as f:
+=======
+
+        try:
+            with open(self.storage_path, "r", encoding="utf-8") as f:
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 data = json.load(f)
                 if not isinstance(data, list):
                     raise TypeError("Memory storage must contain a list")
@@ -202,7 +330,14 @@ class SemanticMemoryManager:
         try:
             data = [memory.to_dict() for memory in self.memories]
             os.makedirs(os.path.dirname(self.storage_path), exist_ok=True)
+<<<<<<< HEAD
             with open(self.storage_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             raise ValueError(f"Error saving memories: {e}") 
+=======
+            with open(self.storage_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            raise ValueError(f"Error saving memories: {e}")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

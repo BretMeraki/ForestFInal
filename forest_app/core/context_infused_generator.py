@@ -8,6 +8,7 @@ truly personalized while maintaining performance and structural integrity.
 
 import logging
 import uuid
+<<<<<<< HEAD
 from typing import List, Dict, Any, Optional, Tuple, Set
 from datetime import datetime
 
@@ -17,6 +18,16 @@ from forest_app.persistence.models import HTANodeModel, MemorySnapshotModel
 from forest_app.core.transaction_decorator import transaction_protected as transaction_protected
 from forest_app.integrations.llm import LLMClient
 from forest_app.core.session_manager import SessionManager
+=======
+from typing import Any, Dict, List, Optional
+
+from forest_app.core.schema_contract import HTASchemaContract
+from forest_app.core.session_manager import SessionManager
+from forest_app.core.transaction_decorator import \
+    transaction_protected as transaction_protected
+from forest_app.integrations.llm import LLMClient
+from forest_app.persistence.models import HTANodeModel
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 logger = logging.getLogger(__name__)
 
@@ -26,11 +37,21 @@ class ContextInfusedNodeGenerator:
     Generates unique, context-aware nodes following the schema contract.
     Never uses templates - always creates fresh content based on user context.
     """
+<<<<<<< HEAD
     
     def __init__(self, llm_client: LLMClient, memory_service, session_manager: SessionManager):
         """
         Initialize the context-infused node generator.
         
+=======
+
+    def __init__(
+        self, llm_client: LLMClient, memory_service, session_manager: SessionManager
+    ):
+        """
+        Initialize the context-infused node generator.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             llm_client: LLM client for generating context-rich content
             memory_service: Service for accessing user memory snapshots
@@ -39,28 +60,53 @@ class ContextInfusedNodeGenerator:
         self.llm = llm_client
         self.memory = memory_service
         self.session_manager = session_manager
+<<<<<<< HEAD
         
     async def generate_trunk_node(self, tree_id: uuid.UUID, user_id: uuid.UUID, 
                                  user_goal: str, memory_snapshot: Optional[Dict] = None) -> HTANodeModel:
         """
         Generate a trunk node infused with user context.
         
+=======
+
+    async def generate_trunk_node(
+        self,
+        tree_id: uuid.UUID,
+        user_id: uuid.UUID,
+        user_goal: str,
+        memory_snapshot: Optional[Dict] = None,
+    ) -> HTANodeModel:
+        """
+        Generate a trunk node infused with user context.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             tree_id: UUID of the tree
             user_id: UUID of the user
             user_goal: User's goal statement
             memory_snapshot: Optional memory snapshot data
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             HTANodeModel instance for the trunk node
         """
         # Get fresh context data if memory_snapshot not provided
         if memory_snapshot is None:
             memory_snapshot = await self._get_memory_context(user_id)
+<<<<<<< HEAD
             
         recent_reflections = await self._extract_recent_reflections(user_id)
         user_preferences = await self._extract_user_preferences(user_id)
         
+=======
+
+        recent_reflections = await self._extract_recent_reflections(user_id)
+        user_preferences = await self._extract_user_preferences(user_id)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Generate a unique trunk node based on user context
         node_content = await self._generate_node_content(
             prompt_type="trunk_node",
@@ -71,9 +117,15 @@ class ContextInfusedNodeGenerator:
                 "user_preferences": user_preferences,
                 "node_type": "trunk",
                 "node_purpose": "Major phase in achieving the goal",
+<<<<<<< HEAD
             }
         )
         
+=======
+            },
+        )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Create node model with optimizations for performance
         return HTANodeModel(
             id=uuid.uuid4(),
@@ -89,11 +141,16 @@ class ContextInfusedNodeGenerator:
                 "phase_type": node_content.get("phase_type", "journey_beginning"),
                 "expected_duration": node_content.get("expected_duration", "medium"),
                 "joy_factor": node_content.get("joy_factor", 0.7),
+<<<<<<< HEAD
                 "context_relevance_score": node_content.get("relevance_score", 0.8)
+=======
+                "context_relevance_score": node_content.get("relevance_score", 0.8),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             },
             branch_triggers={
                 "expand_now": True,
                 "completion_count_for_expansion_trigger": 0,
+<<<<<<< HEAD
                 "current_completion_count": 0
             }
         )
@@ -107,18 +164,42 @@ class ContextInfusedNodeGenerator:
             parent_node: Parent node to generate branches for
             memory_snapshot: Optional memory snapshot data
             
+=======
+                "current_completion_count": 0,
+            },
+        )
+
+    async def generate_branch_from_parent(
+        self, parent_node: HTANodeModel, memory_snapshot: Optional[Dict] = None
+    ) -> List[HTANodeModel]:
+        """
+        Generate branches specifically for this parent based on context.
+
+        Args:
+            parent_node: Parent node to generate branches for
+            memory_snapshot: Optional memory snapshot data
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             List of HTANodeModel instances representing branches
         """
         # Get fresh context data if memory_snapshot not provided
         if memory_snapshot is None:
             memory_snapshot = await self._get_memory_context(parent_node.user_id)
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Get contextual information
         tree_metadata = await self._get_tree_metadata(parent_node.tree_id)
         user_preferences = await self._extract_user_preferences(parent_node.user_id)
         recent_activities = await self._extract_recent_activities(parent_node.user_id)
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Generate branch content based on parent context
         branches_content = await self._generate_node_content(
             prompt_type="branch_nodes",
@@ -127,16 +208,27 @@ class ContextInfusedNodeGenerator:
                     "title": parent_node.title,
                     "description": parent_node.description,
                     "is_major_phase": parent_node.is_major_phase,
+<<<<<<< HEAD
                     "metadata": parent_node.internal_task_details
+=======
+                    "metadata": parent_node.internal_task_details,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 },
                 "tree_metadata": tree_metadata,
                 "user_preferences": user_preferences,
                 "recent_activities": recent_activities,
                 "memory_snapshot": memory_snapshot,
+<<<<<<< HEAD
                 "count": 3 if parent_node.is_major_phase else 2
             }
         )
         
+=======
+                "count": 3 if parent_node.is_major_phase else 2,
+            },
+        )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Create branch node models
         branch_nodes = []
         for branch in branches_content.get("branches", []):
@@ -155,11 +247,16 @@ class ContextInfusedNodeGenerator:
                     "estimated_time": branch.get("estimated_time", "medium"),
                     "joy_factor": branch.get("joy_factor", 0.5),
                     "context_relevance_score": branch.get("relevance_score", 0.7),
+<<<<<<< HEAD
                     "branch_type": branch.get("branch_type", "task")
+=======
+                    "branch_type": branch.get("branch_type", "task"),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 },
                 branch_triggers={
                     "expand_now": False,
                     "completion_count_for_expansion_trigger": 2,
+<<<<<<< HEAD
                     "current_completion_count": 0
                 }
             )
@@ -176,12 +273,35 @@ class ContextInfusedNodeGenerator:
             branch_node: Branch node to generate micro-actions for
             count: Number of micro-actions to generate
             
+=======
+                    "current_completion_count": 0,
+                },
+            )
+            branch_nodes.append(node)
+
+        return branch_nodes
+
+    async def generate_micro_actions(
+        self, branch_node: HTANodeModel, count: int = 3
+    ) -> List[HTANodeModel]:
+        """
+        Generate unique, actionable micro-tasks based on branch context.
+
+        Args:
+            branch_node: Branch node to generate micro-actions for
+            count: Number of micro-actions to generate
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             List of HTANodeModel instances representing micro-actions
         """
         memory_snapshot = await self._get_memory_context(branch_node.user_id)
         parent_context = await self._get_parent_context(branch_node)
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Generate micro-action content
         micro_actions_content = await self._generate_node_content(
             prompt_type="micro_actions",
@@ -189,6 +309,7 @@ class ContextInfusedNodeGenerator:
                 "branch_node": {
                     "title": branch_node.title,
                     "description": branch_node.description,
+<<<<<<< HEAD
                     "metadata": branch_node.internal_task_details
                 },
                 "parent_context": parent_context,
@@ -197,6 +318,16 @@ class ContextInfusedNodeGenerator:
             }
         )
         
+=======
+                    "metadata": branch_node.internal_task_details,
+                },
+                "parent_context": parent_context,
+                "memory_snapshot": memory_snapshot,
+                "count": count,
+            },
+        )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Create micro-action node models with optimization for bulk insertion
         micro_action_nodes = []
         for action in micro_actions_content.get("micro_actions", []):
@@ -215,6 +346,7 @@ class ContextInfusedNodeGenerator:
                     "joy_factor": action.get("joy_factor", 0.6),
                     "estimated_time": action.get("estimated_time", "low"),
                     "framing": action.get("framing", "action"),
+<<<<<<< HEAD
                     "positive_reinforcement": action.get("positive_reinforcement", 
                                                        "Great job completing this step!")
                 }
@@ -231,21 +363,48 @@ class ContextInfusedNodeGenerator:
             prompt_type: Type of prompt to use
             context: Context data for the prompt
             
+=======
+                    "positive_reinforcement": action.get(
+                        "positive_reinforcement", "Great job completing this step!"
+                    ),
+                },
+            )
+            micro_action_nodes.append(node)
+
+        return micro_action_nodes
+
+    async def _generate_node_content(
+        self, prompt_type: str, context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Generate node content using the LLM with the given context.
+
+        Args:
+            prompt_type: Type of prompt to use
+            context: Context data for the prompt
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with generated content
         """
         try:
             # Generate content using LLM
             # The LLM client should have different prompt templates for different node types
+<<<<<<< HEAD
             response = await self.llm.generate(
                 prompt_type=prompt_type,
                 context=context
             )
             
+=======
+            response = await self.llm.generate(prompt_type=prompt_type, context=context)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Validate response against schema contract
             if prompt_type == "trunk_node":
                 errors = HTASchemaContract.validate_model("node", response)
                 if errors:
+<<<<<<< HEAD
                     logger.warning(f"LLM response validation errors for {prompt_type}: {errors}")
                     # Attempt repair of common issues
                     response = self._repair_response(response, errors)
@@ -259,10 +418,32 @@ class ContextInfusedNodeGenerator:
                 
             return response
             
+=======
+                    logger.warning(
+                        f"LLM response validation errors for {prompt_type}: {errors}"
+                    )
+                    # Attempt repair of common issues
+                    response = self._repair_response(response, errors)
+
+            # Check for context infusion
+            if not HTASchemaContract.check_context_infusion(
+                "node", "title", response.get("title", "")
+            ):
+                logger.warning("Generated title lacks proper context infusion")
+
+            if not HTASchemaContract.check_context_infusion(
+                "node", "description", response.get("description", "")
+            ):
+                logger.warning("Generated description lacks proper context infusion")
+
+            return response
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         except Exception as e:
             logger.error(f"Error generating node content: {str(e)}")
             # Return fallback content
             return self._get_fallback_content(prompt_type)
+<<<<<<< HEAD
     
     def _repair_response(self, response: Dict[str, Any], errors: List[str]) -> Dict[str, Any]:
         """
@@ -272,11 +453,28 @@ class ContextInfusedNodeGenerator:
             response: The LLM response to repair
             errors: List of validation errors
             
+=======
+
+    def _repair_response(
+        self, response: Dict[str, Any], errors: List[str]
+    ) -> Dict[str, Any]:
+        """
+        Attempt to repair common validation errors in LLM responses.
+
+        Args:
+            response: The LLM response to repair
+            errors: List of validation errors
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Repaired response dictionary
         """
         repaired = response.copy()
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         for error in errors:
             if "Missing required field" in error:
                 field = error.split(": ")[1]
@@ -284,13 +482,18 @@ class ContextInfusedNodeGenerator:
                     repaired["title"] = "Untitled Task"
                 elif field == "description":
                     repaired["description"] = "Task details will be provided soon."
+<<<<<<< HEAD
                     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             elif "Invalid value for" in error:
                 field = error.split(" for ")[1]
                 if field == "title":
                     # Truncate if too long, pad if too short
                     title = repaired.get("title", "Untitled")
                     repaired["title"] = title[:100] if len(title) > 100 else title
+<<<<<<< HEAD
                     
         return repaired
     
@@ -301,6 +504,18 @@ class ContextInfusedNodeGenerator:
         Args:
             prompt_type: Type of prompt that failed
             
+=======
+
+        return repaired
+
+    def _get_fallback_content(self, prompt_type: str) -> Dict[str, Any]:
+        """
+        Get fallback content when LLM generation fails.
+
+        Args:
+            prompt_type: Type of prompt that failed
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with fallback content
         """
@@ -311,7 +526,11 @@ class ContextInfusedNodeGenerator:
                 "phase_type": "general",
                 "expected_duration": "medium",
                 "joy_factor": 0.5,
+<<<<<<< HEAD
                 "relevance_score": 0.5
+=======
+                "relevance_score": 0.5,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             }
         elif prompt_type == "branch_nodes":
             return {
@@ -323,7 +542,11 @@ class ContextInfusedNodeGenerator:
                         "estimated_time": "medium",
                         "joy_factor": 0.5,
                         "relevance_score": 0.5,
+<<<<<<< HEAD
                         "branch_type": "task"
+=======
+                        "branch_type": "task",
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                     }
                 ]
             }
@@ -337,11 +560,16 @@ class ContextInfusedNodeGenerator:
                         "joy_factor": 0.6,
                         "estimated_time": "low",
                         "framing": "action",
+<<<<<<< HEAD
                         "positive_reinforcement": "Great job completing this step!"
+=======
+                        "positive_reinforcement": "Great job completing this step!",
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                     }
                 ]
             }
         return {}
+<<<<<<< HEAD
     
     async def _get_memory_context(self, user_id: uuid.UUID) -> Dict[str, Any]:
         """
@@ -350,6 +578,16 @@ class ContextInfusedNodeGenerator:
         Args:
             user_id: UUID of the user
             
+=======
+
+    async def _get_memory_context(self, user_id: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get memory context for the user.
+
+        Args:
+            user_id: UUID of the user
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with memory context
         """
@@ -358,6 +596,7 @@ class ContextInfusedNodeGenerator:
         except Exception as e:
             logger.error(f"Error getting memory context: {str(e)}")
             return {}
+<<<<<<< HEAD
     
     async def _extract_recent_reflections(self, user_id: uuid.UUID) -> List[Dict[str, Any]]:
         """
@@ -366,6 +605,18 @@ class ContextInfusedNodeGenerator:
         Args:
             user_id: UUID of the user
             
+=======
+
+    async def _extract_recent_reflections(
+        self, user_id: uuid.UUID
+    ) -> List[Dict[str, Any]]:
+        """
+        Extract recent reflections for the user.
+
+        Args:
+            user_id: UUID of the user
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             List of recent reflections
         """
@@ -374,6 +625,7 @@ class ContextInfusedNodeGenerator:
         except Exception as e:
             logger.error(f"Error extracting recent reflections: {str(e)}")
             return []
+<<<<<<< HEAD
     
     async def _extract_user_preferences(self, user_id: uuid.UUID) -> Dict[str, Any]:
         """
@@ -382,6 +634,16 @@ class ContextInfusedNodeGenerator:
         Args:
             user_id: UUID of the user
             
+=======
+
+    async def _extract_user_preferences(self, user_id: uuid.UUID) -> Dict[str, Any]:
+        """
+        Extract user preferences from memory.
+
+        Args:
+            user_id: UUID of the user
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with user preferences
         """
@@ -391,6 +653,7 @@ class ContextInfusedNodeGenerator:
         except Exception as e:
             logger.error(f"Error extracting user preferences: {str(e)}")
             return {}
+<<<<<<< HEAD
     
     async def _extract_recent_activities(self, user_id: uuid.UUID) -> List[Dict[str, Any]]:
         """
@@ -399,6 +662,18 @@ class ContextInfusedNodeGenerator:
         Args:
             user_id: UUID of the user
             
+=======
+
+    async def _extract_recent_activities(
+        self, user_id: uuid.UUID
+    ) -> List[Dict[str, Any]]:
+        """
+        Extract recent activities for the user.
+
+        Args:
+            user_id: UUID of the user
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             List of recent activities
         """
@@ -408,6 +683,7 @@ class ContextInfusedNodeGenerator:
         except Exception as e:
             logger.error(f"Error extracting recent activities: {str(e)}")
             return []
+<<<<<<< HEAD
     
     async def _get_tree_metadata(self, tree_id: uuid.UUID) -> Dict[str, Any]:
         """
@@ -416,16 +692,36 @@ class ContextInfusedNodeGenerator:
         Args:
             tree_id: UUID of the tree
             
+=======
+
+    async def _get_tree_metadata(self, tree_id: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get metadata for the tree.
+
+        Args:
+            tree_id: UUID of the tree
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with tree metadata
         """
         async with self.session_manager.session() as session:
             from forest_app.persistence.models import HTATreeModel
+<<<<<<< HEAD
             tree = await session.query(HTATreeModel).filter(HTATreeModel.id == tree_id).first()
+=======
+
+            tree = (
+                await session.query(HTATreeModel)
+                .filter(HTATreeModel.id == tree_id)
+                .first()
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             if tree:
                 return {
                     "goal_name": tree.goal_name,
                     "initial_context": tree.initial_context,
+<<<<<<< HEAD
                     "created_at": tree.created_at.isoformat() if tree.created_at else None
                 }
             return {}
@@ -437,6 +733,21 @@ class ContextInfusedNodeGenerator:
         Args:
             node: Node to get parent context for
             
+=======
+                    "created_at": (
+                        tree.created_at.isoformat() if tree.created_at else None
+                    ),
+                }
+            return {}
+
+    async def _get_parent_context(self, node: HTANodeModel) -> Dict[str, Any]:
+        """
+        Get context from parent nodes.
+
+        Args:
+            node: Node to get parent context for
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with parent context
         """
@@ -446,6 +757,7 @@ class ContextInfusedNodeGenerator:
             ancestors = []
             current_id = node.parent_id
             visited = set()
+<<<<<<< HEAD
             
             while current_id and current_id not in visited:
                 visited.add(current_id)
@@ -462,4 +774,29 @@ class ContextInfusedNodeGenerator:
                     
             return {"ancestors": ancestors}
 
+=======
+
+            while current_id and current_id not in visited:
+                visited.add(current_id)
+                parent = (
+                    await session.query(HTANodeModel)
+                    .filter(HTANodeModel.id == current_id)
+                    .first()
+                )
+                if parent:
+                    ancestors.append(
+                        {
+                            "title": parent.title,
+                            "description": parent.description,
+                            "is_major_phase": parent.is_major_phase,
+                        }
+                    )
+                    current_id = parent.parent_id
+                else:
+                    break
+
+            return {"ancestors": ancestors}
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 logger.debug("Context-Infused Node Generator defined.")

@@ -6,39 +6,74 @@ with contextual information, examples, and formatting to improve response qualit
 """
 
 import logging
+<<<<<<< HEAD
 from typing import Dict, Any, List, Optional, Union
+=======
+from typing import Any, Dict, List, Optional
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 from pydantic import BaseModel, Field
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
+<<<<<<< HEAD
 class AugmentationTemplate(BaseModel):
     """A template for prompt augmentation."""
+=======
+
+class AugmentationTemplate(BaseModel):
+    """A template for prompt augmentation."""
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     name: str = Field(..., description="Template name")
     description: str = Field(..., description="Template description")
     system_prompt: str = Field(..., description="System prompt to provide context")
     prompt_format: str = Field(..., description="Format string for the prompt")
+<<<<<<< HEAD
     examples: Optional[List[Dict[str, str]]] = Field(default=None, description="Examples of input/output pairs")
     
+=======
+    examples: Optional[List[Dict[str, str]]] = Field(
+        default=None, description="Examples of input/output pairs"
+    )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def format_prompt(self, **kwargs) -> Dict[str, Any]:
         """Format the prompt with provided parameters."""
         try:
             formatted_prompt = self.prompt_format.format(**kwargs)
+<<<<<<< HEAD
             
             messages = [
                 {"role": "system", "content": self.system_prompt}
             ]
             
+=======
+
+            messages = [{"role": "system", "content": self.system_prompt}]
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Add examples if provided
             if self.examples:
                 for example in self.examples:
                     if "input" in example and "output" in example:
                         messages.append({"role": "user", "content": example["input"]})
+<<<<<<< HEAD
                         messages.append({"role": "assistant", "content": example["output"]})
             
             # Add the actual prompt
             messages.append({"role": "user", "content": formatted_prompt})
             
+=======
+                        messages.append(
+                            {"role": "assistant", "content": example["output"]}
+                        )
+
+            # Add the actual prompt
+            messages.append({"role": "user", "content": formatted_prompt})
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return messages
         except KeyError as e:
             logger.error(f"Missing parameter in prompt format: {e}")
@@ -49,6 +84,7 @@ class AugmentationTemplate(BaseModel):
 
 
 class PromptAugmentationService:
+<<<<<<< HEAD
     """
     Service for augmenting and optimizing prompts sent to LLM services.
     
@@ -57,12 +93,26 @@ class PromptAugmentationService:
     contextual information to improve response quality.
     """
     
+=======
+    """Placeholder for PromptAugmentationService. Implement as needed."""
+
+    def __init__(self, *args, **kwargs):
+        raise NotImplementedError("PromptAugmentationService is not yet implemented.")
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(self):
         """Initialize the PromptAugmentationService with default templates."""
         self.templates: Dict[str, AugmentationTemplate] = {}
         self._initialize_default_templates()
+<<<<<<< HEAD
         logger.info(f"PromptAugmentationService initialized with {len(self.templates)} templates")
     
+=======
+        logger.info(
+            f"PromptAugmentationService initialized with {len(self.templates)} templates"
+        )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def _initialize_default_templates(self):
         """Initialize the default set of prompt templates."""
         # General JSON generation template
@@ -89,11 +139,19 @@ class PromptAugmentationService:
                         "Based on this information: John Smith is 32 years old and knows Python, JavaScript, and UX design.\n\n"
                         "Additional requirements: Format the skills in lowercase."
                     ),
+<<<<<<< HEAD
                     "output": '{\n  "name": "John Smith",\n  "age": 32,\n  "skills": ["python", "javascript", "ux design"]\n}'
                 }
             ]
         )
         
+=======
+                    "output": '{\n  "name": "John Smith",\n  "age": 32,\n  "skills": ["python", "javascript", "ux design"]\n}',
+                }
+            ],
+        )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # HTA node generation template
         self.templates["hta_node_generation"] = AugmentationTemplate(
             name="hta_node_generation",
@@ -148,11 +206,19 @@ class PromptAugmentationService:
                         "Test yourself by quickly identifying strings when pointing to them randomly.\n"
                         "   Time: 10 minutes\n"
                         "   Difficulty: 1/5"
+<<<<<<< HEAD
                     )
                 }
             ]
         )
         
+=======
+                    ),
+                }
+            ],
+        )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Reflection generation template
         self.templates["reflection_generation"] = AugmentationTemplate(
             name="reflection_generation",
@@ -196,6 +262,7 @@ class PromptAugmentationService:
                         "comfortable Spanish conversations during your planned trip. Consider recording yourself "
                         "saying these words and comparing to native speakers - small pronunciation adjustments now "
                         "will make a big difference to your confidence later!"
+<<<<<<< HEAD
                     )
                 }
             ]
@@ -205,11 +272,23 @@ class PromptAugmentationService:
         """
         Register a new prompt template.
         
+=======
+                    ),
+                }
+            ],
+        )
+
+    def register_template(self, template: AugmentationTemplate):
+        """
+        Register a new prompt template.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             template: The template to register
         """
         self.templates[template.name] = template
         logger.info(f"Registered new template: {template.name}")
+<<<<<<< HEAD
     
     def get_template(self, template_name: str) -> Optional[AugmentationTemplate]:
         """
@@ -218,10 +297,21 @@ class PromptAugmentationService:
         Args:
             template_name: The name of the template to retrieve
             
+=======
+
+    def get_template(self, template_name: str) -> Optional[AugmentationTemplate]:
+        """
+        Get a registered template by name.
+
+        Args:
+            template_name: The name of the template to retrieve
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             The template if found, None otherwise
         """
         return self.templates.get(template_name)
+<<<<<<< HEAD
     
     def format_with_template(self, template_name: str, **kwargs) -> Dict[str, Any]:
         """
@@ -234,12 +324,27 @@ class PromptAugmentationService:
         Returns:
             The formatted prompt as a dictionary
             
+=======
+
+    def format_with_template(self, template_name: str, **kwargs) -> Dict[str, Any]:
+        """
+        Format a prompt using a registered template.
+
+        Args:
+            template_name: The name of the template to use
+            **kwargs: Parameters to include in the template
+
+        Returns:
+            The formatted prompt as a dictionary
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Raises:
             ValueError: If the template doesn't exist or there's an error formatting
         """
         template = self.get_template(template_name)
         if not template:
             raise ValueError(f"Template '{template_name}' not found")
+<<<<<<< HEAD
         
         return template.format_prompt(**kwargs)
     
@@ -251,11 +356,27 @@ class PromptAugmentationService:
             prompt: The original prompt text
             context: Optional context dictionary with additional information
             
+=======
+
+        return template.format_prompt(**kwargs)
+
+    def augment_prompt(
+        self, prompt: str, context: Optional[Dict[str, Any]] = None
+    ) -> str:
+        """
+        Augment a simple text prompt with contextual information.
+
+        Args:
+            prompt: The original prompt text
+            context: Optional context dictionary with additional information
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             The augmented prompt text
         """
         if not context:
             return prompt
+<<<<<<< HEAD
             
         augmented = prompt
         
@@ -263,10 +384,20 @@ class PromptAugmentationService:
         if context.get("user_goal"):
             augmented = f"Goal: {context['user_goal']}\n\n{augmented}"
             
+=======
+
+        augmented = prompt
+
+        # Add relevant context sections
+        if context.get("user_goal"):
+            augmented = f"Goal: {context['user_goal']}\n\n{augmented}"
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         if context.get("recent_tasks"):
             tasks = context["recent_tasks"]
             tasks_summary = "\n".join([f"- {task}" for task in tasks])
             augmented = f"{augmented}\n\nRecent tasks:\n{tasks_summary}"
+<<<<<<< HEAD
             
         if context.get("system_instruction"):
             augmented = f"{context['system_instruction']}\n\n{augmented}"
@@ -285,27 +416,66 @@ class PromptAugmentationService:
         """
         Create a list of chat messages from a user prompt and optional context.
         
+=======
+
+        if context.get("system_instruction"):
+            augmented = f"{context['system_instruction']}\n\n{augmented}"
+
+        # Add reminders to condition the model for better outputs
+        augmented = f"{augmented}\n\nRemember to provide concise, practical, and actionable information."
+
+        return augmented
+
+    def create_chat_messages(
+        self,
+        user_prompt: str,
+        system_instruction: Optional[str] = None,
+        history: Optional[List[Dict[str, str]]] = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Create a list of chat messages from a user prompt and optional context.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_prompt: The user's prompt
             system_instruction: Optional system instruction to include
             history: Optional chat history to include
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             A list of chat message dictionaries
         """
         messages = []
+<<<<<<< HEAD
         
         # Add system instruction if provided
         if system_instruction:
             messages.append({"role": "system", "content": system_instruction})
             
+=======
+
+        # Add system instruction if provided
+        if system_instruction:
+            messages.append({"role": "system", "content": system_instruction})
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Add chat history if provided
         if history:
             for msg in history:
                 if "role" in msg and "content" in msg:
                     messages.append(msg)
+<<<<<<< HEAD
         
         # Add the user prompt
         messages.append({"role": "user", "content": user_prompt})
         
+=======
+
+        # Add the user prompt
+        messages.append({"role": "user", "content": user_prompt})
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return messages

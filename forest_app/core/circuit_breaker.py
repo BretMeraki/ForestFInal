@@ -8,20 +8,19 @@ external dependencies are unstable.
 """
 
 import asyncio
-import logging
-import time
-from typing import Any, Callable, Dict, Optional, Union, TypeVar, Generic, List, Awaitable
-from datetime import datetime, timedelta
-from enum import Enum
 import functools
+import logging
+from datetime import datetime
+from enum import Enum
+from typing import Awaitable, Callable, Dict, List, Optional, TypeVar
+
 import pybreaker
-import random
 
 logger = logging.getLogger(__name__)
 
 # Type variables for function signatures
-T = TypeVar('T')
-R = TypeVar('R')
+T = TypeVar("T")
+R = TypeVar("R")
 
 class CircuitState(Enum):
     """States for the circuit breaker."""

@@ -1,37 +1,26 @@
 # forest_app/helpers.py
 
-import logging
 import json
-import os
-import sys # For stderr
+import logging
 from datetime import datetime, timezone
-from collections import deque
-from typing import Optional, Dict, Any, List
+from typing import Dict, Optional
 
+from sqlalchemy.exc import SQLAlchemyError
 # --- SQLAlchemy Imports ---
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
 
 # --- Core Components ---
 from forest_app.core.snapshot import MemorySnapshot
-from forest_app.core.orchestrator import prune_context # Helper from orchestrator
-
+# --- LLM & Pydantic Imports ---
+# Assume these imports are correct based on your provided code
+from forest_app.integrations.llm import (LLMClient, LLMConfigurationError,
+                                         LLMConnectionError, LLMError,
+                                         LLMValidationError,
+                                         SnapshotCodenameResponse)
+from forest_app.persistence.models import MemorySnapshotModel
 # --- Persistence Components ---
 # Assume these imports are correct
 from forest_app.persistence.repository import MemorySnapshotRepository
-from forest_app.persistence.models import MemorySnapshotModel
-
-# --- LLM & Pydantic Imports ---
-# Assume these imports are correct based on your provided code
-from forest_app.integrations.llm import (
-    LLMClient,
-    SnapshotCodenameResponse,
-    LLMError,
-    LLMValidationError,
-    LLMConfigurationError,
-    LLMConnectionError
-)
-from pydantic import BaseModel, Field
 
 # --- Constants ---
 try:
@@ -46,7 +35,9 @@ logger = logging.getLogger(__name__)
 
 # <<< --- ADDED HELPER FUNCTION --- >>>
 # (Same helper as added to routers/core.py for consistency)
-def find_node_in_dict(node_dict: Optional[Dict], node_id_to_find: str) -> Optional[Dict]:
+def find_node_in_dict(
+    node_dict: Optional[Dict], node_id_to_find: str
+) -> Optional[Dict]:
     """Helper to recursively find a node dictionary by ID within a nested structure."""
     if not isinstance(node_dict, dict):
         return None
@@ -61,13 +52,12 @@ def find_node_in_dict(node_dict: Optional[Dict], node_id_to_find: str) -> Option
     return None
 # <<< --- END ADDED HELPER FUNCTION --- >>>
 
-
 # --- Updated Helper Function Signature ---
 async def save_snapshot_with_codename(
     db: Session,
     repo: MemorySnapshotRepository,
     user_id: int,
-    snapshot: MemorySnapshot, # Input is the full MemorySnapshot object
+    snapshot: MemorySnapshot,  # Input is the full MemorySnapshot object
     llm_client: LLMClient,
     stored_model: Optional[MemorySnapshotModel],
     force_create_new: bool = False,
@@ -93,7 +83,7 @@ async def save_snapshot_with_codename(
     # --- CRITICAL: Record feature flags BEFORE serializing ---
     try:
         logger.debug("Calling snapshot.record_feature_flags()...")
-        snapshot.record_feature_flags() # Populate the feature_flags dict
+        snapshot.record_feature_flags()  # Populate the feature_flags dict
         logger.debug("Finished snapshot.record_feature_flags().")
     except Exception as ff_err:
         # Log error but proceed, snapshot might be saved without flags
@@ -106,9 +96,8 @@ async def save_snapshot_with_codename(
         logger.debug("Snapshot serialized successfully after recording flags.")
     except Exception as dict_err:
         logger.error("Error calling snapshot.to_dict(): %s. Cannot save snapshot.", dict_err, exc_info=True)
-        return None # Cannot proceed without serialized data
+        return None  # Cannot proceed without serialized data
     # --- End Serialization ---
-
 
     # Logging snapshot data (keep as is)
     try:
@@ -127,7 +116,6 @@ async def save_snapshot_with_codename(
         logger.debug("SAVE_SNAPSHOT: Recorded feature_flags: %s", updated_data.get('feature_flags', 'MISSING_OR_ERROR'))
     except Exception as log_err:
         logger.error("SAVE_SNAPSHOT: Error logging snapshot data: %s", log_err)
-
 
     generated_codename: str = f"Snapshot_{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}" # Fallback
 
@@ -170,7 +158,6 @@ async def save_snapshot_with_codename(
     except Exception as e:
         logger.exception("Unexpected error generating codename: %s. Using fallback.", e)
 
-
     # --- Save or Update Snapshot Model Object ---
     new_or_updated_model: Optional[MemorySnapshotModel] = None
     action = "create" if force_create_new or not stored_model else "update"
@@ -192,7 +179,6 @@ async def save_snapshot_with_codename(
     except Exception as log_ex:
         logger.error(f"[HELPER PRE-REPO] Error logging HTA state before repo call: {log_ex}")
     # <<< --- END ADDED LOGGING --- >>>
-
 
     try:
         if action == "create":

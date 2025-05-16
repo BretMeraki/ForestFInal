@@ -2,13 +2,18 @@
 
 import json
 import logging
+<<<<<<< HEAD
 from typing import List, Dict, Optional, Any # Added Any
+=======
+from typing import Any, Dict, List, Optional  # Added Any
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 # Assuming feature_flags.py is accessible from this module's path
 try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
+<<<<<<< HEAD
     logger.warning("Feature flags module not found in archetype. Feature flag checks will be disabled.")
     class Feature: # Dummy class
         ARCHETYPES = "FEATURE_ENABLE_ARCHETYPES" # Define the specific flag used here
@@ -28,6 +33,32 @@ from forest_app.config.constants import (
     DEFAULT_SNAPSHOT_CAPACITY,
     DEFAULT_SNAPSHOT_SHADOW,
 )
+=======
+    logger.warning(
+        "Feature flags module not found in archetype. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        ARCHETYPES = "FEATURE_ENABLE_ARCHETYPES"  # Define the specific flag used here
+
+    def is_enabled(feature: Any) -> bool:  # Dummy function - default to True or False
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True  # Or False, depending on desired fallback
+
+
+# --- Import Constants ---
+from forest_app.config.constants import (ARCHETYPE_ACTIVATION_THRESHOLD,
+                                         ARCHETYPE_CONTEXT_FACTOR_CAPACITY,
+                                         ARCHETYPE_CONTEXT_FACTOR_SHADOW,
+                                         ARCHETYPE_DOMINANCE_FACTOR,
+                                         DEFAULT_ARCHETYPE_WEIGHT,
+                                         DEFAULT_SNAPSHOT_CAPACITY,
+                                         DEFAULT_SNAPSHOT_SHADOW,
+                                         HIGH_SHADOW_THRESHOLD,
+                                         LOW_CAPACITY_THRESHOLD)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -38,6 +69,10 @@ class Archetype:
     Represents a single archetype with defined traits and dynamic context parameters.
     Weight adjustment respects the ARCHETYPES feature flag.
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(
         self,
         name: str,
@@ -100,9 +135,18 @@ class Archetype:
         # --- Feature Flag Check ---
         if not is_enabled(Feature.ARCHETYPES):
             if self.current_weight != self.default_weight:
+<<<<<<< HEAD
                  logger.debug("Resetting archetype '%s' weight to default: ARCHETYPES feature disabled.", self.name)
                  self.current_weight = self.default_weight
             return # Skip adjustments if feature is off
+=======
+                logger.debug(
+                    "Resetting archetype '%s' weight to default: ARCHETYPES feature disabled.",
+                    self.name,
+                )
+                self.current_weight = self.default_weight
+            return  # Skip adjustments if feature is off
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # --- End Check ---
 
         capacity = context.get("capacity", DEFAULT_SNAPSHOT_CAPACITY)
@@ -110,20 +154,42 @@ class Archetype:
         new_weight = self.default_weight
 
         if capacity < LOW_CAPACITY_THRESHOLD and "caretaker" in self.name.lower():
+<<<<<<< HEAD
             capacity_factor = self.context_factors.get("capacity", ARCHETYPE_CONTEXT_FACTOR_CAPACITY)
             new_weight += capacity_factor
 
         if shadow > HIGH_SHADOW_THRESHOLD and "healer" in self.name.lower():
             shadow_factor = self.context_factors.get("shadow", ARCHETYPE_CONTEXT_FACTOR_SHADOW)
+=======
+            capacity_factor = self.context_factors.get(
+                "capacity", ARCHETYPE_CONTEXT_FACTOR_CAPACITY
+            )
+            new_weight += capacity_factor
+
+        if shadow > HIGH_SHADOW_THRESHOLD and "healer" in self.name.lower():
+            shadow_factor = self.context_factors.get(
+                "shadow", ARCHETYPE_CONTEXT_FACTOR_SHADOW
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             new_weight += shadow_factor
 
         adjusted_weight = max(0.0, new_weight)
         if adjusted_weight != self.current_weight:
+<<<<<<< HEAD
              self.current_weight = adjusted_weight
              logger.debug(
                  "Archetype '%s' adjusted weight to %.2f based on context %s",
                  self.name, self.current_weight, {"capacity": capacity, "shadow_score": shadow}
              )
+=======
+            self.current_weight = adjusted_weight
+            logger.debug(
+                "Archetype '%s' adjusted weight to %.2f based on context %s",
+                self.name,
+                self.current_weight,
+                {"capacity": capacity, "shadow_score": shadow},
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # No logging if weight didn't change
 
     def __str__(self) -> str:
@@ -135,9 +201,18 @@ class ArchetypeManager:
     Manages a collection of archetypes, dynamically selecting and blending them
     based on the MemorySnapshot state. Respects the ARCHETYPES feature flag.
     """
+<<<<<<< HEAD
     def __init__(self):
         self.archetypes: List[Archetype] = [] # Stores all loaded archetype definitions
         self.active_archetypes: Dict[str, Archetype] = {} # Stores currently active archetypes
+=======
+
+    def __init__(self):
+        self.archetypes: List[Archetype] = []  # Stores all loaded archetype definitions
+        self.active_archetypes: Dict[str, Archetype] = (
+            {}
+        )  # Stores currently active archetypes
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def _clear_state(self):
         """Helper to reset the manager's state."""
@@ -152,11 +227,19 @@ class ArchetypeManager:
         # --- Feature Flag Check ---
         if not is_enabled(Feature.ARCHETYPES):
             logger.debug("Skipping load_archetypes: ARCHETYPES feature disabled.")
+<<<<<<< HEAD
             self._clear_state() # Ensure state is empty if feature is off
             return
         # --- End Check ---
 
         self._clear_state() # Clear previous before loading
+=======
+            self._clear_state()  # Ensure state is empty if feature is off
+            return
+        # --- End Check ---
+
+        self._clear_state()  # Clear previous before loading
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         valid_archetypes = 0
         for item in archetype_list:
             try:
@@ -165,9 +248,20 @@ class ArchetypeManager:
                     self.archetypes.append(arch)
                     valid_archetypes += 1
                 else:
+<<<<<<< HEAD
                     logger.warning("Skipping invalid archetype data during load (missing name or not dict): %s", item)
             except Exception as e:
                 logger.exception("Error loading archetype from data: %s. Data: %s", e, item)
+=======
+                    logger.warning(
+                        "Skipping invalid archetype data during load (missing name or not dict): %s",
+                        item,
+                    )
+            except Exception as e:
+                logger.exception(
+                    "Error loading archetype from data: %s. Data: %s", e, item
+                )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Initialize active_archetypes with all loaded archetypes; weights will be updated later
         # No need for flag check here as we wouldn't reach this point if the flag was off
@@ -186,14 +280,25 @@ class ArchetypeManager:
         # --- End Check ---
 
         found_archetype = None
+<<<<<<< HEAD
         for arch in self.archetypes: # Search in loaded definitions
+=======
+        for arch in self.archetypes:  # Search in loaded definitions
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             if arch.name.lower() == name.lower():
                 found_archetype = arch
                 break
 
         if found_archetype:
             self.active_archetypes = {found_archetype.name: found_archetype}
+<<<<<<< HEAD
             logger.info("Active archetype forcefully set to '%s'. Dynamic weights bypassed.", found_archetype.name)
+=======
+            logger.info(
+                "Active archetype forcefully set to '%s'. Dynamic weights bypassed.",
+                found_archetype.name,
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return True
         else:
             logger.warning("Archetype '%s' not found for set_active_archetype.", name)
@@ -206,9 +311,15 @@ class ArchetypeManager:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.ARCHETYPES):
+<<<<<<< HEAD
             if self.active_archetypes: # Only clear if not already empty
                  logger.debug("Clearing active archetypes: ARCHETYPES feature disabled.")
                  self.active_archetypes = {}
+=======
+            if self.active_archetypes:  # Only clear if not already empty
+                logger.debug("Clearing active archetypes: ARCHETYPES feature disabled.")
+                self.active_archetypes = {}
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
         # --- End Check ---
 
@@ -218,7 +329,13 @@ class ArchetypeManager:
         }
 
         if not self.archetypes:
+<<<<<<< HEAD
             logger.debug("No archetypes loaded. Cannot update active archetypes.") # Changed to debug
+=======
+            logger.debug(
+                "No archetypes loaded. Cannot update active archetypes."
+            )  # Changed to debug
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             self.active_archetypes = {}
             return
 
@@ -226,7 +343,13 @@ class ArchetypeManager:
             try:
                 arch.adjust_weight(context)
             except Exception as e:
+<<<<<<< HEAD
                 logger.exception("Error adjusting weight for archetype '%s': %s", arch.name, e)
+=======
+                logger.exception(
+                    "Error adjusting weight for archetype '%s': %s", arch.name, e
+                )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         filtered_archetypes = {
             arch.name: arch
@@ -240,15 +363,31 @@ class ArchetypeManager:
             try:
                 top_archetype = max(self.archetypes, key=lambda a: a.current_weight)
                 self.active_archetypes = {top_archetype.name: top_archetype}
+<<<<<<< HEAD
                 logger.info("No archetypes met activation threshold. Falling back to single highest: '%s' (Weight: %.2f)",
                             top_archetype.name, top_archetype.current_weight)
+=======
+                logger.info(
+                    "No archetypes met activation threshold. Falling back to single highest: '%s' (Weight: %.2f)",
+                    top_archetype.name,
+                    top_archetype.current_weight,
+                )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             except ValueError:
                 logger.warning("Cannot determine top archetype: no archetypes loaded.")
                 self.active_archetypes = {}
         else:
+<<<<<<< HEAD
              self.active_archetypes = {}
 
         logger.info("Active archetypes after update: %s", list(self.active_archetypes.keys()))
+=======
+            self.active_archetypes = {}
+
+        logger.info(
+            "Active archetypes after update: %s", list(self.active_archetypes.keys())
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def get_influence(self) -> dict:
         """
@@ -267,6 +406,7 @@ class ArchetypeManager:
 
         sorted_active = sorted(
             self.active_archetypes.values(),
+<<<<<<< HEAD
             key=lambda a: getattr(a, 'current_weight', 0.0),
             reverse=True
         )
@@ -276,6 +416,21 @@ class ArchetypeManager:
            ARCHETYPE_DOMINANCE_FACTOR * getattr(sorted_active[1], 'current_weight', 0.0):
             dominant_arch = sorted_active[0]
             logger.debug("Dominant archetype influence selected: '%s'", dominant_arch.name)
+=======
+            key=lambda a: getattr(a, "current_weight", 0.0),
+            reverse=True,
+        )
+
+        if len(sorted_active) > 1 and getattr(
+            sorted_active[0], "current_weight", 0.0
+        ) >= ARCHETYPE_DOMINANCE_FACTOR * getattr(
+            sorted_active[1], "current_weight", 0.0
+        ):
+            dominant_arch = sorted_active[0]
+            logger.debug(
+                "Dominant archetype influence selected: '%s'", dominant_arch.name
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return {
                 "transformation_style": dominant_arch.transformation_style,
                 "tag_bias": list(dominant_arch.tag_bias),
@@ -288,11 +443,22 @@ class ArchetypeManager:
             blended_tags = []
             seen_tags = set()
             for a in sorted_active:
+<<<<<<< HEAD
                 for tag in getattr(a, 'tag_bias', []):
                     if tag not in seen_tags:
                         blended_tags.append(tag)
                         seen_tags.add(tag)
             logger.debug("Blending influence from active archetypes: %s", list(self.active_archetypes.keys()))
+=======
+                for tag in getattr(a, "tag_bias", []):
+                    if tag not in seen_tags:
+                        blended_tags.append(tag)
+                        seen_tags.add(tag)
+            logger.debug(
+                "Blending influence from active archetypes: %s",
+                list(self.active_archetypes.keys()),
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return {"transformation_style": blended_style, "tag_bias": blended_tags}
 
     def to_dict(self) -> dict:
@@ -302,14 +468,26 @@ class ArchetypeManager:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.ARCHETYPES):
+<<<<<<< HEAD
             logger.debug("Skipping ArchetypeManager serialization: ARCHETYPES feature disabled.")
+=======
+            logger.debug(
+                "Skipping ArchetypeManager serialization: ARCHETYPES feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return {}
         # --- End Check ---
 
         logger.debug("Serializing ArchetypeManager state.")
         return {
             "archetypes": [a.to_dict() for a in self.archetypes],
+<<<<<<< HEAD
             "active_archetypes": {name: arch.to_dict() for name, arch in self.active_archetypes.items()},
+=======
+            "active_archetypes": {
+                name: arch.to_dict() for name, arch in self.active_archetypes.items()
+            },
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         }
 
     def update_from_dict(self, data: dict):
@@ -319,18 +497,37 @@ class ArchetypeManager:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.ARCHETYPES):
+<<<<<<< HEAD
             logger.debug("Clearing state via update_from_dict: ARCHETYPES feature disabled.")
             self._clear_state() # Reset to empty if feature is off
+=======
+            logger.debug(
+                "Clearing state via update_from_dict: ARCHETYPES feature disabled."
+            )
+            self._clear_state()  # Reset to empty if feature is off
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
         # --- End Check ---
 
         if not isinstance(data, dict):
+<<<<<<< HEAD
             logger.error("Invalid data passed to ArchetypeManager.update_from_dict: Expected dict, got %s", type(data))
             self._clear_state() # Reset if data is invalid
             return
 
         # Feature is enabled, proceed with loading
         self._clear_state() # Clear before loading new state
+=======
+            logger.error(
+                "Invalid data passed to ArchetypeManager.update_from_dict: Expected dict, got %s",
+                type(data),
+            )
+            self._clear_state()  # Reset if data is invalid
+            return
+
+        # Feature is enabled, proceed with loading
+        self._clear_state()  # Clear before loading new state
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Load definitions
         archetype_defs_data = data.get("archetypes", [])
@@ -340,6 +537,7 @@ class ArchetypeManager:
                     if isinstance(arch_data, dict):
                         loaded_arch = Archetype.from_dict(arch_data)
                         # Restore current_weight from saved data
+<<<<<<< HEAD
                         loaded_arch.current_weight = arch_data.get("current_weight", loaded_arch.default_weight)
                         self.archetypes.append(loaded_arch)
                     else:
@@ -348,6 +546,27 @@ class ArchetypeManager:
                     logger.exception("Error loading archetype definition from dict: %s. Data: %s", e, arch_data)
         else:
             logger.warning("Archetypes data in update_from_dict is not a list. Definitions not loaded.")
+=======
+                        loaded_arch.current_weight = arch_data.get(
+                            "current_weight", loaded_arch.default_weight
+                        )
+                        self.archetypes.append(loaded_arch)
+                    else:
+                        logger.warning(
+                            "Skipping non-dict item in archetypes list during load: %s",
+                            type(arch_data),
+                        )
+                except Exception as e:
+                    logger.exception(
+                        "Error loading archetype definition from dict: %s. Data: %s",
+                        e,
+                        arch_data,
+                    )
+        else:
+            logger.warning(
+                "Archetypes data in update_from_dict is not a list. Definitions not loaded."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Load active archetypes (use definitions loaded above)
         active_archetypes_data = data.get("active_archetypes", {})
@@ -355,6 +574,7 @@ class ArchetypeManager:
             # Build a lookup of loaded definitions by name
             definitions_lookup = {arch.name: arch for arch in self.archetypes}
             for name, arch_data in active_archetypes_data.items():
+<<<<<<< HEAD
                  # Find the corresponding loaded definition
                  if name in definitions_lookup:
                       # Use the instance from self.archetypes
@@ -378,6 +598,41 @@ class ArchetypeManager:
 
         logger.debug("ArchetypeManager state updated from dict. Loaded %d definitions, %d active.",
                      len(self.archetypes), len(self.active_archetypes))
+=======
+                # Find the corresponding loaded definition
+                if name in definitions_lookup:
+                    # Use the instance from self.archetypes
+                    active_arch_instance = definitions_lookup[name]
+                    # Update its current_weight from the saved active data (important!)
+                    if isinstance(arch_data, dict):
+                        active_arch_instance.current_weight = arch_data.get(
+                            "current_weight", active_arch_instance.default_weight
+                        )
+                    # Add the instance (from self.archetypes) to the active dict
+                    self.active_archetypes[name] = active_arch_instance
+                else:
+                    logger.warning(
+                        "Active archetype '%s' found in data, but no matching definition loaded. Skipping.",
+                        name,
+                    )
+                    # Optionally try to load from arch_data itself as fallback?
+                    # try:
+                    #    if isinstance(arch_data, dict):
+                    #         fallback_arch = Archetype.from_dict(arch_data)
+                    #         self.active_archetypes[name] = fallback_arch
+                    # except Exception as e: logger.exception(...)
+
+        else:
+            logger.warning(
+                "Active archetypes data in update_from_dict is not a dict. Active set not loaded."
+            )
+
+        logger.debug(
+            "ArchetypeManager state updated from dict. Loaded %d definitions, %d active.",
+            len(self.archetypes),
+            len(self.active_archetypes),
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def __str__(self):
         # status = "ENABLED" if is_enabled(Feature.ARCHETYPES) else "DISABLED"

@@ -20,6 +20,7 @@ providing a unified interface for the application to interact with.
 
 import asyncio
 import logging
+<<<<<<< HEAD
 from typing import Any, Dict, List, Optional, Set, Tuple, Union, Awaitable
 from datetime import datetime, timezone
 from uuid import UUID
@@ -58,16 +59,57 @@ class EnhancedHTAService(HTAService):
     """
     Enhanced HTAService with a modular, clean architecture optimized for maintainability.
     
+=======
+from datetime import datetime, timezone
+from uuid import UUID
+
+from forest_app.core.circuit_breaker import (CircuitBreaker,
+                                             CircuitBreakerConfig)
+from forest_app.core.context_infused_generator import \
+    ContextInfusedNodeGenerator
+from forest_app.core.event_bus import EventData, EventType
+from forest_app.core.roadmap_models import RoadmapManifest
+from forest_app.core.services.enhanced_hta.background import \
+    BackgroundTaskManager
+from forest_app.core.services.enhanced_hta.events import EventManager
+from forest_app.core.services.enhanced_hta.memory import HTAMemoryManager
+from forest_app.core.services.enhanced_hta.reinforcement import \
+    ReinforcementManager
+from forest_app.core.services.enhanced_hta.utils import format_uuid
+from forest_app.core.services.hta_service import HTAService
+from forest_app.core.snapshot import MemorySnapshot
+from forest_app.core.transaction_decorator import transaction_protected
+from forest_app.integrations.llm import LLMError, LLMValidationError
+from forest_app.modules.hta_tree import HTATree
+from forest_app.persistence.hta_tree_repository import HTATreeRepository
+from forest_app.persistence.models import HTATreeModel
+
+logger = logging.getLogger(__name__)
+
+
+class EnhancedHTAService(HTAService):
+    """
+    Enhanced HTAService with a modular, clean architecture optimized for maintainability.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     This service extends the base HTAService with specialized components:
     - Memory Manager: Handles semantic and episodic memory operations
     - Reinforcement Manager: Generates personalized positive feedback
     - Event Manager: Centralizes event handling and cache invalidation
     - Background Task Manager: Processes intensive operations asynchronously
+<<<<<<< HEAD
     
     These modular components maintain the intimate, personal experience that makes
     The Forest special, while providing a clean, maintainable architecture.
     """
     
+=======
+
+    These modular components maintain the intimate, personal experience that makes
+    The Forest special, while providing a clean, maintainable architecture.
+    """
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(self, llm_client, semantic_memory_manager, session_manager=None):
         # ... existing constructor code ...
         super().__init__(llm_client, semantic_memory_manager)
@@ -80,7 +122,11 @@ class EnhancedHTAService(HTAService):
         self.node_generator = ContextInfusedNodeGenerator(
             llm_client=llm_client,
             memory_service=semantic_memory_manager,
+<<<<<<< HEAD
             session_manager=session_manager
+=======
+            session_manager=session_manager,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         )
         self.tree_repository = HTATreeRepository(session_manager)
         self.llm_circuit = CircuitBreaker(
@@ -88,13 +134,28 @@ class EnhancedHTAService(HTAService):
                 name="llm_service",
                 failure_threshold=3,
                 recovery_timeout=60,
+<<<<<<< HEAD
                 expected_exceptions=[LLMError, LLMValidationError, asyncio.TimeoutError],
                 fallback_function=self._llm_fallback
+=======
+                expected_exceptions=[
+                    LLMError,
+                    LLMValidationError,
+                    asyncio.TimeoutError,
+                ],
+                fallback_function=self._llm_fallback,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             )
         )
         logger.info("EnhancedHTAService initialized with modular components")
 
+<<<<<<< HEAD
     async def generate_initial_hta_from_manifest(self, manifest, user_id, request_context):
+=======
+    async def generate_initial_hta_from_manifest(
+        self, manifest, user_id, request_context
+    ):
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         """
         Generate and persist an initial HTA tree from a RoadmapManifest.
         Args:
@@ -108,16 +169,28 @@ class EnhancedHTAService(HTAService):
         tree_model = HTATreeModel(
             id=manifest.tree_id,
             user_id=user_id,
+<<<<<<< HEAD
             goal_name=getattr(manifest, 'user_goal', "HTA Tree"),  # Using goal_name instead of title
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc)
+=======
+            goal_name=getattr(
+                manifest, "user_goal", "HTA Tree"
+            ),  # Using goal_name instead of title
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Removed status field as it's not in the model
         )
         # Persist the tree to the database using the repository
         await self.tree_repository.save_tree_model(tree_model)
         # Optionally, create an audit log or similar if required by your domain
         # Publish an event to the event bus if present
+<<<<<<< HEAD
         if hasattr(self, 'event_bus') and self.event_bus:
+=======
+        if hasattr(self, "event_bus") and self.event_bus:
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Convert UUID to string and ensure event_type is provided correctly
             try:
                 await self.event_bus.publish(
@@ -128,9 +201,15 @@ class EnhancedHTAService(HTAService):
                         payload={
                             "tree_id": str(manifest.tree_id),
                             "action": "created",  # To indicate this is a creation event
+<<<<<<< HEAD
                             "context": request_context
                         }
                     )
+=======
+                            "context": request_context,
+                        },
+                    ),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 )
             except Exception as e:
                 # Log but don't let event publishing failure block the tree creation
@@ -148,32 +227,54 @@ class EnhancedHTAService(HTAService):
         """
         # Initialize base service
         super().__init__(llm_client, semantic_memory_manager)
+<<<<<<< HEAD
         
         # Store core dependencies
         self.llm_client = llm_client
         self.semantic_memory_manager = semantic_memory_manager
         
+=======
+
+        # Store core dependencies
+        self.llm_client = llm_client
+        self.semantic_memory_manager = semantic_memory_manager
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Initialize our modular components
         self.memory_manager = HTAMemoryManager(session_manager)
         self.reinforcement_manager = ReinforcementManager(llm_client)
         self.event_manager = EventManager()
         self.background_manager = BackgroundTaskManager()
+<<<<<<< HEAD
         
+=======
+        self.semantic_memory_manager = semantic_memory_manager
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Initialize our framework components
         self.node_generator = ContextInfusedNodeGenerator(
             llm_client=llm_client,
             memory_service=semantic_memory_manager,
+<<<<<<< HEAD
             session_manager=session_manager
         )
         
         self.tree_repository = HTATreeRepository(session_manager)
         
+=======
+            session_manager=session_manager,
+        )
+
+        self.tree_repository = HTATreeRepository(session_manager)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Set up circuit breakers for external services
         self.llm_circuit = CircuitBreaker(
             CircuitBreakerConfig(
                 name="llm_service",
                 failure_threshold=3,
                 recovery_timeout=60,
+<<<<<<< HEAD
                 expected_exceptions=[LLMError, LLMValidationError, asyncio.TimeoutError],
                 fallback_function=self._llm_fallback
             )
@@ -185,6 +286,23 @@ class EnhancedHTAService(HTAService):
     async def complete_node(self, node_id: UUID, user_id: UUID):
         """Mark a node as complete, update memory, and trigger positive reinforcement.
         
+=======
+                expected_exceptions=[
+                    LLMError,
+                    LLMValidationError,
+                    asyncio.TimeoutError,
+                ],
+                fallback_function=self._llm_fallback,
+            )
+        )
+
+        logger.info("EnhancedHTAService initialized with modular components")
+
+    @transaction_protected()
+    async def complete_node(self, node_id: UUID, user_id: UUID):
+        """Mark a node as complete, update memory, and trigger positive reinforcement.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         This method orchestrates the task completion process by delegating to the
         appropriate specialized components:
         1. Update the node status in the repository
@@ -192,39 +310,69 @@ class EnhancedHTAService(HTAService):
         3. Generate positive reinforcement message
         4. Publish the completion event
         5. Schedule background expansion if needed
+<<<<<<< HEAD
         
         Args:
             node_id: UUID of the node to complete
             user_id: UUID of the user completing the node
             
+=======
+
+        Args:
+            node_id: UUID of the node to complete
+            user_id: UUID of the user completing the node
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with completion results, including positive reinforcement message
         """
         logger.info(f"Processing node completion for node {node_id} by user {user_id}")
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Get the node and validate ownership
         node = await self.tree_repository.get_node_by_id(node_id)
         if not node:
             logger.error(f"Node {node_id} not found")
             raise ValueError(f"Node {node_id} not found")
+<<<<<<< HEAD
             
         if node.user_id != user_id:
             logger.error(f"User {user_id} does not own node {node_id}")
             raise ValueError(f"User {user_id} does not own node {node_id}")
             
+=======
+
+        if node.user_id != user_id:
+            logger.error(f"User {user_id} does not own node {node_id}")
+            raise ValueError(f"User {user_id} does not own node {node_id}")
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         if node.status == "completed":
             logger.info(f"Node {node_id} already completed")
             return {
                 "status": "already_completed",
+<<<<<<< HEAD
                 "message": "This task is already completed."
             }
             
+=======
+                "message": "This task is already completed.",
+            }
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Get tree for manifest update
         tree = await self.tree_repository.get_tree_by_id(node.tree_id)
         if not tree:
             logger.error(f"Tree {node.tree_id} not found")
             raise ValueError(f"Tree {node.tree_id} not found")
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Update node status to completed using the repository
         success = await self.tree_repository.update_node_status(
             node_id=node_id,
@@ -233,6 +381,7 @@ class EnhancedHTAService(HTAService):
                 "completed_at": datetime.now(timezone.utc).isoformat(),
                 "completion_context": {
                     "completed_by": str(user_id),
+<<<<<<< HEAD
                     "completion_timestamp": datetime.now(timezone.utc).isoformat()
                 }
             }
@@ -242,10 +391,22 @@ class EnhancedHTAService(HTAService):
             logger.error(f"Failed to update node {node_id} status")
             raise RuntimeError(f"Failed to update node {node_id} status")
             
+=======
+                    "completion_timestamp": datetime.now(timezone.utc).isoformat(),
+                },
+            },
+        )
+
+        if not success:
+            logger.error(f"Failed to update node {node_id} status")
+            raise RuntimeError(f"Failed to update node {node_id} status")
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Update the manifest to keep it synchronized
         manifest = RoadmapManifest(**tree.manifest)
         if node.roadmap_step_id:
             manifest = manifest.update_step_status(node.roadmap_step_id, "completed")
+<<<<<<< HEAD
             
             # Save updated manifest to tree
             tree.manifest = manifest.dict()
@@ -263,6 +424,32 @@ class EnhancedHTAService(HTAService):
         # Generate positive reinforcement message using the reinforcement manager
         reinforcement = await self.reinforcement_manager.generate_reinforcement(node)
         
+=======
+
+            # Save updated manifest to tree
+            tree.manifest = manifest.dict()
+            await self.tree_repository.update_tree(tree)
+
+        # Update memory with completion using the memory manager
+        await self.memory_manager.update_memory_with_completion(user_id, node)
+
+        # Check if parent node should be updated with completion count
+        if node.parent_id:
+            (
+                increment_success,
+                new_count,
+            ) = await self.tree_repository.increment_branch_completion_count(
+                node.parent_id
+            )
+            if increment_success:
+                logger.info(
+                    f"Incremented completion count for parent {node.parent_id} to {new_count}"
+                )
+
+        # Generate positive reinforcement message using the reinforcement manager
+        reinforcement = await self.reinforcement_manager.generate_reinforcement(node)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Publish completion event using the event manager
         await self.event_manager.publish_event(
             event_type=EventType.TASK_COMPLETED,
@@ -270,6 +457,7 @@ class EnhancedHTAService(HTAService):
             payload={
                 "node_id": str(node_id),
                 "tree_id": str(node.tree_id),
+<<<<<<< HEAD
                 "is_major_phase": getattr(node, 'is_major_phase', False)
             }
         )
@@ -277,26 +465,52 @@ class EnhancedHTAService(HTAService):
         # Check if we need to expand any nodes based on completion triggers
         expand_nodes = await self.tree_repository.get_nodes_ready_for_expansion(node.tree_id)
         
+=======
+                "is_major_phase": getattr(node, "is_major_phase", False),
+            },
+        )
+
+        # Check if we need to expand any nodes based on completion triggers
+        expand_nodes = await self.tree_repository.get_nodes_ready_for_expansion(
+            node.tree_id
+        )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         if expand_nodes:
             # Schedule background expansion using the background manager
             await self.background_manager.enqueue_task(
                 self.background_manager.expand_nodes_in_background,
+<<<<<<< HEAD
                 expand_nodes, user_id,
                 priority=3,  # Medium priority
                 metadata={"type": "node_expansion", "user_id": str(user_id)}
+=======
+                expand_nodes,
+                user_id,
+                priority=3,  # Medium priority
+                metadata={"type": "node_expansion", "user_id": str(user_id)},
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             )
 
     def _llm_fallback(self, *args, **kwargs):
         """
         Fallback function when LLM service is unavailable.
+<<<<<<< HEAD
         
         This provides a graceful degradation path to maintain the user experience
         even when external AI services are temporarily unavailable.
         
+=======
+
+        This provides a graceful degradation path to maintain the user experience
+        even when external AI services are temporarily unavailable.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dictionary with status and fallback message
         """
         logger.warning("LLM service unavailable, using fallback.")
+<<<<<<< HEAD
         return {"status": "unavailable", "message": "LLM service is temporarily unavailable."}
         
     @transaction_protected()
@@ -310,20 +524,44 @@ class EnhancedHTAService(HTAService):
             snapshot: The MemorySnapshot to update
             tree: The HTATree to save
             
+=======
+        return {
+            "status": "unavailable",
+            "message": "LLM service is temporarily unavailable.",
+        }
+
+    @transaction_protected()
+    async def save_tree(self, snapshot: MemorySnapshot, tree: HTATree) -> bool:
+        """Save the HTA tree with transaction safety and event publication.
+
+        This orchestrator method saves the tree data and coordinates events,
+        delegating specialized operations to the appropriate components.
+
+        Args:
+            snapshot: The MemorySnapshot to update
+            tree: The HTATree to save
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Boolean indicating success
         """
         try:
             # Save the tree using the base implementation
             success = await super().save_tree(snapshot, tree)
+<<<<<<< HEAD
             
             if success and hasattr(tree, 'user_id'):
+=======
+
+            if success and hasattr(tree, "user_id"):
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 # Publish event using the event manager
                 await self.event_manager.publish_event(
                     event_type=EventType.TREE_UPDATED,
                     user_id=tree.user_id,
                     payload={
                         "tree_id": format_uuid(tree.id),
+<<<<<<< HEAD
                         "node_count": len(tree.nodes) if hasattr(tree, 'nodes') else 0
                     }
                 )
@@ -339,6 +577,30 @@ class EnhancedHTAService(HTAService):
             
             return success
             
+=======
+                        "node_count": len(tree.nodes) if hasattr(tree, "nodes") else 0,
+                    },
+                )
+
+                # Schedule background check for meaningful moments
+                if (
+                    hasattr(tree, "_meaningful_transitions")
+                    and tree._meaningful_transitions
+                ):
+                    await self.background_manager.enqueue_task(
+                        self.background_manager.process_meaningful_moments,
+                        tree,
+                        snapshot,
+                        priority=3,  # Medium priority
+                        metadata={
+                            "type": "meaningful_moments",
+                            "user_id": format_uuid(tree.user_id),
+                        },
+                    )
+
+            return success
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         except Exception as e:
             logger.error(f"Error saving tree: {e}")
             return False

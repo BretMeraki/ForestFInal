@@ -12,6 +12,7 @@ Modules:
 - utils: Common utility functions
 """
 
+<<<<<<< HEAD
 # Core service
 from forest_app.core.services.enhanced_hta.core import EnhancedHTAService
 
@@ -44,4 +45,33 @@ __all__ = [
     'safe_serialize',
     'get_now',
     'Result'
+=======
+from forest_app.core.services.enhanced_hta.background import \
+    BackgroundTaskManager
+# Core service
+from forest_app.core.services.enhanced_hta.core import EnhancedHTAService
+from forest_app.core.services.enhanced_hta.events import EventManager
+# Component managers
+from forest_app.core.services.enhanced_hta.memory import HTAMemoryManager
+from forest_app.core.services.enhanced_hta.reinforcement import \
+    ReinforcementManager
+# Utility functions
+from forest_app.core.services.enhanced_hta.utils import (Result, format_uuid,
+                                                         get_now,
+                                                         safe_serialize)
+
+__all__ = [
+    # Core service
+    "EnhancedHTAService",
+    # Component managers
+    "HTAMemoryManager",
+    "ReinforcementManager",
+    "EventManager",
+    "BackgroundTaskManager",
+    # Utility functions
+    "format_uuid",
+    "safe_serialize",
+    "get_now",
+    "Result",
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 ]

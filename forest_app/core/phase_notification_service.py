@@ -3,18 +3,33 @@ Phase Notification Service for The Forest application - Lean MVP Edition.
 
 This module implements simplified phase completion detection and basic notifications
 as specified in PRD v3.15 under the PhaseLogic-HTA Flow section, which states:
+<<<<<<< HEAD
 "[LeanMVP - Simplify]: Basic UI notification on completion of all tasks under a major phase node. 
+=======
+"[LeanMVP - Simplify]: Basic UI notification on completion of all tasks under a major phase node.
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 Complex suggestion logic deferred."
 
 The service detects phase completions in the HTA tree and provides basic next phase information.
 """
+<<<<<<< HEAD
 from typing import List, Dict, Any, Optional
 from uuid import UUID
 import logging
+=======
+
+import logging
+from typing import Optional
+from uuid import UUID
+
+from forest_app.core.roadmap_models import RoadmapManifest, RoadmapStep
+from forest_app.persistence.models import HTANodeModel
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # Set up logger
 logger = logging.getLogger(__name__)
 
+<<<<<<< HEAD
 from forest_app.core.roadmap_models import RoadmapManifest, RoadmapStep
 from forest_app.persistence.models import HTANodeModel
 from forest_app.integrations.llm_service import BaseLLMService
@@ -27,6 +42,16 @@ class PhaseCompletionEvent:
     next phase details. Complex suggestions are deferred to post-MVP.
     """
     
+=======
+
+class PhaseCompletionEvent:
+    """Represents a simplified phase completion event for the Lean MVP.
+
+    [LeanMVP - Simplify]: Focuses on basic phase completion information with minimal
+    next phase details. Complex suggestions are deferred to post-MVP.
+    """
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(
         self,
         phase_id: UUID,
@@ -34,11 +59,19 @@ class PhaseCompletionEvent:
         completed_at: str,
         next_phase_id: Optional[UUID] = None,
         next_phase_title: Optional[str] = None,
+<<<<<<< HEAD
         custom_message: Optional[str] = None
     ):
         """
         Initialize a new phase completion event.
         
+=======
+        custom_message: Optional[str] = None,
+    ):
+        """
+        Initialize a new phase completion event.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             phase_id: ID of the completed phase
             phase_title: Title of the completed phase
@@ -58,11 +91,16 @@ class PhaseCompletionEvent:
 class PhaseNotificationService:
     """
     Service for managing basic phase completion notifications.
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     [LeanMVP - Simplify]: This service detects when a major phase has been completed
     and provides basic information about the next phase, without LLM-driven suggestions.
     Complex suggestion logic is deferred to post-MVP.
     """
+<<<<<<< HEAD
     
     def __init__(self):
         """
@@ -79,6 +117,24 @@ class PhaseNotificationService:
         Args:
             phase_node: The phase node to check
             
+=======
+
+    def __init__(self):
+        """
+        Initialize the phase notification service.
+
+        [LeanMVP - Simplify]: LLM integration deferred for the initial MVP.
+        """
+        pass
+
+    def is_phase_complete(self, phase_node: HTANodeModel) -> bool:
+        """
+        Check if a phase node is complete (all child tasks completed).
+
+        Args:
+            phase_node: The phase node to check
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             True if the phase is complete, False otherwise
         """
@@ -87,6 +143,7 @@ class PhaseNotificationService:
         # 2. All its children have status="completed"
         if not phase_node.children:
             return False
+<<<<<<< HEAD
             
         return all(child.status == "completed" for child in phase_node.children)
     
@@ -98,11 +155,27 @@ class PhaseNotificationService:
             manifest: The roadmap manifest
             current_phase_id: ID of the current (completed) phase
             
+=======
+
+        return all(child.status == "completed" for child in phase_node.children)
+
+    def find_next_phase(
+        self, manifest: RoadmapManifest, current_phase_id: UUID
+    ) -> Optional[RoadmapStep]:
+        """
+        Find the next logical phase to suggest after the current one.
+
+        Args:
+            manifest: The roadmap manifest
+            current_phase_id: ID of the current (completed) phase
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             The next phase step, or None if no suitable next phase exists
         """
         current_phase = manifest.get_step_by_id(current_phase_id)
         if not current_phase:
+<<<<<<< HEAD
             logger.warning(f"Cannot find next phase: current phase {current_phase_id} not found in manifest")
             return None
             
@@ -112,20 +185,43 @@ class PhaseNotificationService:
             if step.hta_metadata.get("is_major_phase", False) and step.status != "completed"
         ]
         
+=======
+            logger.warning(
+                f"Cannot find next phase: current phase {current_phase_id} not found in manifest"
+            )
+            return None
+
+        # Find all phases (steps with is_major_phase=True in metadata)
+        phases = [
+            step
+            for step in manifest.steps
+            if step.hta_metadata.get("is_major_phase", False)
+            and step.status != "completed"
+        ]
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Log warning if no major phases found - this indicates RoadmapParser isn't setting the flag
         if not phases:
             logger.warning(
                 "No major phases found in manifest. Ensure RoadmapParser is correctly populating "
                 "the 'is_major_phase' flag in step.hta_metadata as noted in PRD F5.2.1"
             )
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Filter phases that have no pending dependencies
         ready_phases = []
         for phase in phases:
             # Skip the current phase
             if phase.id == current_phase_id:
                 continue
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Check if all dependencies are met
             deps_met = True
             for dep_id in phase.dependencies:
@@ -133,6 +229,7 @@ class PhaseNotificationService:
                 if not dep_step or dep_step.status != "completed":
                     deps_met = False
                     break
+<<<<<<< HEAD
                     
             if deps_met:
                 ready_phases.append(phase)
@@ -155,11 +252,37 @@ class PhaseNotificationService:
         """
         Generate a phase completion event with next steps and suggestions.
         
+=======
+
+            if deps_met:
+                ready_phases.append(phase)
+
+        # If no ready phases, return None
+        if not ready_phases:
+            return None
+
+        # Choose the phase with highest priority
+        priority_map = {"high": 3, "medium": 2, "low": 1}
+        ready_phases.sort(key=lambda p: priority_map.get(p.priority, 0), reverse=True)
+
+        return ready_phases[0] if ready_phases else None
+
+    def generate_phase_completion_event(
+        self, manifest: RoadmapManifest, completed_phase_id: UUID
+    ) -> PhaseCompletionEvent:
+        """
+        Generate a phase completion event with next steps and suggestions.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             manifest: The roadmap manifest
             completed_phase_id: ID of the completed phase
             memory_context: Optional semantic memory context to inform suggestions
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             A PhaseCompletionEvent object with completion details and suggestions
         """
@@ -168,27 +291,49 @@ class PhaseNotificationService:
             error_msg = f"Phase with ID {completed_phase_id} not found in manifest"
             logger.error(error_msg)
             raise ValueError(error_msg)
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Verify this is actually a phase
         if not completed_phase.hta_metadata.get("is_major_phase", False):
             logger.warning(
                 f"Step '{completed_phase.title}' (ID: {completed_phase_id}) is not marked as a major phase. "
                 f"This may indicate inconsistent phase flagging in the manifest."
             )
+<<<<<<< HEAD
             
         # Find the next phase
         next_phase = self.find_next_phase(manifest, completed_phase_id)
         
         # Generate a custom message
         custom_message = f"Congratulations on completing the '{completed_phase.title}' phase!"
+=======
+
+        # Find the next phase
+        next_phase = self.find_next_phase(manifest, completed_phase_id)
+
+        # Generate a custom message
+        custom_message = (
+            f"Congratulations on completing the '{completed_phase.title}' phase!"
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         if next_phase:
             custom_message += f" Next up: {next_phase.title}"
         else:
             custom_message += " You're making great progress on your journey!"
+<<<<<<< HEAD
             
         # [LeanMVP - Simplify]: No LLM-driven suggestions for initial MVP
         # Just provide a basic completion message
         
+=======
+
+        # [LeanMVP - Simplify]: No LLM-driven suggestions for initial MVP
+        # Just provide a basic completion message
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Create and return the simplified event
         return PhaseCompletionEvent(
             phase_id=completed_phase.id,
@@ -196,7 +341,14 @@ class PhaseNotificationService:
             completed_at=completed_phase.updated_at.isoformat(),
             next_phase_id=next_phase.id if next_phase else None,
             next_phase_title=next_phase.title if next_phase else None,
+<<<<<<< HEAD
             custom_message=custom_message
         )
+=======
+            custom_message=custom_message,
+        )
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 """
 """

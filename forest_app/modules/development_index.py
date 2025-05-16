@@ -6,7 +6,11 @@ from __future__ import annotations
 
 import json
 import logging
+<<<<<<< HEAD
 from typing import Dict, List, Any # Added Any for Dict type hints
+=======
+from typing import Any, Dict, List  # Added Any for Dict type hints
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 # Assuming feature_flags.py is accessible from this module's path
@@ -15,6 +19,7 @@ try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
     # Provide fallbacks if feature flags aren't available
+<<<<<<< HEAD
     logger.warning("Feature flags module not found in development_index. Feature flag checks will be disabled.")
     class Feature: # Dummy class
         DEVELOPMENT_INDEX = "FEATURE_ENABLE_DEVELOPMENT_INDEX" # Define the specific flag used here
@@ -36,6 +41,37 @@ from forest_app.config.constants import (
 
 logger = logging.getLogger(__name__)
 # Consider setting level via central config, but INFO is reasonable for module-level logs
+=======
+    logger.warning(
+        "Feature flags module not found in development_index. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        DEVELOPMENT_INDEX = (
+            "FEATURE_ENABLE_DEVELOPMENT_INDEX"  # Define the specific flag used here
+        )
+
+    def is_enabled(
+        feature: Any,
+    ) -> bool:  # Dummy function - default to True or False based on desired fallback
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True  # Or False, depending on whether the feature should work if flags are broken
+
+
+# --- Import Constants ---
+from forest_app.config.constants import (BASELINE_NUDGE_KEYS,
+                                         BASELINE_REFLECTION_NUDGE_AMOUNT,
+                                         DEFAULT_DEVELOPMENT_INDEX_VALUE,
+                                         DEVELOPMENT_INDEX_KEYS,
+                                         MAX_DEVELOPMENT_INDEX_VALUE,
+                                         MIN_DEVELOPMENT_INDEX_VALUE,
+                                         POSITIVE_REFLECTION_HINTS,
+                                         TASK_EFFECT_BASE_BOOST)
+
+logger = logging.getLogger(__name__)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 logger.setLevel(logging.INFO)
 
 
@@ -43,13 +79,23 @@ logger.setLevel(logging.INFO)
 def _clamp(
     val: float,
     lo: float = MIN_DEVELOPMENT_INDEX_VALUE,
+<<<<<<< HEAD
     hi: float = MAX_DEVELOPMENT_INDEX_VALUE
+=======
+    hi: float = MAX_DEVELOPMENT_INDEX_VALUE,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 ) -> float:
     """Clamps a value within the defined min/max range for the development index."""
     try:
         return max(float(lo), min(float(hi), float(val)))
     except (ValueError, TypeError) as e:
+<<<<<<< HEAD
         logger.error(f"Invalid value for clamping: {val}. Error: {e}. Returning default lower bound.")
+=======
+        logger.error(
+            f"Invalid value for clamping: {val}. Error: {e}. Returning default lower bound."
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return float(lo)
 
 
@@ -89,12 +135,22 @@ class FullDevelopmentIndex:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.DEVELOPMENT_INDEX):
+<<<<<<< HEAD
             logger.debug("Skipping baseline_from_reflection: DEVELOPMENT_INDEX feature disabled.")
+=======
+            logger.debug(
+                "Skipping baseline_from_reflection: DEVELOPMENT_INDEX feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
         # --- End Check ---
 
         if not isinstance(reflection, str) or not reflection:
+<<<<<<< HEAD
             return # Skip if reflection is invalid
+=======
+            return  # Skip if reflection is invalid
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         low_reflection = reflection.lower()
         if any(hint.lower() in low_reflection for hint in POSITIVE_REFLECTION_HINTS):
@@ -102,10 +158,24 @@ class FullDevelopmentIndex:
             for key in BASELINE_NUDGE_KEYS:
                 if key in self.indexes:
                     original_value = self.indexes[key]
+<<<<<<< HEAD
                     new_value = _clamp(original_value + BASELINE_REFLECTION_NUDGE_AMOUNT)
                     if new_value > original_value: # Only update if changed
                          self.indexes[key] = new_value
                          logger.debug("Nudged index '%s' by %.4f -> %.4f", key, BASELINE_REFLECTION_NUDGE_AMOUNT, new_value)
+=======
+                    new_value = _clamp(
+                        original_value + BASELINE_REFLECTION_NUDGE_AMOUNT
+                    )
+                    if new_value > original_value:  # Only update if changed
+                        self.indexes[key] = new_value
+                        logger.debug(
+                            "Nudged index '%s' by %.4f -> %.4f",
+                            key,
+                            BASELINE_REFLECTION_NUDGE_AMOUNT,
+                            new_value,
+                        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def dynamic_adjustment(self, deltas: Dict[str, float]) -> None:
         """
@@ -114,12 +184,24 @@ class FullDevelopmentIndex:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.DEVELOPMENT_INDEX):
+<<<<<<< HEAD
             logger.debug("Skipping dynamic_adjustment: DEVELOPMENT_INDEX feature disabled.")
+=======
+            logger.debug(
+                "Skipping dynamic_adjustment: DEVELOPMENT_INDEX feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
         # --- End Check ---
 
         if not isinstance(deltas, dict):
+<<<<<<< HEAD
             logger.warning("dynamic_adjustment received non-dict deltas: %s", type(deltas))
+=======
+            logger.warning(
+                "dynamic_adjustment received non-dict deltas: %s", type(deltas)
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
 
         for key, delta_value in deltas.items():
@@ -127,6 +209,7 @@ class FullDevelopmentIndex:
                 try:
                     new_value = _clamp(self.indexes[key] + float(delta_value))
                     if new_value != self.indexes[key]:
+<<<<<<< HEAD
                         logger.debug("Dynamically adjusting index '%s': %.4f -> %.4f (delta: %.4f)",
                                      key, self.indexes[key], new_value, float(delta_value))
                         self.indexes[key] = new_value
@@ -140,6 +223,33 @@ class FullDevelopmentIndex:
         relevant_indexes: List[str], # List of index keys this task affects
         tier_mult: float,            # Multiplier based on task tier (e.g., 1.0, 1.5, 2.0)
         momentum: float,             # Overall user momentum (0-1)
+=======
+                        logger.debug(
+                            "Dynamically adjusting index '%s': %.4f -> %.4f (delta: %.4f)",
+                            key,
+                            self.indexes[key],
+                            new_value,
+                            float(delta_value),
+                        )
+                        self.indexes[key] = new_value
+                except (ValueError, TypeError) as e:
+                    logger.error(
+                        "Invalid delta value for key '%s': %s. Error: %s",
+                        key,
+                        delta_value,
+                        e,
+                    )
+            else:
+                logger.warning(
+                    "Attempted dynamic adjustment for unknown index key: %s", key
+                )
+
+    def apply_task_effect(
+        self,
+        relevant_indexes: List[str],  # List of index keys this task affects
+        tier_mult: float,  # Multiplier based on task tier (e.g., 1.0, 1.5, 2.0)
+        momentum: float,  # Overall user momentum (0-1)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ) -> None:
         """
         Boosts each relevant development index based on task tier and user momentum.
@@ -150,7 +260,13 @@ class FullDevelopmentIndex:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.DEVELOPMENT_INDEX):
+<<<<<<< HEAD
             logger.debug("Skipping apply_task_effect: DEVELOPMENT_INDEX feature disabled.")
+=======
+            logger.debug(
+                "Skipping apply_task_effect: DEVELOPMENT_INDEX feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
         # --- End Check ---
 
@@ -160,6 +276,7 @@ class FullDevelopmentIndex:
 
         try:
             valid_tier_mult = float(tier_mult)
+<<<<<<< HEAD
             valid_momentum = _clamp(float(momentum), lo=0.0, hi=1.0) # Ensure momentum is 0-1 specifically
         except (ValueError, TypeError) as e:
             logger.error("Invalid tier_mult or momentum for apply_task_effect: %s. Aborting.", e)
@@ -167,6 +284,19 @@ class FullDevelopmentIndex:
 
         boost = TASK_EFFECT_BASE_BOOST * valid_tier_mult * valid_momentum
         if boost <= 0: # No boost to apply (use <= to catch negative cases too)
+=======
+            valid_momentum = _clamp(
+                float(momentum), lo=0.0, hi=1.0
+            )  # Ensure momentum is 0-1 specifically
+        except (ValueError, TypeError) as e:
+            logger.error(
+                "Invalid tier_mult or momentum for apply_task_effect: %s. Aborting.", e
+            )
+            return
+
+        boost = TASK_EFFECT_BASE_BOOST * valid_tier_mult * valid_momentum
+        if boost <= 0:  # No boost to apply (use <= to catch negative cases too)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             logger.debug("Calculated task effect boost is zero or negative.")
             return
 
@@ -175,51 +305,105 @@ class FullDevelopmentIndex:
             if key in self.indexes:
                 original_value = self.indexes[key]
                 new_value = _clamp(original_value + boost)
+<<<<<<< HEAD
                 if new_value > original_value: # Only log and update if there was an actual positive change
                     self.indexes[key] = new_value
                     applied_keys.append(key)
             else:
                 logger.warning("Task effect specified relevant index '%s' which does not exist.", key)
+=======
+                if (
+                    new_value > original_value
+                ):  # Only log and update if there was an actual positive change
+                    self.indexes[key] = new_value
+                    applied_keys.append(key)
+            else:
+                logger.warning(
+                    "Task effect specified relevant index '%s' which does not exist.",
+                    key,
+                )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         if applied_keys:
             logger.info(
                 "Dev-indexes boosted %s by %.4f (Base: %.4f, TierMult: %.2f, Momentum: %.2f)",
+<<<<<<< HEAD
                 applied_keys, boost, TASK_EFFECT_BASE_BOOST, valid_tier_mult, valid_momentum,
+=======
+                applied_keys,
+                boost,
+                TASK_EFFECT_BASE_BOOST,
+                valid_tier_mult,
+                valid_momentum,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             )
 
     # ---------------------------------------------------------------- #
     #  Persistence helpers (respecting feature flag)
     # ---------------------------------------------------------------- #
+<<<<<<< HEAD
     def to_dict(self) -> Dict[str, Any]: # Changed type hint slightly
+=======
+    def to_dict(self) -> Dict[str, Any]:  # Changed type hint slightly
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         """
         Serializes the current index values to a dictionary.
         Returns an empty dictionary if DEVELOPMENT_INDEX feature is disabled.
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.DEVELOPMENT_INDEX):
+<<<<<<< HEAD
             logger.debug("Skipping to_dict serialization: DEVELOPMENT_INDEX feature disabled.")
             return {} # Return empty dict as specified
+=======
+            logger.debug(
+                "Skipping to_dict serialization: DEVELOPMENT_INDEX feature disabled."
+            )
+            return {}  # Return empty dict as specified
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # --- End Check ---
 
         # Feature enabled, return state
         logger.debug("Serializing Development Index state.")
+<<<<<<< HEAD
         return {"indexes": dict(self.indexes)} # Return a copy
 
     def update_from_dict(self, data: Dict[str, Any]) -> None: # Changed type hint slightly
+=======
+        return {"indexes": dict(self.indexes)}  # Return a copy
+
+    def update_from_dict(
+        self, data: Dict[str, Any]
+    ) -> None:  # Changed type hint slightly
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         """
         Loads index values from a dictionary, ensuring keys are valid and values are clamped.
         Resets state to default if DEVELOPMENT_INDEX feature is disabled.
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.DEVELOPMENT_INDEX):
+<<<<<<< HEAD
             logger.debug("Resetting state via update_from_dict: DEVELOPMENT_INDEX feature disabled.")
             self._reset_state() # Reset to defaults if feature is off
+=======
+            logger.debug(
+                "Resetting state via update_from_dict: DEVELOPMENT_INDEX feature disabled."
+            )
+            self._reset_state()  # Reset to defaults if feature is off
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
         # --- End Check ---
 
         # Feature enabled, proceed with loading
         if not isinstance(data, dict):
+<<<<<<< HEAD
             logger.error("Invalid data passed to update_from_dict: expected dict, got %s. State not updated.", type(data))
+=======
+            logger.error(
+                "Invalid data passed to update_from_dict: expected dict, got %s. State not updated.",
+                type(data),
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
 
         indexes_data = data.get("indexes")
@@ -227,11 +411,18 @@ class FullDevelopmentIndex:
             loaded_count = 0
             # Reset state before loading valid values from dict
             # This handles cases where the saved dict might be missing keys
+<<<<<<< HEAD
             current_state = {k: DEFAULT_DEVELOPMENT_INDEX_VALUE for k in DEVELOPMENT_INDEX_KEYS}
+=======
+            current_state = {
+                k: DEFAULT_DEVELOPMENT_INDEX_VALUE for k in DEVELOPMENT_INDEX_KEYS
+            }
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
             for key, value in indexes_data.items():
                 if key in DEVELOPMENT_INDEX_KEYS:
                     try:
+<<<<<<< HEAD
                         current_state[key] = _clamp(float(value)) # Load and clamp into temporary dict
                         loaded_count += 1
                     except (ValueError, TypeError) as e:
@@ -250,6 +441,42 @@ class FullDevelopmentIndex:
              logger.warning("Input data for update_from_dict missing 'indexes' key. Resetting state.")
              self._reset_state()
 
+=======
+                        current_state[key] = _clamp(
+                            float(value)
+                        )  # Load and clamp into temporary dict
+                        loaded_count += 1
+                    except (ValueError, TypeError) as e:
+                        logger.error(
+                            "Invalid value for index '%s' during load: %s. Error: %s. Using default.",
+                            key,
+                            value,
+                            e,
+                        )
+                        # current_state[key] remains default from initialization above
+                else:
+                    logger.warning(
+                        "Ignoring unknown index key '%s' during load from dict.", key
+                    )
+
+            self.indexes = current_state  # Assign the fully processed state
+            logger.debug(
+                "FullDevelopmentIndex updated from dict. Loaded/Validated %d indexes.",
+                loaded_count,
+            )
+
+        elif indexes_data is not None:
+            logger.warning(
+                "Indexes data in update_from_dict is not a dict (%s). State not updated.",
+                type(indexes_data),
+            )
+        else:
+            # Input dict exists, but is missing the 'indexes' key. Reset to default.
+            logger.warning(
+                "Input data for update_from_dict missing 'indexes' key. Resetting state."
+            )
+            self._reset_state()
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     # ---------------------------------------------------------------- #
     #  Debug convenience

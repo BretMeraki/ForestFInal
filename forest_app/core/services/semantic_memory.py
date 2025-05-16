@@ -1,12 +1,24 @@
 """Semantic Memory Service for Forest App."""
+<<<<<<< HEAD
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 import numpy as np
+=======
+
+import logging
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+
+from forest_app.core.services.semantic_base import SemanticMemoryManagerBase
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 from forest_app.integrations.llm import LLMClient
 
 logger = logging.getLogger(__name__)
 
+<<<<<<< HEAD
 from forest_app.core.services.semantic_base import SemanticMemoryManagerBase
 
 class SemanticMemoryManager(SemanticMemoryManagerBase):
@@ -24,6 +36,25 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
         """
         Store a new memory with semantic embedding.
         
+=======
+class SemanticMemoryManager(SemanticMemoryManagerBase):
+    """Manages semantic episodic memory for the Forest application."""
+
+    def __init__(self, llm_client: LLMClient):
+        self.llm_client = llm_client
+        self.memories: List[Dict[str, Any]] = []
+
+    async def store_memory(
+        self,
+        event_type: str,
+        content: str,
+        metadata: Optional[Dict[str, Any]] = None,
+        importance: float = 0.5,
+    ) -> Dict[str, Any]:
+        """
+        Store a new memory with semantic embedding.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             event_type: Type of event (e.g., 'task_completion', 'reflection', 'milestone')
             content: The actual content/description of the memory
@@ -32,7 +63,11 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
         """
         # Generate embedding for the content using LLM
         embedding = await self.llm_client.get_embedding(content)
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         memory = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "event_type": event_type,
@@ -41,6 +76,7 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
             "importance": importance,
             "embedding": embedding,
             "access_count": 0,
+<<<<<<< HEAD
             "last_accessed": None
         }
         
@@ -56,6 +92,25 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
         """
         Query memories semantically similar to the input query.
         
+=======
+            "last_accessed": None,
+        }
+
+        self.memories.append(memory)
+        logger.info(f"Stored new memory of type {event_type}")
+        return memory
+
+    async def query_memories(
+        self,
+        query: str,
+        k: int = 5,
+        event_types: Optional[List[str]] = None,
+        time_window_days: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Query memories semantically similar to the input query.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             query: The search query
             k: Number of memories to return
@@ -64,6 +119,7 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
         """
         if not self.memories:
             return []
+<<<<<<< HEAD
             
         # Get query embedding
         query_embedding = await self.llm_client.get_embedding(query)
@@ -80,11 +136,33 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
                 if datetime.fromisoformat(m["timestamp"]) >= cutoff
             ]
             
+=======
+
+        # Get query embedding
+        query_embedding = await self.llm_client.get_embedding(query)
+
+        # Filter memories by event type and time window if specified
+        filtered_memories = self.memories
+        if event_types:
+            filtered_memories = [
+                m for m in filtered_memories if m["event_type"] in event_types
+            ]
+
+        if time_window_days:
+            cutoff = datetime.now(timezone.utc) - timedelta(days=time_window_days)
+            filtered_memories = [
+                m
+                for m in filtered_memories
+                if datetime.fromisoformat(m["timestamp"]) >= cutoff
+            ]
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Calculate cosine similarities
         similarities = []
         for memory in filtered_memories:
             similarity = self._cosine_similarity(query_embedding, memory["embedding"])
             similarities.append((similarity, memory))
+<<<<<<< HEAD
             
         # Sort by similarity and return top k
         similarities.sort(reverse=True, key=lambda x: x[0])
@@ -94,6 +172,17 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
         for memory in top_memories:
             await self.update_memory_stats(memory["id"], 1)
             
+=======
+
+        # Sort by similarity and return top k
+        similarities.sort(reverse=True, key=lambda x: x[0])
+        top_memories = [memory for _, memory in similarities[:k]]
+
+        # Update access stats
+        for memory in top_memories:
+            await self.update_memory_stats(memory["id"], 1)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return top_memories
 
     async def get_recent_memories(self, limit: int = 5) -> List[Dict[str, Any]]:
@@ -101,7 +190,11 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
         sorted_memories = sorted(
             self.memories,
             key=lambda x: datetime.fromisoformat(x["timestamp"]),
+<<<<<<< HEAD
             reverse=True
+=======
+            reverse=True,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         )
         return sorted_memories[:limit]
 
@@ -112,11 +205,19 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
 
         # Combine all memory content for theme extraction
         combined_content = " ".join([m["content"] for m in memories])
+<<<<<<< HEAD
         
         # Use LLM to extract themes
         themes = await self.llm_client.extract_themes(combined_content)
         return themes
     
+=======
+
+        # Use LLM to extract themes
+        themes = await self.llm_client.extract_themes(combined_content)
+        return themes
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     async def update_memory_stats(self, memory_id: str, access_count: int = 1) -> bool:
         """Update access statistics for a memory."""
         for memory in self.memories:
@@ -125,13 +226,21 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
                 memory["last_accessed"] = datetime.now(timezone.utc).isoformat()
                 return True
         return False
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def _cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
         """Calculate cosine similarity between two vectors."""
         vec1 = np.array(vec1)
         vec2 = np.array(vec2)
         return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     async def get_memory_stats(self) -> Dict[str, Any]:
         """Get statistics about stored memories."""
         if not self.memories:
@@ -139,6 +248,7 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
                 "total_memories": 0,
                 "memory_types": {},
                 "avg_importance": 0,
+<<<<<<< HEAD
                 "avg_access_count": 0
             }
             
@@ -146,16 +256,30 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
         total_importance = 0
         total_access_count = 0
         
+=======
+                "avg_access_count": 0,
+            }
+
+        memory_types = {}
+        total_importance = 0
+        total_access_count = 0
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         for memory in self.memories:
             event_type = memory["event_type"]
             memory_types[event_type] = memory_types.get(event_type, 0) + 1
             total_importance += memory["importance"]
             total_access_count += memory["access_count"]
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return {
             "total_memories": len(self.memories),
             "memory_types": memory_types,
             "avg_importance": total_importance / len(self.memories),
+<<<<<<< HEAD
             "avg_access_count": total_access_count / len(self.memories)
         }
         
@@ -166,8 +290,21 @@ class SemanticMemoryManager(SemanticMemoryManagerBase):
             "stats": self.get_memory_stats()
         }
         
+=======
+            "avg_access_count": total_access_count / len(self.memories),
+        }
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert memory store to serializable dictionary."""
+        return {"memories": self.memories, "stats": self.get_memory_stats()}
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     async def from_dict(self, data: Dict[str, Any]) -> None:
         """Load memories from dictionary."""
         if "memories" in data and isinstance(data["memories"], list):
             self.memories = data["memories"]
+<<<<<<< HEAD
             logger.info(f"Loaded {len(self.memories)} memories from dictionary") 
+=======
+            logger.info(f"Loaded {len(self.memories)} memories from dictionary")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

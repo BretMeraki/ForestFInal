@@ -1,19 +1,41 @@
 # forest_app/modules/resistance_engine.py
 
 import logging
+<<<<<<< HEAD
 from typing import Any # Added Any for feature flag fallback
+=======
+from typing import Any  # Added Any for feature flag fallback
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 # Assuming feature_flags.py is accessible from this module's path
 try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
+<<<<<<< HEAD
     logger.warning("Feature flags module not found in resistance_engine. Feature flag checks will be disabled.")
     class Feature: # Dummy class
         RESISTANCE_ENGINE = "FEATURE_ENABLE_RESISTANCE_ENGINE" # Define the specific flag used here
     def is_enabled(feature: Any) -> bool: # Dummy function - default to True or False
         logger.warning("is_enabled check defaulting to TRUE due to missing feature flags module.")
         return True # Or False, choose appropriate fallback
+=======
+    logger.warning(
+        "Feature flags module not found in resistance_engine. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        RESISTANCE_ENGINE = (
+            "FEATURE_ENABLE_RESISTANCE_ENGINE"  # Define the specific flag used here
+        )
+
+    def is_enabled(feature: Any) -> bool:  # Dummy function - default to True or False
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True  # Or False, choose appropriate fallback
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -42,10 +64,14 @@ class ResistanceEngine:
 
     @staticmethod
     def compute(
+<<<<<<< HEAD
         shadow_score: float,
         capacity: float,
         momentum: float,
         magnitude: float
+=======
+        shadow_score: float, capacity: float, momentum: float, magnitude: float
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ) -> float:
         """
         Calculate resistance based on the core metrics. Returns 0.0 if
@@ -62,8 +88,15 @@ class ResistanceEngine:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.RESISTANCE_ENGINE):
+<<<<<<< HEAD
             logger.debug("Skipping resistance computation: RESISTANCE_ENGINE feature disabled. Returning 0.0.")
             return 0.0 # Return a default neutral/easy resistance value
+=======
+            logger.debug(
+                "Skipping resistance computation: RESISTANCE_ENGINE feature disabled. Returning 0.0."
+            )
+            return 0.0  # Return a default neutral/easy resistance value
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # --- End Check ---
 
         # Proceed with calculation if feature is enabled
@@ -75,6 +108,7 @@ class ResistanceEngine:
             mom = float(momentum)
             mag = float(magnitude)
 
+<<<<<<< HEAD
             comp = (
                 base
                 + 0.5 * s_score
@@ -92,3 +126,25 @@ class ResistanceEngine:
              logger.error("Invalid input type for resistance computation: %s. Returning default 0.0.", e,
                           exc_info=True) # Add exception info for debugging
              return 0.0 # Return default on calculation error
+=======
+            comp = base + 0.5 * s_score - 0.3 * cap - 0.2 * mom + 0.05 * (mag - 5.0)
+            r = clamp01(comp)
+            logger.debug(
+                "Computed resistance: base=%.2f +0.5*σ(%.2f) -0.3*c(%.2f) -0.2*μ(%.2f) +0.05*(M-5)(%.2f) = %.2f → R=%.2f",
+                base,
+                s_score,
+                cap,
+                mom,
+                (mag - 5.0),
+                comp,
+                r,
+            )
+            return r
+        except (ValueError, TypeError) as e:
+            logger.error(
+                "Invalid input type for resistance computation: %s. Returning default 0.0.",
+                e,
+                exc_info=True,
+            )  # Add exception info for debugging
+            return 0.0  # Return default on calculation error
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

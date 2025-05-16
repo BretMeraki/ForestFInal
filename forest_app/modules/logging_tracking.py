@@ -2,6 +2,7 @@
 
 import logging
 from datetime import datetime
+<<<<<<< HEAD
 from sqlalchemy.orm import Session
 from typing import Optional, Dict, Any
 
@@ -11,11 +12,24 @@ from forest_app.persistence.repository import (
     TaskEventLogRepository,
     ReflectionEventLogRepository,
 )
+=======
+from typing import Any, Dict, Optional
+
+from sqlalchemy.orm import Session
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- HTA Imports (Direct) ---
 # Removed try...except ImportError block. Relying on direct import.
 # Ensure this import path is correct for your project structure.
 from forest_app.modules.hta_tree import HTANode
+<<<<<<< HEAD
+=======
+# --- Persistence Imports ---
+# Import repositories for logging events
+from forest_app.persistence.repository import (ReflectionEventLogRepository,
+                                               TaskEventLogRepository)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # ─────────────────────────────
 
 # Configure module logger
@@ -32,30 +46,49 @@ class TaskFootprintLogger:
     def __init__(self, db: Session):
         """Initializes the logger with a database session."""
         if not db:
+<<<<<<< HEAD
              # Add check for valid DB session
              logger.error("TaskFootprintLogger requires a valid database session.")
              raise ValueError("Database session is required for TaskFootprintLogger.")
+=======
+            # Add check for valid DB session
+            logger.error("TaskFootprintLogger requires a valid database session.")
+            raise ValueError("Database session is required for TaskFootprintLogger.")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         self.repo = TaskEventLogRepository(db)
 
     def log_task_event(
         self,
         task_id: str,
+<<<<<<< HEAD
         event_type: str, # e.g., 'generated', 'completed', 'failed', 'skipped'
         snapshot: Dict[str, Any], # Current snapshot state dictionary
         hta_node: Optional[HTANode] = None, # Optional linked HTA node object
         event_metadata: Optional[Dict[str, Any]] = None, # Additional structured data
+=======
+        event_type: str,  # e.g., 'generated', 'completed', 'failed', 'skipped'
+        snapshot: Dict[str, Any],  # Current snapshot state dictionary
+        hta_node: Optional[HTANode] = None,  # Optional linked HTA node object
+        event_metadata: Optional[Dict[str, Any]] = None,  # Additional structured data
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ):
         """
         Logs a task event with context extracted from the snapshot.
         """
         if not task_id or not event_type:
+<<<<<<< HEAD
              logger.error("Task ID and event type are required for logging task event.")
              return
+=======
+            logger.error("Task ID and event type are required for logging task event.")
+            return
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Safely extract context from snapshot, providing defaults or None
         capacity = snapshot.get("capacity")
         shadow_score = snapshot.get("shadow_score")
         # Example of accessing nested state safely
+<<<<<<< HEAD
         active_seed_data = snapshot.get("component_state", {}).get("seed_manager", {}).get("seeds", {})
         # Assuming single active seed for simplicity; adjust if multiple are possible
         active_seed_name = None
@@ -66,6 +99,30 @@ class TaskFootprintLogger:
 
         active_archetype_data = snapshot.get("component_state", {}).get("archetype_manager", {}).get("active_archetype", {})
         active_archetype_name = active_archetype_data.get("name") if isinstance(active_archetype_data, dict) else None
+=======
+        active_seed_data = (
+            snapshot.get("component_state", {}).get("seed_manager", {}).get("seeds", {})
+        )
+        # Assuming single active seed for simplicity; adjust if multiple are possible
+        active_seed_name = None
+        if active_seed_data and isinstance(active_seed_data, dict):
+            active_seed_obj = next(
+                iter(active_seed_data.values()), None
+            )  # Get first seed dict
+            if active_seed_obj and isinstance(active_seed_obj, dict):
+                active_seed_name = active_seed_obj.get("seed_name")
+
+        active_archetype_data = (
+            snapshot.get("component_state", {})
+            .get("archetype_manager", {})
+            .get("active_archetype", {})
+        )
+        active_archetype_name = (
+            active_archetype_data.get("name")
+            if isinstance(active_archetype_data, dict)
+            else None
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Prepare data dictionary for the database log entry
         log_data = {
@@ -78,13 +135,18 @@ class TaskFootprintLogger:
             "shadow_score_at_event": shadow_score,
             "active_seed_name": active_seed_name,
             "active_archetype_name": active_archetype_name,
+<<<<<<< HEAD
             "event_metadata": event_metadata or {}, # Ensure metadata is always a dict
+=======
+            "event_metadata": event_metadata or {},  # Ensure metadata is always a dict
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         }
 
         try:
             # Attempt to create the log entry in the database
             created_log = self.repo.create_log(log_data)
             if created_log:
+<<<<<<< HEAD
                  logger.debug("Logged task event for task %s (Type: %s)", task_id, event_type)
                  # Log HTA linking separately if provided
                  if hta_node and hasattr(hta_node, 'id'):
@@ -100,6 +162,30 @@ class TaskFootprintLogger:
         except Exception as e:
             # Catch and log any exceptions during database interaction
             logger.error("Failed to log task event for task %s: %s", task_id, e, exc_info=True) # Add exc_info for traceback
+=======
+                logger.debug(
+                    "Logged task event for task %s (Type: %s)", task_id, event_type
+                )
+                # Log HTA linking separately if provided
+                if hta_node and hasattr(hta_node, "id"):
+                    logger.info(
+                        "Task event '%s' linked to HTA node ID '%s'.",
+                        task_id,
+                        hta_node.id,
+                    )
+            else:
+                # This case might indicate an issue in repo.create_log if it should always return a model
+                logger.warning(
+                    "Task event log repo did not return a created log object for task %s.",
+                    task_id,
+                )
+
+        except Exception as e:
+            # Catch and log any exceptions during database interaction
+            logger.error(
+                "Failed to log task event for task %s: %s", task_id, e, exc_info=True
+            )  # Add exc_info for traceback
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 
 class ReflectionLogLogger:
@@ -111,22 +197,36 @@ class ReflectionLogLogger:
     def __init__(self, db: Session):
         """Initializes the logger with a database session."""
         if not db:
+<<<<<<< HEAD
              logger.error("ReflectionLogLogger requires a valid database session.")
              raise ValueError("Database session is required for ReflectionLogLogger.")
+=======
+            logger.error("ReflectionLogLogger requires a valid database session.")
+            raise ValueError("Database session is required for ReflectionLogLogger.")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         self.repo = ReflectionEventLogRepository(db)
 
     def log_reflection_event(
         self,
+<<<<<<< HEAD
         reflection_id: str, # Unique ID for the reflection event/session
         event_type: str, # e.g., 'started', 'processed', 'sentiment_analyzed'
         snapshot: Dict[str, Any], # Current snapshot state dictionary
         hta_node: Optional[HTANode] = None, # Optional linked HTA node object
         event_metadata: Optional[Dict[str, Any]] = None, # Additional structured data
+=======
+        reflection_id: str,  # Unique ID for the reflection event/session
+        event_type: str,  # e.g., 'started', 'processed', 'sentiment_analyzed'
+        snapshot: Dict[str, Any],  # Current snapshot state dictionary
+        hta_node: Optional[HTANode] = None,  # Optional linked HTA node object
+        event_metadata: Optional[Dict[str, Any]] = None,  # Additional structured data
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ):
         """
         Logs a reflection event with context extracted from the snapshot.
         """
         if not reflection_id or not event_type:
+<<<<<<< HEAD
              logger.error("Reflection ID and event type are required for logging reflection event.")
              return
 
@@ -146,6 +246,42 @@ class ReflectionLogLogger:
         active_archetype_data = snapshot.get("component_state", {}).get("archetype_manager", {}).get("active_archetype", {})
         active_archetype_name = active_archetype_data.get("name") if isinstance(active_archetype_data, dict) else None
 
+=======
+            logger.error(
+                "Reflection ID and event type are required for logging reflection event."
+            )
+            return
+
+        # Safely extract context from snapshot
+        # Example: Drill down safely for nested data
+        sentiment_score = (
+            snapshot.get("component_state", {})
+            .get("metrics_engine", {})
+            .get("last_sentiment")
+        )
+        capacity = snapshot.get("capacity")
+        shadow_score = snapshot.get("shadow_score")
+
+        active_seed_data = (
+            snapshot.get("component_state", {}).get("seed_manager", {}).get("seeds", {})
+        )
+        active_seed_name = None
+        if active_seed_data and isinstance(active_seed_data, dict):
+            active_seed_obj = next(iter(active_seed_data.values()), None)
+            if active_seed_obj and isinstance(active_seed_obj, dict):
+                active_seed_name = active_seed_obj.get("seed_name")
+
+        active_archetype_data = (
+            snapshot.get("component_state", {})
+            .get("archetype_manager", {})
+            .get("active_archetype", {})
+        )
+        active_archetype_name = (
+            active_archetype_data.get("name")
+            if isinstance(active_archetype_data, dict)
+            else None
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Prepare data dictionary for the database log entry
         log_data = {
@@ -154,28 +290,61 @@ class ReflectionLogLogger:
             "timestamp": datetime.utcnow(),
             # Use getattr for safe access to hta_node.id
             "linked_hta_node_id": getattr(hta_node, "id", None) if hta_node else None,
+<<<<<<< HEAD
             "sentiment_score_at_event": sentiment_score, # Rename field for clarity
+=======
+            "sentiment_score_at_event": sentiment_score,  # Rename field for clarity
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             "capacity_at_event": capacity,
             "shadow_score_at_event": shadow_score,
             "active_seed_name": active_seed_name,
             "active_archetype_name": active_archetype_name,
+<<<<<<< HEAD
             "event_metadata": event_metadata or {}, # Ensure metadata is always a dict
+=======
+            "event_metadata": event_metadata or {},  # Ensure metadata is always a dict
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         }
 
         try:
             # Attempt to create the log entry in the database
             created_log = self.repo.create_log(log_data)
             if created_log:
+<<<<<<< HEAD
                 logger.debug("Logged reflection event for ID %s (Type: %s)", reflection_id, event_type)
                 if hta_node and hasattr(hta_node, 'id'):
+=======
+                logger.debug(
+                    "Logged reflection event for ID %s (Type: %s)",
+                    reflection_id,
+                    event_type,
+                )
+                if hta_node and hasattr(hta_node, "id"):
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                     logger.info(
                         "Reflection event '%s' linked to HTA node ID '%s'.",
                         reflection_id,
                         hta_node.id,
                     )
             else:
+<<<<<<< HEAD
                  logger.warning("Reflection event log repo did not return a created log object for reflection %s.", reflection_id)
 
         except Exception as e:
             # Catch and log any exceptions during database interaction
             logger.error("Failed to log reflection event for %s: %s", reflection_id, e, exc_info=True) # Add exc_info
+=======
+                logger.warning(
+                    "Reflection event log repo did not return a created log object for reflection %s.",
+                    reflection_id,
+                )
+
+        except Exception as e:
+            # Catch and log any exceptions during database interaction
+            logger.error(
+                "Failed to log reflection event for %s: %s",
+                reflection_id,
+                e,
+                exc_info=True,
+            )  # Add exc_info
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

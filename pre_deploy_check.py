@@ -3,6 +3,7 @@ Pre-deployment verification script for Forest App.
 Runs comprehensive checks before deployment.
 """
 
+<<<<<<< HEAD
 import os
 import sys
 import logging
@@ -18,10 +19,27 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+=======
+import logging
+import os
+import sys
+from typing import Dict, List
+
+import pkg_resources
+
+import test_imports
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def check_dependencies() -> Dict[str, List[str]]:
     """
     Check if all dependencies from requirements.txt are installed and at correct versions.
     """
+<<<<<<< HEAD
     results = {
         "missing": [],
         "version_mismatch": [],
@@ -32,10 +50,21 @@ def check_dependencies() -> Dict[str, List[str]]:
         with open("requirements.txt", "r") as f:
             requirements = [line.strip() for line in f if line.strip() and not line.startswith("#")]
             
+=======
+    results = {"missing": [], "version_mismatch": [], "success": []}
+
+    try:
+        with open("requirements.txt", "r") as f:
+            requirements = [
+                line.strip() for line in f if line.strip() and not line.startswith("#")
+            ]
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         for req in requirements:
             try:
                 pkg_name = req.split("==")[0] if "==" in req else req
                 required_version = req.split("==")[1] if "==" in req else None
+<<<<<<< HEAD
                 
                 # Try to get installed version
                 installed_version = pkg_resources.get_distribution(pkg_name).version
@@ -53,6 +82,28 @@ def check_dependencies() -> Dict[str, List[str]]:
         
     return results
 
+=======
+
+                # Try to get installed version
+                installed_version = pkg_resources.get_distribution(pkg_name).version
+
+                if required_version and installed_version != required_version:
+                    results["version_mismatch"].append(
+                        f"{pkg_name} (required: {required_version}, installed: {installed_version})"
+                    )
+                else:
+                    results["success"].append(f"{pkg_name} ({installed_version})")
+
+            except pkg_resources.DistributionNotFound:
+                results["missing"].append(pkg_name)
+
+    except FileNotFoundError:
+        logger.error("requirements.txt not found!")
+
+    return results
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def check_environment_variables() -> Dict[str, List[str]]:
     """
     Check if all required environment variables are set.
@@ -61,6 +112,7 @@ def check_environment_variables() -> Dict[str, List[str]]:
         "FOREST_APP_ENV",  # e.g., development, staging, production
         "LLM_API_KEY",
         "DB_CONNECTION_STRING",
+<<<<<<< HEAD
         "LOG_LEVEL"
     ]
     
@@ -69,14 +121,28 @@ def check_environment_variables() -> Dict[str, List[str]]:
         "set": []
     }
     
+=======
+        "LOG_LEVEL",
+    ]
+
+    results = {"missing": [], "set": []}
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     for var in required_vars:
         if var in os.environ:
             results["set"].append(var)
         else:
             results["missing"].append(var)
+<<<<<<< HEAD
             
     return results
 
+=======
+
+    return results
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def check_file_structure() -> Dict[str, List[str]]:
     """
     Verify the presence of critical files and directories.
@@ -90,6 +156,7 @@ def check_file_structure() -> Dict[str, List[str]]:
         "requirements.txt",
         "alembic.ini",
         "forest_app/core/services/__init__.py",
+<<<<<<< HEAD
         "forest_app/modules/types.py"
     ]
     
@@ -98,20 +165,35 @@ def check_file_structure() -> Dict[str, List[str]]:
         "found": []
     }
     
+=======
+        "forest_app/modules/types.py",
+    ]
+
+    results = {"missing": [], "found": []}
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     for path in required_paths:
         if os.path.exists(path):
             results["found"].append(path)
         else:
             results["missing"].append(path)
+<<<<<<< HEAD
             
     return results
 
+=======
+
+    return results
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def verify_database_migrations():
     """
     Check if all database migrations are up to date.
     """
     try:
         from alembic.config import Config
+<<<<<<< HEAD
         from alembic.script import ScriptDirectory
         from alembic.runtime.environment import EnvironmentContext
         
@@ -139,13 +221,46 @@ def verify_database_migrations():
             "success": False,
             "error": str(e)
         }
+=======
+        from alembic.runtime.environment import EnvironmentContext
+        from alembic.script import ScriptDirectory
+
+        # Load Alembic configuration
+        config = Config("alembic.ini")
+        script = ScriptDirectory.from_config(config)
+
+        # Get current head revision
+        head_revision = script.get_current_head()
+
+        # Get current database revision
+        def get_current_rev(rev, _):
+            return rev
+
+        with EnvironmentContext(config, script, get_current_rev) as env:
+            current_rev = env.get_head_revision()
+
+        return {
+            "success": head_revision == current_rev,
+            "current": current_rev,
+            "head": head_revision,
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 def main():
     """Run all pre-deployment checks."""
     logger.info("Starting pre-deployment checks...\n")
+<<<<<<< HEAD
     
     all_checks_passed = True
     
+=======
+
+    all_checks_passed = True
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # 1. Check imports
     logger.info("1. Checking imports...")
     import_results = test_imports.verify_imports()
@@ -154,7 +269,11 @@ def main():
         logger.error("Import checks failed!")
     else:
         logger.info("✓ All imports verified successfully")
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # 2. Check dependencies
     logger.info("\n2. Checking dependencies...")
     dep_results = check_dependencies()
@@ -170,7 +289,11 @@ def main():
                 logger.error(f"  - {dep}")
     else:
         logger.info("✓ All dependencies verified")
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # 3. Check environment variables
     logger.info("\n3. Checking environment variables...")
     env_results = check_environment_variables()
@@ -181,7 +304,11 @@ def main():
             logger.error(f"  - {var}")
     else:
         logger.info("✓ All environment variables set")
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # 4. Check file structure
     logger.info("\n4. Checking file structure...")
     file_results = check_file_structure()
@@ -192,7 +319,11 @@ def main():
             logger.error(f"  - {path}")
     else:
         logger.info("✓ All required files present")
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # 5. Check database migrations
     logger.info("\n5. Checking database migrations...")
     migration_results = verify_database_migrations()
@@ -206,11 +337,16 @@ def main():
             logger.error(f"  Head revision: {migration_results['head']}")
     else:
         logger.info("✓ Database migrations up to date")
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Final summary
     logger.info("\nPre-deployment Check Summary:")
     logger.info("-----------------------------")
     logger.info(f"Import checks: {'✓' if not import_results['failure'] else '✗'}")
+<<<<<<< HEAD
     logger.info(f"Dependency checks: {'✓' if not (dep_results['missing'] or dep_results['version_mismatch']) else '✗'}")
     logger.info(f"Environment variables: {'✓' if not env_results['missing'] else '✗'}")
     logger.info(f"File structure: {'✓' if not file_results['missing'] else '✗'}")
@@ -218,10 +354,31 @@ def main():
     
     if not all_checks_passed:
         logger.error("\n❌ Pre-deployment checks failed! Please fix the issues above before deploying.")
+=======
+    logger.info(
+        f"Dependency checks: {'✓' if not (dep_results['missing'] or dep_results['version_mismatch']) else '✗'}"
+    )
+    logger.info(f"Environment variables: {'✓' if not env_results['missing'] else '✗'}")
+    logger.info(f"File structure: {'✓' if not file_results['missing'] else '✗'}")
+    logger.info(
+        f"Database migrations: {'✓' if migration_results.get('success') else '✗'}"
+    )
+
+    if not all_checks_passed:
+        logger.error(
+            "\n❌ Pre-deployment checks failed! Please fix the issues above before deploying."
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         sys.exit(1)
     else:
         logger.info("\n✅ All pre-deployment checks passed! Ready to deploy.")
         sys.exit(0)
 
+<<<<<<< HEAD
 if __name__ == "__main__":
     main() 
+=======
+
+if __name__ == "__main__":
+    main()
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

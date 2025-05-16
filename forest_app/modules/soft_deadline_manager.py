@@ -19,16 +19,24 @@ The manager writes an ISO‑8601 `soft_deadline` string into each task
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 import random
 import logging # Added logging import
 from datetime import datetime, timedelta, timezone # Added timezone
 from typing import List, Dict, Any, Iterable, Optional # Added Optional
+=======
+import logging  # Added logging import
+import random
+from datetime import datetime, timedelta, timezone  # Added timezone
+from typing import Any, Dict, Iterable, List, Optional  # Added Optional
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
     logger = logging.getLogger("soft_deadline_init")
+<<<<<<< HEAD
     logger.warning("Feature flags module not found in soft_deadline_manager. Feature flag checks will be disabled.")
     class Feature: # Dummy class
         SOFT_DEADLINES = "FEATURE_ENABLE_SOFT_DEADLINES" # Define the specific flag
@@ -47,6 +55,34 @@ except ImportError:
           current_path: str = "structured"
           estimated_completion_date: Optional[str] = None
           task_backlog: List[Dict[str, Any]] = []
+=======
+    logger.warning(
+        "Feature flags module not found in soft_deadline_manager. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        SOFT_DEADLINES = "FEATURE_ENABLE_SOFT_DEADLINES"  # Define the specific flag
+
+    def is_enabled(feature: Any) -> bool:  # Dummy function
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True
+
+
+# Assume MemorySnapshot might not be available if core snapshot system changes
+try:
+    from forest_app.core.snapshot import MemorySnapshot
+except ImportError:
+    logger = logging.getLogger("soft_deadline_init")
+    logger.error("Failed to import MemorySnapshot. Soft deadline functions may fail.")
+
+    # Define a dummy class or use Any if snapshot type hint is crucial elsewhere
+    class MemorySnapshot:
+        current_path: str = "structured"
+        estimated_completion_date: Optional[str] = None
+        task_backlog: List[Dict[str, Any]] = []
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 
 logger = logging.getLogger(__name__)
@@ -56,20 +92,37 @@ logger.setLevel(logging.INFO)
 # Helpers
 # ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def _iso(dt: datetime) -> str:
     """Return an ISO‑8601 string without microseconds, timezone aware (UTC)."""
     # Ensure datetime is timezone aware before formatting
     if dt.tzinfo is None:
+<<<<<<< HEAD
          dt = dt.replace(tzinfo=timezone.utc) # Assume UTC if naive
     else:
          dt = dt.astimezone(timezone.utc) # Convert to UTC if already aware
     return dt.replace(microsecond=0).isoformat(timespec='seconds') # Keep Z implicit via UTC
+=======
+        dt = dt.replace(tzinfo=timezone.utc)  # Assume UTC if naive
+    else:
+        dt = dt.astimezone(timezone.utc)  # Convert to UTC if already aware
+    return dt.replace(microsecond=0).isoformat(
+        timespec="seconds"
+    )  # Keep Z implicit via UTC
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def schedule_soft_deadlines(
     snapshot: MemorySnapshot,
     tasks: Iterable[Dict[str, Any]],
@@ -98,6 +151,7 @@ def schedule_soft_deadlines(
     list of dict
         Reference to the same task dicts, updated.
     """
+<<<<<<< HEAD
     tasks_list = list(tasks) # Convert iterable to list for modification and len()
 
     # --- Feature Flag Check ---
@@ -107,6 +161,19 @@ def schedule_soft_deadlines(
         for t in tasks_list:
             if isinstance(t, dict): # Check if t is actually a dict
                  t.pop("soft_deadline", None)
+=======
+    tasks_list = list(tasks)  # Convert iterable to list for modification and len()
+
+    # --- Feature Flag Check ---
+    if not is_enabled(Feature.SOFT_DEADLINES):
+        logger.debug(
+            "Skipping deadline scheduling: SOFT_DEADLINES feature disabled. Removing existing deadlines."
+        )
+        # Ensure no lingering deadlines if feature is off
+        for t in tasks_list:
+            if isinstance(t, dict):  # Check if t is actually a dict
+                t.pop("soft_deadline", None)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return tasks_list
     # --- End Check ---
 
@@ -117,17 +184,33 @@ def schedule_soft_deadlines(
         # Ensure no lingering deadlines for open path
         for t in tasks_list:
             if isinstance(t, dict):
+<<<<<<< HEAD
                  t.pop("soft_deadline", None)
+=======
+                t.pop("soft_deadline", None)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return tasks_list
 
     # Structured or Blended path requires estimated completion date
     est_comp_date_str = getattr(snapshot, "estimated_completion_date", None)
     if not est_comp_date_str:
+<<<<<<< HEAD
         logger.error("Snapshot missing 'estimated_completion_date'; cannot generate soft deadlines for path '%s'.", path)
         # Decide behavior: raise error, or just return tasks unmodified? Returning unmodified for now.
         # Or remove existing deadlines? Let's remove for consistency.
         for t in tasks_list:
              if isinstance(t, dict): t.pop("soft_deadline", None)
+=======
+        logger.error(
+            "Snapshot missing 'estimated_completion_date'; cannot generate soft deadlines for path '%s'.",
+            path,
+        )
+        # Decide behavior: raise error, or just return tasks unmodified? Returning unmodified for now.
+        # Or remove existing deadlines? Let's remove for consistency.
+        for t in tasks_list:
+            if isinstance(t, dict):
+                t.pop("soft_deadline", None)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # raise ValueError("Snapshot missing `estimated_completion_date`")
         return tasks_list
 
@@ -136,6 +219,7 @@ def schedule_soft_deadlines(
         end_dt = datetime.fromisoformat(est_comp_date_str.replace("Z", "+00:00"))
         # Ensure end_dt is timezone-aware (assume UTC if not specified)
         if end_dt.tzinfo is None:
+<<<<<<< HEAD
              end_dt = end_dt.replace(tzinfo=timezone.utc)
         else:
              end_dt = end_dt.astimezone(timezone.utc) # Convert to UTC
@@ -158,6 +242,41 @@ def schedule_soft_deadlines(
          for t in tasks_list:
               if isinstance(t, dict): t.pop("soft_deadline", None)
          return tasks_list
+=======
+            end_dt = end_dt.replace(tzinfo=timezone.utc)
+        else:
+            end_dt = end_dt.astimezone(timezone.utc)  # Convert to UTC
+
+    except (ValueError, TypeError) as e:
+        logger.error(
+            "Invalid format for 'estimated_completion_date': '%s'. Error: %s. Cannot generate deadlines.",
+            est_comp_date_str,
+            e,
+        )
+        for t in tasks_list:
+            if isinstance(t, dict):
+                t.pop("soft_deadline", None)
+        return tasks_list
+
+    now = datetime.now(timezone.utc)  # Use timezone-aware UTC now
+    if end_dt <= now:
+        logger.warning(
+            "Estimated completion date is in the past. Using default 7-day span."
+        )
+        end_dt = now + timedelta(days=7)
+
+    total_span_sec = (end_dt - now).total_seconds()
+    if (
+        total_span_sec <= 0
+    ):  # Should not happen with the check above, but belt-and-suspenders
+        logger.warning(
+            "Calculated time span for deadlines is zero or negative. Cannot schedule."
+        )
+        for t in tasks_list:
+            if isinstance(t, dict):
+                t.pop("soft_deadline", None)
+        return tasks_list
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     num_tasks = len(tasks_list)
     if num_tasks == 0:
@@ -170,12 +289,26 @@ def schedule_soft_deadlines(
     updated = []
     for idx, task in enumerate(tasks_list, start=1):
         if not isinstance(task, dict):
+<<<<<<< HEAD
              logger.warning("Skipping non-dictionary item in tasks list.")
              updated.append(task) # Append non-dict item back? Or skip? Appending for now.
              continue
 
         if not override_existing and task.get("soft_deadline"):
             logger.debug("Task %s already has deadline, skipping (override=False).", task.get('id', idx))
+=======
+            logger.warning("Skipping non-dictionary item in tasks list.")
+            updated.append(
+                task
+            )  # Append non-dict item back? Or skip? Appending for now.
+            continue
+
+        if not override_existing and task.get("soft_deadline"):
+            logger.debug(
+                "Task %s already has deadline, skipping (override=False).",
+                task.get("id", idx),
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             updated.append(task)
             continue
 
@@ -184,7 +317,11 @@ def schedule_soft_deadlines(
 
         # Jitter for blended path
         if path == "blended":
+<<<<<<< HEAD
             jitter_range = even_step * jitter_pct # Jitter relative to the step size
+=======
+            jitter_range = even_step * jitter_pct  # Jitter relative to the step size
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             offset_sec += random.uniform(-jitter_range, jitter_range)
             # Clamp offset to ensure deadline is not before now or after end_dt
             offset_sec = max(0.0, min(offset_sec, total_span_sec))
@@ -192,12 +329,29 @@ def schedule_soft_deadlines(
         try:
             deadline_dt = now + timedelta(seconds=offset_sec)
             task["soft_deadline"] = _iso(deadline_dt)
+<<<<<<< HEAD
             logger.debug("Set deadline for task %s: %s", task.get('id', idx), task["soft_deadline"])
         except OverflowError:
             logger.error("Overflow calculating deadline for task %s with offset %s. Skipping deadline.", task.get('id', idx), offset_sec)
             task.pop("soft_deadline", None) # Remove potential bad value
 
         updated.append(task) # Append the modified (or original if skipped) task
+=======
+            logger.debug(
+                "Set deadline for task %s: %s",
+                task.get("id", idx),
+                task["soft_deadline"],
+            )
+        except OverflowError:
+            logger.error(
+                "Overflow calculating deadline for task %s with offset %s. Skipping deadline.",
+                task.get("id", idx),
+                offset_sec,
+            )
+            task.pop("soft_deadline", None)  # Remove potential bad value
+
+        updated.append(task)  # Append the modified (or original if skipped) task
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     return updated
 
@@ -206,6 +360,10 @@ def schedule_soft_deadlines(
 # Convenience wrappers
 # ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def schedule_backlog(snapshot: MemorySnapshot, *, override_existing=False) -> None:
     """
     Assign deadlines to *all* tasks in `snapshot.task_backlog`.
@@ -220,8 +378,17 @@ def schedule_backlog(snapshot: MemorySnapshot, *, override_existing=False) -> No
         return
     # --- End Check ---
 
+<<<<<<< HEAD
     if not hasattr(snapshot, "task_backlog") or not isinstance(snapshot.task_backlog, list):
         logger.warning("Cannot schedule backlog: snapshot.task_backlog is missing or not a list.")
+=======
+    if not hasattr(snapshot, "task_backlog") or not isinstance(
+        snapshot.task_backlog, list
+    ):
+        logger.warning(
+            "Cannot schedule backlog: snapshot.task_backlog is missing or not a list."
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return
 
     logger.info("Scheduling soft deadlines for task backlog...")
@@ -244,7 +411,11 @@ def hours_until_deadline(task: Dict[str, Any]) -> float:
     # --- End Check ---
 
     if not isinstance(task, dict):
+<<<<<<< HEAD
          return float("inf") # Cannot get deadline from non-dict
+=======
+        return float("inf")  # Cannot get deadline from non-dict
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     sd = task.get("soft_deadline")
     if not sd or not isinstance(sd, str):
@@ -256,10 +427,17 @@ def hours_until_deadline(task: Dict[str, Any]) -> float:
         if sd.endswith("Z"):
             sd_dt = datetime.fromisoformat(sd.replace("Z", "+00:00"))
         else:
+<<<<<<< HEAD
              # If no Z and no offset, assume UTC
              sd_dt = datetime.fromisoformat(sd)
              if sd_dt.tzinfo is None:
                   sd_dt = sd_dt.replace(tzinfo=timezone.utc)
+=======
+            # If no Z and no offset, assume UTC
+            sd_dt = datetime.fromisoformat(sd)
+            if sd_dt.tzinfo is None:
+                sd_dt = sd_dt.replace(tzinfo=timezone.utc)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Ensure comparison is between two timezone-aware UTC datetimes
         now_utc = datetime.now(timezone.utc)
@@ -269,8 +447,23 @@ def hours_until_deadline(task: Dict[str, Any]) -> float:
         return max(time_diff_seconds / 3600.0, 0.0)
 
     except (ValueError, TypeError) as e:
+<<<<<<< HEAD
         logger.warning("Could not parse soft_deadline '%s': %s. Returning infinity.", sd, e)
         return float("inf")
     except Exception as e:
          logger.error("Unexpected error calculating hours_until_deadline for '%s': %s", sd, e, exc_info=True)
          return float("inf")
+=======
+        logger.warning(
+            "Could not parse soft_deadline '%s': %s. Returning infinity.", sd, e
+        )
+        return float("inf")
+    except Exception as e:
+        logger.error(
+            "Unexpected error calculating hours_until_deadline for '%s': %s",
+            sd,
+            e,
+            exc_info=True,
+        )
+        return float("inf")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

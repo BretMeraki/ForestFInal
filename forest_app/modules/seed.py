@@ -3,18 +3,28 @@
 import json
 import logging
 import uuid
+<<<<<<< HEAD
 from datetime import datetime, timezone # Added timezone
 # --- FIX: Added Union import ---
 from typing import List, Optional, Dict, Any, Union
 # --- END FIX ---
+=======
+from datetime import datetime, timezone  # Added timezone
+from typing import Any, Dict, List, Optional, Union
+
+from forest_app.modules.hta_tree import HTANode, HTATree
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # Initialize logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+<<<<<<< HEAD
 # --- HTA Imports (Direct) ---
 # Ensure this import path is correct for your project structure.
 from forest_app.modules.hta_tree import HTATree, HTANode
+=======
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # ─────────────────────────────
 
 
@@ -23,6 +33,10 @@ class Seed:
     Represents a symbolic Seed within the Forest system, encapsulating a goal
     or intention and its associated HTA plan.
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(
         self,
         seed_name: str,
@@ -59,8 +73,13 @@ class Seed:
                 dt_obj = dt_obj.replace(tzinfo=timezone.utc)
             self.created_at = dt_obj.isoformat()
         elif isinstance(created_at, str):
+<<<<<<< HEAD
              # Optionally validate ISO format here if desired
              self.created_at = created_at
+=======
+            # Optionally validate ISO format here if desired
+            self.created_at = created_at
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         else:
             # Default to current time as ISO string
             self.created_at = datetime.now(timezone.utc).isoformat()
@@ -82,7 +101,11 @@ class Seed:
             "shadow_trigger": self.shadow_trigger,
             "associated_archetypes": self.associated_archetypes,
             "status": self.status,
+<<<<<<< HEAD
             "created_at": self.created_at, # Already a string
+=======
+            "created_at": self.created_at,  # Already a string
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             "hta_tree": self.hta_tree,
         }
 
@@ -91,7 +114,13 @@ class Seed:
         """Creates a Seed object from a dictionary."""
         hta_tree_data = data.get("hta_tree")
         if hta_tree_data is not None and not isinstance(hta_tree_data, dict):
+<<<<<<< HEAD
              logger.warning("hta_tree data in Seed.from_dict is not a dict. Attempting to load anyway.")
+=======
+            logger.warning(
+                "hta_tree data in Seed.from_dict is not a dict. Attempting to load anyway."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         return cls(
             seed_name=data.get("seed_name", ""),
@@ -128,11 +157,16 @@ class SeedManager:
     """
     Manages a collection of Seeds in the Forest system's snapshot state.
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(self):
         self.seeds: Dict[str, Seed] = {}
 
     def add_seed(self, seed: Seed) -> None:
         """Adds a seed to the manager, using its ID as the key."""
+<<<<<<< HEAD
         if not seed or not hasattr(seed, 'seed_id'):
              logger.error("Attempted to add invalid seed object.")
              return
@@ -141,6 +175,20 @@ class SeedManager:
             return
         self.seeds[seed.seed_id] = seed
         logger.info("Added seed '%s' (ID: %s) to SeedManager.", seed.seed_name, seed.seed_id)
+=======
+        if not seed or not hasattr(seed, "seed_id"):
+            logger.error("Attempted to add invalid seed object.")
+            return
+        if seed.seed_id in self.seeds:
+            logger.warning(
+                "Seed with ID %s already exists in manager. Skipping.", seed.seed_id
+            )
+            return
+        self.seeds[seed.seed_id] = seed
+        logger.info(
+            "Added seed '%s' (ID: %s) to SeedManager.", seed.seed_name, seed.seed_id
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def remove_seed_by_id(self, seed_id: str) -> bool:
         """Removes a seed from the manager by its ID."""
@@ -172,18 +220,34 @@ class SeedManager:
             return False
         fields_updated = []
         for key, val in kwargs.items():
+<<<<<<< HEAD
              # Prevent direct modification of created_at via this method if desired,
              # or handle it carefully. Let's prevent for now.
             if key == 'created_at':
                  logger.warning("Attempted to update 'created_at' via update_seed. This is generally discouraged. Ignoring.")
                  continue
+=======
+            # Prevent direct modification of created_at via this method if desired,
+            # or handle it carefully. Let's prevent for now.
+            if key == "created_at":
+                logger.warning(
+                    "Attempted to update 'created_at' via update_seed. This is generally discouraged. Ignoring."
+                )
+                continue
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             if hasattr(seed, key):
                 setattr(seed, key, val)
                 fields_updated.append(key)
             else:
                 logger.warning("No attribute '%s' on Seed. Ignored during update.", key)
         if fields_updated:
+<<<<<<< HEAD
             logger.info("Updated seed %s fields: %s.", seed_id, ", ".join(fields_updated))
+=======
+            logger.info(
+                "Updated seed %s fields: %s.", seed_id, ", ".join(fields_updated)
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return True
         return False
 
@@ -214,7 +278,11 @@ class SeedManager:
             shadow_trigger=shadow_trigger,
             associated_archetypes=associated_archetypes,
             status="active",
+<<<<<<< HEAD
             hta_tree=None
+=======
+            hta_tree=None,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         )
 
         try:
@@ -228,8 +296,17 @@ class SeedManager:
             new_seed.hta_tree = tree.to_dict()
             logger.info("Initialized basic HTA tree for seed '%s'.", new_seed.seed_name)
         except Exception as e:
+<<<<<<< HEAD
              logger.error("Failed to initialize HTATree/HTANode for seed '%s': %s. Seed HTA will be empty.", new_seed.seed_name, e)
              new_seed.hta_tree = {}
+=======
+            logger.error(
+                "Failed to initialize HTATree/HTANode for seed '%s': %s. Seed HTA will be empty.",
+                new_seed.seed_name,
+                e,
+            )
+            new_seed.hta_tree = {}
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         self.add_seed(new_seed)
         return new_seed
@@ -253,33 +330,80 @@ class SeedManager:
                 seed.update_description(new_intention)
                 logger.info("Seed '%s' reframed.", seed.seed_name)
                 evolved = True
+<<<<<<< HEAD
             else: logger.warning("Reframe evolution requires 'new_intention'."); return False
+=======
+            else:
+                logger.warning("Reframe evolution requires 'new_intention'.")
+                return False
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         elif et == "expansion":
             if new_intention:
                 seed.description += f"\nExpanded: {new_intention}"
                 logger.info("Seed '%s' expanded.", seed.seed_name)
                 evolved = True
+<<<<<<< HEAD
             else: logger.warning("Expansion evolution requires 'new_intention'."); return False
         elif et == "transformation":
             seed.update_status("evolved")
             logger.info("Seed '%s' transformed (status set to evolved).", seed.seed_name)
             evolved = True
         else: logger.warning("Unknown evolution type '%s' for seed %s.", evolution_type, seed_id); return False
+=======
+            else:
+                logger.warning("Expansion evolution requires 'new_intention'.")
+                return False
+        elif et == "transformation":
+            seed.update_status("evolved")
+            logger.info(
+                "Seed '%s' transformed (status set to evolved).", seed.seed_name
+            )
+            evolved = True
+        else:
+            logger.warning(
+                "Unknown evolution type '%s' for seed %s.", evolution_type, seed_id
+            )
+            return False
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         if evolved:
             try:
                 tree = HTATree.from_dict(seed.hta_tree)
                 if tree and tree.root:
+<<<<<<< HEAD
                      logger.info("Placeholder: HTA tree potentially modified for seed '%s' due to %s.", seed.seed_name, et)
                      seed.hta_tree = tree.to_dict()
                 else: logger.warning("Could not load HTA tree for seed %s during evolution.", seed_id)
             except Exception as e: logger.error("Error updating HTA tree during seed evolution for %s: %s", seed_id, e)
+=======
+                    logger.info(
+                        "Placeholder: HTA tree potentially modified for seed '%s' due to %s.",
+                        seed.seed_name,
+                        et,
+                    )
+                    seed.hta_tree = tree.to_dict()
+                else:
+                    logger.warning(
+                        "Could not load HTA tree for seed %s during evolution.", seed_id
+                    )
+            except Exception as e:
+                logger.error(
+                    "Error updating HTA tree during seed evolution for %s: %s",
+                    seed_id,
+                    e,
+                )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return evolved
 
     def get_seed_summary(self) -> str:
         """Returns a brief summary string of active seeds."""
         active_seeds = [s for s in self.seeds.values() if s.status.lower() == "active"]
+<<<<<<< HEAD
         if not active_seeds: return "No active seeds."
+=======
+        if not active_seeds:
+            return "No active seeds."
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return " • ".join(f"{s.seed_name} ({s.seed_domain})" for s in active_seeds)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -291,6 +415,7 @@ class SeedManager:
         self.seeds.clear()
         seeds_data = data.get("seeds", {})
         if isinstance(seeds_data, dict):
+<<<<<<< HEAD
              for seed_id, seed_dict in seeds_data.items():
                  try:
                      seed = Seed.from_dict(seed_dict)
@@ -300,6 +425,27 @@ class SeedManager:
                      self.seeds[seed_id] = seed
                  except Exception as e: logger.error("Failed to load seed with ID %s from dict: %s", seed_id, e)
         else: logger.warning("Seed data in update_from_dict is not a dictionary. Cannot load seeds.")
+=======
+            for seed_id, seed_dict in seeds_data.items():
+                try:
+                    seed = Seed.from_dict(seed_dict)
+                    if seed.seed_id != seed_id:
+                        logger.warning(
+                            "Seed ID mismatch during load: key '%s' vs data '%s'. Using key.",
+                            seed_id,
+                            seed.seed_id,
+                        )
+                        seed.seed_id = seed_id
+                    self.seeds[seed_id] = seed
+                except Exception as e:
+                    logger.error(
+                        "Failed to load seed with ID %s from dict: %s", seed_id, e
+                    )
+        else:
+            logger.warning(
+                "Seed data in update_from_dict is not a dictionary. Cannot load seeds."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         logger.info("SeedManager updated from dict. Loaded %d seeds.", len(self.seeds))
 
     def __str__(self) -> str:

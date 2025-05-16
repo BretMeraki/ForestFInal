@@ -7,6 +7,7 @@
 # =============================================================================
 
 import logging
+<<<<<<< HEAD
 import random
 import uuid
 from datetime import datetime, timezone
@@ -15,12 +16,20 @@ from typing import Optional, Dict, Any, List, Tuple, TYPE_CHECKING
 # Import shared models and types
 from forest_app.modules.shared_models import HTANodeBase, PatternBase
 from forest_app.modules.types import HTANodeProtocol, HTATreeProtocol, TaskDict
+=======
+import uuid
+from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
+# Import shared models and types
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
     logger = logging.getLogger("task_engine_init")
+<<<<<<< HEAD
     logger.warning("Feature flags module not found in task_engine. Feature flag checks will be disabled.")
     class Feature: # Dummy class
         TASK_ENGINE = "FEATURE_ENABLE_TASK_ENGINE"
@@ -31,20 +40,51 @@ except ImportError:
 # --- Type hints for external dependencies ---
 if TYPE_CHECKING:
     from forest_app.modules.hta_tree import HTATree, HTANode
+=======
+    logger.warning(
+        "Feature flags module not found in task_engine. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        TASK_ENGINE = "FEATURE_ENABLE_TASK_ENGINE"
+
+    def is_enabled(feature: Any) -> bool:
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True
+
+
+# --- Type hints for external dependencies ---
+if TYPE_CHECKING:
+    from forest_app.modules.hta_tree import HTANode, HTATree
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     from forest_app.modules.pattern_id import PatternIdentificationEngine
 
 # --- Module Imports ---
 # Assume HTANode has attributes like id, title, description, children, priority, magnitude, etc.
+<<<<<<< HEAD
 from forest_app.modules.hta_tree import HTATree, HTANode # For type hinting and tree operations
 from forest_app.modules.pattern_id import PatternIdentificationEngine # For scoring
+=======
+from forest_app.modules.hta_tree import (  # For type hinting and tree operations
+    HTANode, HTATree)
+from forest_app.modules.pattern_id import \
+    PatternIdentificationEngine  # For scoring
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Logging ---
 logger = logging.getLogger(__name__)
 
 # --- Constants ---
 DEFAULT_FALLBACK_TASK_MAGNITUDE = 3.0
+<<<<<<< HEAD
 DEFAULT_TASK_MAGNITUDE = 5.0 # Default if HTA node lacks magnitude
 DEFAULT_TASK_PRIORITY = 0.5 # Default if HTA node lacks priority
+=======
+DEFAULT_TASK_MAGNITUDE = 5.0  # Default if HTA node lacks magnitude
+DEFAULT_TASK_PRIORITY = 0.5  # Default if HTA node lacks priority
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 MAX_FRONTIER_BATCH_SIZE = 5
 # Scoring weights might be less critical now if we select based on depth, but kept for potential future use
 BASE_PRIORITY_WEIGHT = 1.0
@@ -52,6 +92,10 @@ PATTERN_SCORE_WEIGHT = 0.5
 CAPACITY_WEIGHT = 0.2
 WITHERING_WEIGHT = -0.3
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # --- Helper Functions ---
 # [_calculate_node_score remains unchanged]
 def _calculate_node_score(
@@ -62,6 +106,7 @@ def _calculate_node_score(
     """Calculates a weighted score for an HTA node."""
     try:
         # Use the constant default priority here as well
+<<<<<<< HEAD
         base_priority = float(getattr(node, 'priority', DEFAULT_TASK_PRIORITY))
     except (ValueError, TypeError):
         logger.warning(f"Could not convert priority '{getattr(node, 'priority', None)}' to float for node {getattr(node, 'id', 'N/A')}. Defaulting to {DEFAULT_TASK_PRIORITY}.")
@@ -75,6 +120,23 @@ def _calculate_node_score(
         (PATTERN_SCORE_WEIGHT * pattern_score) +
         (CAPACITY_WEIGHT * capacity * base_priority) +
         (WITHERING_WEIGHT * withering * (1 - base_priority))
+=======
+        base_priority = float(getattr(node, "priority", DEFAULT_TASK_PRIORITY))
+    except (ValueError, TypeError):
+        logger.warning(
+            f"Could not convert priority '{getattr(node, 'priority', None)}' to float for node {getattr(node, 'id', 'N/A')}. Defaulting to {DEFAULT_TASK_PRIORITY}."
+        )
+        base_priority = DEFAULT_TASK_PRIORITY
+
+    capacity = snapshot.get("capacity", 0.5)
+    withering = snapshot.get("withering_level", 0.0)
+
+    score = (
+        (BASE_PRIORITY_WEIGHT * base_priority)
+        + (PATTERN_SCORE_WEIGHT * pattern_score)
+        + (CAPACITY_WEIGHT * capacity * base_priority)
+        + (WITHERING_WEIGHT * withering * (1 - base_priority))
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     )
     return max(0.0, min(1.0, score))
 
@@ -86,11 +148,20 @@ class TaskEngine:
     Limits the output to a defined batch size based on priority (desc) and
     magnitude (desc). Ensures generated tasks always have valid priority/magnitude.
     """
+<<<<<<< HEAD
     def __init__(self, pattern_engine: Optional['PatternIdentificationEngine'] = None):
         self.pattern_engine = pattern_engine
         self.logger = logging.getLogger(__name__)
 
     def process_task(self, task_node: 'HTANode', tree: 'HTATree') -> Dict[str, Any]:
+=======
+
+    def __init__(self, pattern_engine: Optional["PatternIdentificationEngine"] = None):
+        self.pattern_engine = pattern_engine
+        self.logger = logging.getLogger(__name__)
+
+    def process_task(self, task_node: "HTANode", tree: "HTATree") -> Dict[str, Any]:
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         """Process a task node and return scoring information."""
         # ... rest of the implementation ...
         return {}
@@ -118,23 +189,43 @@ class TaskEngine:
             logger.debug("Attempting HTA-based task selection (CORE_HTA enabled).")
             try:
                 hta_data = snapshot.get("core_state", {}).get("hta_tree")
+<<<<<<< HEAD
                 if not hta_data or not isinstance(hta_data, dict) or "root" not in hta_data:
+=======
+                if (
+                    not hta_data
+                    or not isinstance(hta_data, dict)
+                    or "root" not in hta_data
+                ):
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                     logger.warning("No valid HTA tree found in snapshot core_state.")
                 else:
                     hta_tree_obj = HTATree.from_dict(hta_data)
                     if not hta_tree_obj.root:
                         logger.error("Failed to load HTA tree root from data.")
                         hta_tree_obj = None
+<<<<<<< HEAD
                     elif hasattr(hta_tree_obj, 'flatten_tree'):
                         logger.info(f"Loaded HTA Tree with root: {hta_tree_obj.root.id} - '{hta_tree_obj.root.title}'")
                         flat_nodes = hta_tree_obj.flatten_tree()
                         candidate_nodes = self._filter_candidate_nodes(flat_nodes, hta_tree_obj, snapshot)
+=======
+                    elif hasattr(hta_tree_obj, "flatten_tree"):
+                        logger.info(
+                            f"Loaded HTA Tree with root: {hta_tree_obj.root.id} - '{hta_tree_obj.root.title}'"
+                        )
+                        flat_nodes = hta_tree_obj.flatten_tree()
+                        candidate_nodes = self._filter_candidate_nodes(
+                            flat_nodes, hta_tree_obj, snapshot
+                        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
                         if candidate_nodes:
                             # Find Frontier Nodes by Max Depth
                             max_depth = -1
                             nodes_with_depth = []
                             for node in candidate_nodes:
+<<<<<<< HEAD
                                 node_id = getattr(node, 'id', None)
                                 if node_id and hasattr(hta_tree_obj, 'get_node_depth'):
                                     depth = hta_tree_obj.get_node_depth(node_id)
@@ -183,6 +274,101 @@ class TaskEngine:
                             logger.warning("No candidate HTA nodes found after filtering.")
                     else:
                         logger.error("HTATree object loaded, but lacks 'flatten_tree' method.")
+=======
+                                node_id = getattr(node, "id", None)
+                                if node_id and hasattr(hta_tree_obj, "get_node_depth"):
+                                    depth = hta_tree_obj.get_node_depth(node_id)
+                                    if depth >= 0:  # Ensure node was found
+                                        nodes_with_depth.append((node, depth))
+                                        max_depth = max(max_depth, depth)
+                                    else:
+                                        logger.warning(
+                                            f"Could not get depth for candidate node {node_id}. Skipping."
+                                        )
+                                else:
+                                    logger.warning(
+                                        f"Could not get ID or get_node_depth method missing for candidate node {node_id}."
+                                    )
+
+                            if max_depth >= 0:
+                                frontier_nodes_at_depth = [
+                                    node
+                                    for node, depth in nodes_with_depth
+                                    if depth == max_depth
+                                ]
+                                logger.info(
+                                    f"Identified {len(frontier_nodes_at_depth)} frontier nodes at depth {max_depth}."
+                                )
+
+                                # Sort by priority (desc) then magnitude (desc)
+                                def get_priority(node: HTANode) -> float:
+                                    try:
+                                        return float(
+                                            getattr(
+                                                node, "priority", DEFAULT_TASK_PRIORITY
+                                            )
+                                        )
+                                    except (ValueError, TypeError):
+                                        return DEFAULT_TASK_PRIORITY
+
+                                def get_magnitude(node: HTANode) -> float:
+                                    try:
+                                        return float(
+                                            getattr(
+                                                node,
+                                                "magnitude",
+                                                DEFAULT_TASK_MAGNITUDE,
+                                            )
+                                        )
+                                    except (ValueError, TypeError):
+                                        return DEFAULT_TASK_MAGNITUDE
+
+                                frontier_nodes_sorted = sorted(
+                                    frontier_nodes_at_depth,
+                                    key=lambda node: (
+                                        -get_priority(node),
+                                        -get_magnitude(node),
+                                    ),
+                                )
+                                logger.debug(
+                                    f"Frontier nodes sorted by (-priority, -magnitude): {[getattr(n, 'id', 'N/A') for n in frontier_nodes_sorted]}"
+                                )
+
+                                # Limit to the batch size
+                                final_frontier_nodes = frontier_nodes_sorted[
+                                    :MAX_FRONTIER_BATCH_SIZE
+                                ]
+                                logger.info(
+                                    f"Selected top {len(final_frontier_nodes)} nodes based on priority/magnitude (Max Batch: {MAX_FRONTIER_BATCH_SIZE})."
+                                )
+
+                                # Convert selected frontier nodes to tasks
+                                for (
+                                    node
+                                ) in final_frontier_nodes:  # Use the limited list
+                                    task = self._create_task_from_hta_node(
+                                        snapshot, node, hta_tree_obj
+                                    )
+                                    tasks_list.append(task)
+
+                                if tasks_list:
+                                    logger.info(
+                                        f"Generated {len(tasks_list)} tasks for the batch."
+                                    )
+
+                            else:
+                                logger.warning(
+                                    "Could not determine max depth or find nodes at max depth."
+                                )
+                        else:
+                            logger.warning(
+                                "No candidate HTA nodes found after filtering."
+                            )
+                    else:
+                        logger.error(
+                            "HTATree object loaded, but lacks 'flatten_tree' method."
+                        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                         hta_tree_obj = None
 
             except Exception as e:
@@ -198,8 +384,13 @@ class TaskEngine:
 
         # --- 3. Prepare and Return Bundle ---
         task_bundle = {
+<<<<<<< HEAD
             "tasks": tasks_list, # List of HTA tasks (max MAX_FRONTIER_BATCH_SIZE)
             "fallback_task": fallback_task, # Single fallback task (None if HTA tasks exist)
+=======
+            "tasks": tasks_list,  # List of HTA tasks (max MAX_FRONTIER_BATCH_SIZE)
+            "fallback_task": fallback_task,  # Single fallback task (None if HTA tasks exist)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         return task_bundle
@@ -215,12 +406,22 @@ class TaskEngine:
                 "description": "A guided session to explore your recent progress and current state.",
                 "magnitude": DEFAULT_FALLBACK_TASK_MAGNITUDE,
                 "metadata": {"fallback": True},
+<<<<<<< HEAD
                 "introspective_prompt": "What feels most alive or challenging in your journey right now?"
+=======
+                "introspective_prompt": "What feels most alive or challenging in your journey right now?",
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             }
         }
 
     # [_get_fallback_task method remains unchanged]
+<<<<<<< HEAD
     def _get_fallback_task(self, template_key: str = "default_reflection") -> Dict[str, Any]:
+=======
+    def _get_fallback_task(
+        self, template_key: str = "default_reflection"
+    ) -> Dict[str, Any]:
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         """Generates a fallback task using a template."""
         template = self._load_default_templates().get(template_key)
         if not template:
@@ -244,18 +445,36 @@ class TaskEngine:
     # [_check_dependencies method remains unchanged]
     def _check_dependencies(self, node: HTANode, tree: HTATree) -> bool:
         """Checks if all dependencies for a node are met."""
+<<<<<<< HEAD
         if not hasattr(node, 'depends_on') or not node.depends_on:
             return True
         if not tree:
              logger.error(f"Cannot check dependencies for node {getattr(node, 'id', 'N/A')}: HTATree object is missing.")
              return False
+=======
+        if not hasattr(node, "depends_on") or not node.depends_on:
+            return True
+        if not tree:
+            logger.error(
+                f"Cannot check dependencies for node {getattr(node, 'id', 'N/A')}: HTATree object is missing."
+            )
+            return False
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         node_map = tree.get_node_map()
         for dep_id in node.depends_on:
             dep_node = node_map.get(dep_id)
             if not dep_node:
+<<<<<<< HEAD
                 logger.warning(f"Dependency node ID '{dep_id}' not found in tree map for node '{getattr(node, 'id', 'N/A')}'. Assuming dependency not met.")
                 return False
             dep_status = getattr(dep_node, 'status', 'pending')
+=======
+                logger.warning(
+                    f"Dependency node ID '{dep_id}' not found in tree map for node '{getattr(node, 'id', 'N/A')}'. Assuming dependency not met."
+                )
+                return False
+            dep_status = getattr(dep_node, "status", "pending")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             if dep_status.lower() != "completed":
                 return False
         return True
@@ -265,24 +484,47 @@ class TaskEngine:
         """Checks resource requirements (if flag enabled)."""
         if not is_enabled(Feature.TASK_RESOURCE_FILTER):
             return True
+<<<<<<< HEAD
         required_energy = getattr(node, 'estimated_energy', 'low').lower()
         capacity = snapshot.get('capacity', 0.5)
         energy_map = {'low': 0.3, 'medium': 0.6, 'high': 1.0}
         passes_energy = capacity >= energy_map.get(required_energy, 0.0)
         if not passes_energy:
             logger.debug(f"-> Node {getattr(node, 'id', 'N/A')} rejected: Insufficient energy (requires {required_energy}, capacity {capacity:.2f}).")
+=======
+        required_energy = getattr(node, "estimated_energy", "low").lower()
+        capacity = snapshot.get("capacity", 0.5)
+        energy_map = {"low": 0.3, "medium": 0.6, "high": 1.0}
+        passes_energy = capacity >= energy_map.get(required_energy, 0.0)
+        if not passes_energy:
+            logger.debug(
+                f"-> Node {getattr(node, 'id', 'N/A')} rejected: Insufficient energy (requires {required_energy}, capacity {capacity:.2f})."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return False
         return True
 
     # [_filter_candidate_nodes method remains unchanged]
+<<<<<<< HEAD
     def _filter_candidate_nodes(self, flat_nodes: List[HTANode], tree: HTATree, snapshot: Dict[str, Any]) -> List[HTANode]:
+=======
+    def _filter_candidate_nodes(
+        self, flat_nodes: List[HTANode], tree: HTATree, snapshot: Dict[str, Any]
+    ) -> List[HTANode]:
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         """Filters flattened HTA nodes to find viable candidates."""
         candidates = []
         logger.debug(f"Filtering {len(flat_nodes)} flattened nodes...")
         for node in flat_nodes:
+<<<<<<< HEAD
             node_id = getattr(node, 'id', 'N/A')
             status = getattr(node, 'status', 'pending')
             if status not in ['pending', 'suggested']:
+=======
+            node_id = getattr(node, "id", "N/A")
+            status = getattr(node, "status", "pending")
+            if status not in ["pending", "suggested"]:
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 continue
             if not self._check_dependencies(node, tree):
                 continue
@@ -293,12 +535,19 @@ class TaskEngine:
         return candidates
 
     # --- MODIFIED: _create_task_from_hta_node with robust magnitude ---
+<<<<<<< HEAD
     def _create_task_from_hta_node(self, snapshot: Dict[str, Any], hta_node: HTANode, tree: Optional[HTATree]) -> Dict[str, Any]:
+=======
+    def _create_task_from_hta_node(
+        self, snapshot: Dict[str, Any], hta_node: HTANode, tree: Optional[HTATree]
+    ) -> Dict[str, Any]:
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         """Creates a task dictionary from a single HTA node, ensuring priority and magnitude."""
         task_id = f"hta_{getattr(hta_node, 'id', uuid.uuid4().hex[:8])}"
 
         # Robust Priority Handling
         try:
+<<<<<<< HEAD
              priority_raw = float(getattr(hta_node, 'priority', DEFAULT_TASK_PRIORITY))
         except (ValueError, TypeError):
              logger.warning(f"Could not convert priority '{getattr(hta_node, 'priority', None)}' to float for node {getattr(hta_node, 'id', 'N/A')}. Defaulting to {DEFAULT_TASK_PRIORITY}.")
@@ -310,10 +559,30 @@ class TaskEngine:
         except (ValueError, TypeError):
              logger.warning(f"Could not convert magnitude '{getattr(hta_node, 'magnitude', None)}' to float for node {getattr(hta_node, 'id', 'N/A')}. Defaulting to {DEFAULT_TASK_MAGNITUDE}.")
              magnitude_val = DEFAULT_TASK_MAGNITUDE
+=======
+            priority_raw = float(getattr(hta_node, "priority", DEFAULT_TASK_PRIORITY))
+        except (ValueError, TypeError):
+            logger.warning(
+                f"Could not convert priority '{getattr(hta_node, 'priority', None)}' to float for node {getattr(hta_node, 'id', 'N/A')}. Defaulting to {DEFAULT_TASK_PRIORITY}."
+            )
+            priority_raw = DEFAULT_TASK_PRIORITY
+
+        # --- MODIFIED: Robust Magnitude Handling ---
+        try:
+            magnitude_val = float(
+                getattr(hta_node, "magnitude", DEFAULT_TASK_MAGNITUDE)
+            )
+        except (ValueError, TypeError):
+            logger.warning(
+                f"Could not convert magnitude '{getattr(hta_node, 'magnitude', None)}' to float for node {getattr(hta_node, 'id', 'N/A')}. Defaulting to {DEFAULT_TASK_MAGNITUDE}."
+            )
+            magnitude_val = DEFAULT_TASK_MAGNITUDE
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # --- END MODIFIED ---
 
         # Depth calculation remains the same
         hta_depth = 0
+<<<<<<< HEAD
         if hasattr(hta_node, "depth"): # Check if depth was pre-calculated
              hta_depth = getattr(hta_node, "depth", 0)
         elif tree and hasattr(hta_node, 'id') and hasattr(tree, 'get_node_depth'):
@@ -330,10 +599,32 @@ class TaskEngine:
         else:
              logger.debug(f"Could not calculate depth for node {getattr(hta_node, 'id', 'N/A')}: Tree or method missing.")
 
+=======
+        if hasattr(hta_node, "depth"):  # Check if depth was pre-calculated
+            hta_depth = getattr(hta_node, "depth", 0)
+        elif tree and hasattr(hta_node, "id") and hasattr(tree, "get_node_depth"):
+            try:
+                node_id = getattr(hta_node, "id", None)
+                if node_id:
+                    depth_result = tree.get_node_depth(node_id)
+                    hta_depth = depth_result if depth_result >= 0 else 0
+                else:
+                    logger.warning("Cannot calculate depth: hta_node is missing 'id'.")
+            except Exception as depth_err:
+                logger.error(
+                    f"Error calculating node depth for {getattr(hta_node, 'id', 'N/A')}: {depth_err}"
+                )
+                hta_depth = 0
+        else:
+            logger.debug(
+                f"Could not calculate depth for node {getattr(hta_node, 'id', 'N/A')}: Tree or method missing."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         task = {
             "id": task_id,
             "tier": "Node",
+<<<<<<< HEAD
             "title": getattr(hta_node, 'title', 'Untitled HTA Task'),
             "description": getattr(hta_node, 'description', 'Execute this step from the plan.'),
             "magnitude": magnitude_val, # Use the validated magnitude
@@ -346,10 +637,27 @@ class TaskEngine:
             },
              "estimated_time": getattr(hta_node, 'estimated_time', None),
              "estimated_energy": getattr(hta_node, 'estimated_energy', None),
+=======
+            "title": getattr(hta_node, "title", "Untitled HTA Task"),
+            "description": getattr(
+                hta_node, "description", "Execute this step from the plan."
+            ),
+            "magnitude": magnitude_val,  # Use the validated magnitude
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "hta_node_id": getattr(hta_node, "id", None),
+            "metadata": {
+                "is_milestone": getattr(hta_node, "is_milestone", False),
+                "priority_raw": priority_raw,  # Use the validated priority
+                "hta_depth": hta_depth,
+            },
+            "estimated_time": getattr(hta_node, "estimated_time", None),
+            "estimated_energy": getattr(hta_node, "estimated_energy", None),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         }
         # Clean up None values for cleaner output
         task = {k: v for k, v in task.items() if v is not None}
         if "metadata" in task:
+<<<<<<< HEAD
              task["metadata"] = {k: v for k, v in task.get("metadata", {}).items() if v is not None}
         else:
              task["metadata"] = {}
@@ -357,3 +665,14 @@ class TaskEngine:
         return task
     # --- END MODIFIED ---
 
+=======
+            task["metadata"] = {
+                k: v for k, v in task.get("metadata", {}).items() if v is not None
+            }
+        else:
+            task["metadata"] = {}
+
+        return task
+
+    # --- END MODIFIED ---
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

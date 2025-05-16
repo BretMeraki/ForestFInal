@@ -14,7 +14,6 @@ from sqlalchemy.orm.attributes import flag_modified
 # but removed from user_id logic here. Keeping import for now.
 from sqlalchemy import cast, Integer, String
 
-
 # --- Models ---
 try:
     # ** CHANGE 1: Corrected model names in import **
@@ -173,15 +172,27 @@ class MemorySnapshotRepository:
             raise TypeError("User ID must be an integer.")
         try:
             # Determine the field to order by (prefer updated_at if it exists)
-            order_by_field = 'updated_at' if hasattr(MemorySnapshotModel, 'updated_at') else 'created_at'
-            if not all(hasattr(MemorySnapshotModel, attr) for attr in ['user_id', order_by_field]):
-                logger.error("MemorySnapshotModel missing required attributes (user_id, %s) for query.", order_by_field)
-                raise AttributeError(f"MemorySnapshotModel missing required query attributes (user_id, {order_by_field}).")
+            order_by_field = (
+                "updated_at"
+                if hasattr(MemorySnapshotModel, "updated_at")
+                else "created_at"
+            )
+            if not all(
+                hasattr(MemorySnapshotModel, attr)
+                for attr in ["user_id", order_by_field]
+            ):
+                logger.error(
+                    "MemorySnapshotModel missing required attributes (user_id, %s) for query.",
+                    order_by_field,
+                )
+                raise AttributeError(
+                    f"MemorySnapshotModel missing required query attributes (user_id, {order_by_field})."
+                )
 
             snapshot = (
                 self.db.query(MemorySnapshotModel)
                 .filter(MemorySnapshotModel.user_id == user_id)
-                .order_by(getattr(MemorySnapshotModel, order_by_field).desc()) # Order by available timestamp
+                .order_by(getattr(MemorySnapshotModel, order_by_field).desc())  # Order by available timestamp
                 .first()
             )
 
@@ -250,9 +261,19 @@ class MemorySnapshotRepository:
             return []
         try:
             # Determine the field to order by
-            order_by_field = 'updated_at' if hasattr(MemorySnapshotModel, 'updated_at') else 'created_at'
-            if not all(hasattr(MemorySnapshotModel, attr) for attr in ['user_id', order_by_field]):
-                logger.error("MemorySnapshotModel missing required attributes (user_id, %s) for query.", order_by_field)
+            order_by_field = (
+                "updated_at"
+                if hasattr(MemorySnapshotModel, "updated_at")
+                else "created_at"
+            )
+            if not all(
+                hasattr(MemorySnapshotModel, attr)
+                for attr in ["user_id", order_by_field]
+            ):
+                logger.error(
+                    "MemorySnapshotModel missing required attributes (user_id, %s) for query.",
+                    order_by_field,
+                )
                 return []
 
             query = (
@@ -339,7 +360,6 @@ class MemorySnapshotRepository:
 
 # === Standalone Helper Function for Snapshot Retrieval ===
 
-# --- ADDED THIS FUNCTION ---
 def get_latest_snapshot_model(user_id: int, db: Session) -> Optional[MemorySnapshotModel]:
     """
     Retrieves the latest MemorySnapshotModel for a given user ID using the provided Session.
@@ -357,10 +377,22 @@ def get_latest_snapshot_model(user_id: int, db: Session) -> Optional[MemorySnaps
 
     try:
         # Determine the field to order by (prefer updated_at if it exists)
-        order_by_field = 'updated_at' if hasattr(MemorySnapshotModel, 'updated_at') else 'created_at'
-        if not all(hasattr(MemorySnapshotModel, attr) for attr in ['user_id', order_by_field]):
-            logger.error("MemorySnapshotModel missing required attributes (user_id, %s) for query.", order_by_field)
-            raise AttributeError(f"MemorySnapshotModel missing required query attributes (user_id, {order_by_field}).")
+        order_by_field = (
+            "updated_at"
+            if hasattr(MemorySnapshotModel, "updated_at")
+            else "created_at"
+        )
+        if not all(
+            hasattr(MemorySnapshotModel, attr)
+            for attr in ["user_id", order_by_field]
+        ):
+            logger.error(
+                "MemorySnapshotModel missing required attributes (user_id, %s) for query.",
+                order_by_field,
+            )
+            raise AttributeError(
+                f"MemorySnapshotModel missing required query attributes (user_id, {order_by_field})."
+            )
 
         snapshot = (
             db.query(MemorySnapshotModel)
@@ -383,9 +415,6 @@ def get_latest_snapshot_model(user_id: int, db: Session) -> Optional[MemorySnaps
     except Exception as e:
         logger.error("Unexpected error retrieving latest snapshot model for user ID %d: %s", user_id, e, exc_info=True)
         raise # Propagate other errors
-
-# --- END ADDED FUNCTION ---
-
 
 # === HTATreeRepository ===
 class HTATreeRepository:

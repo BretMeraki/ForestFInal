@@ -2,15 +2,24 @@
 # MODIFIED: Added robust default value assignment for priority and magnitude in HTANode.from_dict
 
 import logging
+<<<<<<< HEAD
 from typing import List, Optional, Dict, Any, Set, Tuple # Added Set, Tuple
+=======
+from typing import Any, Dict, List, Optional  # Added Set, Tuple
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 logger = logging.getLogger(__name__)
 # Ensure logger level is set appropriately elsewhere in your logging setup
 # logger.setLevel(logging.INFO) # Example: Set level if not configured globally
 
 # --- MODIFIED: Added Default Constants ---
+<<<<<<< HEAD
 DEFAULT_TASK_MAGNITUDE = 5.0 # Default if HTA node lacks magnitude
 DEFAULT_TASK_PRIORITY = 0.5 # Default if HTA node lacks priority
+=======
+DEFAULT_TASK_MAGNITUDE = 5.0  # Default if HTA node lacks magnitude
+DEFAULT_TASK_PRIORITY = 0.5  # Default if HTA node lacks priority
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # --- END MODIFIED ---
 
 # Define a simple RESOURCE_MAP for potential future use (e.g., mapping labels to values)
@@ -43,7 +52,11 @@ class HTANode:
         title: str,
         description: str,
         priority: float,
+<<<<<<< HEAD
         magnitude: float, # <-- Added magnitude parameter
+=======
+        magnitude: float,  # <-- Added magnitude parameter
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         is_milestone: bool = False,
         depends_on: Optional[List[str]] = None,
         estimated_energy: str = "medium",
@@ -59,7 +72,13 @@ class HTANode:
         # Ensure priority is clamped between 0.0 and 1.0
         self.priority = max(0.0, min(1.0, priority))
         # --- MODIFIED: Assign magnitude ---
+<<<<<<< HEAD
         self.magnitude = magnitude # Assuming magnitude doesn't need clamping here, adjust if needed
+=======
+        self.magnitude = (
+            magnitude  # Assuming magnitude doesn't need clamping here, adjust if needed
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # --- END MODIFIED ---
         self.is_milestone = is_milestone
         self.depends_on = depends_on if depends_on is not None else []
@@ -72,7 +91,11 @@ class HTANode:
         """Provides a developer-friendly representation of the node."""
         return (
             f"HTANode(id='{self.id}', title='{self.title}', status='{self.status}', "
+<<<<<<< HEAD
             f"priority={self.priority:.2f}, magnitude={self.magnitude:.1f}, " # <-- Added magnitude
+=======
+            f"priority={self.priority:.2f}, magnitude={self.magnitude:.1f}, "  # <-- Added magnitude
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             f"milestone={self.is_milestone}, "
             f"children_count={len(self.children)}, deps={len(self.depends_on)})"
         )
@@ -115,7 +138,14 @@ class HTANode:
         if old_priority != self.priority:
             logger.info(
                 "Adjusted priority for node '%s' from %.2f to %.2f based on capacity %.2f",
+<<<<<<< HEAD
                 self.title, old_priority, self.priority, capacity,
+=======
+                self.title,
+                old_priority,
+                self.priority,
+                capacity,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             )
 
     def prune_if_unnecessary(self, condition: bool):
@@ -130,6 +160,7 @@ class HTANode:
         Checks whether all dependencies of this node have been 'completed'.
         Uses a provided map for efficient node lookup.
         """
+<<<<<<< HEAD
         if not self.depends_on: return True
         for dep_id in self.depends_on:
             dep_node = node_map.get(dep_id)
@@ -137,6 +168,21 @@ class HTANode:
                 logger.warning("Dependency check failed for node '%s': Dependency node '%s' not found.", self.title, dep_id)
                 return False
             if dep_node.status.lower() != "completed": return False
+=======
+        if not self.depends_on:
+            return True
+        for dep_id in self.depends_on:
+            dep_node = node_map.get(dep_id)
+            if dep_node is None:
+                logger.warning(
+                    "Dependency check failed for node '%s': Dependency node '%s' not found.",
+                    self.title,
+                    dep_id,
+                )
+                return False
+            if dep_node.status.lower() != "completed":
+                return False
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return True
 
     def to_dict(self) -> dict:
@@ -147,7 +193,11 @@ class HTANode:
             "description": self.description,
             "status": self.status,
             "priority": self.priority,
+<<<<<<< HEAD
             "magnitude": self.magnitude, # <-- Added serialization
+=======
+            "magnitude": self.magnitude,  # <-- Added serialization
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             "is_milestone": self.is_milestone,
             "depends_on": self.depends_on,
             "estimated_energy": self.estimated_energy,
@@ -160,6 +210,7 @@ class HTANode:
     def from_dict(cls, data: dict) -> "HTANode":
         """Deserializes an HTANode from a dictionary, ensuring default priority/magnitude."""
         if not data or "id" not in data or "title" not in data:
+<<<<<<< HEAD
             raise ValueError("Cannot create HTANode: Missing 'id' or 'title'. Data: %s", data)
 
         node_id = data["id"] # Get ID for logging context
@@ -169,6 +220,21 @@ class HTANode:
             priority_val = float(data.get('priority', DEFAULT_TASK_PRIORITY))
         except (ValueError, TypeError):
             logger.warning(f"Invalid priority '{data.get('priority')}' for node {node_id}. Using default {DEFAULT_TASK_PRIORITY}.")
+=======
+            raise ValueError(
+                "Cannot create HTANode: Missing 'id' or 'title'. Data: %s", data
+            )
+
+        node_id = data["id"]  # Get ID for logging context
+
+        # --- MODIFIED: Robust Priority Assignment ---
+        try:
+            priority_val = float(data.get("priority", DEFAULT_TASK_PRIORITY))
+        except (ValueError, TypeError):
+            logger.warning(
+                f"Invalid priority '{data.get('priority')}' for node {node_id}. Using default {DEFAULT_TASK_PRIORITY}."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             priority_val = DEFAULT_TASK_PRIORITY
         # Ensure priority is clamped after conversion
         priority_val = max(0.0, min(1.0, priority_val))
@@ -176,50 +242,95 @@ class HTANode:
 
         # --- MODIFIED: Robust Magnitude Assignment ---
         try:
+<<<<<<< HEAD
             magnitude_val = float(data.get('magnitude', DEFAULT_TASK_MAGNITUDE))
         except (ValueError, TypeError):
             logger.warning(f"Invalid magnitude '{data.get('magnitude')}' for node {node_id}. Using default {DEFAULT_TASK_MAGNITUDE}.")
+=======
+            magnitude_val = float(data.get("magnitude", DEFAULT_TASK_MAGNITUDE))
+        except (ValueError, TypeError):
+            logger.warning(
+                f"Invalid magnitude '{data.get('magnitude')}' for node {node_id}. Using default {DEFAULT_TASK_MAGNITUDE}."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             magnitude_val = DEFAULT_TASK_MAGNITUDE
         # --- END MODIFIED ---
 
         # Recursively create children
         children_data = data.get("children", [])
+<<<<<<< HEAD
         children = [cls.from_dict(child_data) for child_data in children_data if isinstance(child_data, dict)]
+=======
+        children = [
+            cls.from_dict(child_data)
+            for child_data in children_data
+            if isinstance(child_data, dict)
+        ]
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Create node using validated/defaulted values
         node = cls(
             id=node_id,
             title=data["title"],
             description=data.get("description", ""),
+<<<<<<< HEAD
             priority=priority_val, # Use validated/defaulted value
             magnitude=magnitude_val, # Use validated/defaulted value
+=======
+            priority=priority_val,  # Use validated/defaulted value
+            magnitude=magnitude_val,  # Use validated/defaulted value
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             is_milestone=bool(data.get("is_milestone", False)),
             depends_on=data.get("depends_on", []),
             estimated_energy=data.get("estimated_energy", "medium"),
             estimated_time=data.get("estimated_time", "medium"),
             children=children,
             status=data.get("status", "pending"),
+<<<<<<< HEAD
             linked_tasks=data.get("linked_tasks", [])
         )
         return node
 
+=======
+            linked_tasks=data.get("linked_tasks", []),
+        )
+        return node
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # --- HTATree class ---
 class HTATree:
     """
     Represents the entire HTA tree structure, managing nodes and operations.
     """
+<<<<<<< HEAD
     # [__init__, rebuild_node_map, get_node_map, set_root remain unchanged]
     def __init__(self, root: Optional[HTANode] = None):
         self.root = root
         self._node_map: Dict[str, HTANode] = {} # Internal map for quick node lookup
         if root:
             self.rebuild_node_map() # Build map initially if root exists
+=======
+
+    # [__init__, rebuild_node_map, get_node_map, set_root remain unchanged]
+    def __init__(self, root: Optional[HTANode] = None):
+        self.root = root
+        self._node_map: Dict[str, HTANode] = {}  # Internal map for quick node lookup
+        if root:
+            self.rebuild_node_map()  # Build map initially if root exists
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def rebuild_node_map(self):
         """Rebuilds the internal dictionary mapping node IDs to nodes."""
         # Use the newly added flatten method
         self._node_map = {node.id: node for node in self.flatten()}
+<<<<<<< HEAD
         logger.debug("HTA Tree node map rebuilt. Contains %d nodes.", len(self._node_map))
+=======
+        logger.debug(
+            "HTA Tree node map rebuilt. Contains %d nodes.", len(self._node_map)
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def get_node_map(self) -> Dict[str, HTANode]:
         """Returns the current node map (builds it if empty)."""
@@ -240,11 +351,27 @@ class HTATree:
             old_status = node.status
             node.update_status(new_status)
             # Propagate only if the status change could lead to parent completion
+<<<<<<< HEAD
             if old_status != new_status and new_status.lower() in ["completed", "pruned"]:
                 logger.info("Status updated for node '%s', triggering propagation check.", node.title)
                 self.propagate_status()
         else:
             logger.warning("Cannot update status: Node with id '%s' not found.", node_id)
+=======
+            if old_status != new_status and new_status.lower() in [
+                "completed",
+                "pruned",
+            ]:
+                logger.info(
+                    "Status updated for node '%s', triggering propagation check.",
+                    node.title,
+                )
+                self.propagate_status()
+        else:
+            logger.warning(
+                "Cannot update status: Node with id '%s' not found.", node_id
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     # [to_dict method remains unchanged]
     def to_dict(self) -> dict:
@@ -256,8 +383,16 @@ class HTATree:
         """Deserializes the HTATree from a dictionary; expects a 'root' key."""
         # --- MODIFIED: Add logging for input data ---
         if not isinstance(data, dict):
+<<<<<<< HEAD
              logger.error("Invalid data type passed to HTATree.from_dict: expected dict, got %s", type(data))
              return cls(root=None) # Return empty tree
+=======
+            logger.error(
+                "Invalid data type passed to HTATree.from_dict: expected dict, got %s",
+                type(data),
+            )
+            return cls(root=None)  # Return empty tree
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         logger.debug("HTATree.from_dict called with data keys: %s", list(data.keys()))
         # --- END MODIFIED ---
@@ -269,6 +404,7 @@ class HTATree:
                 # HTANode.from_dict now handles defaulting priority/magnitude
                 root_node = HTANode.from_dict(root_data)
             except ValueError as e:
+<<<<<<< HEAD
                 logger.error("Error creating root HTANode from dict: %s. Data: %s", e, root_data)
                 root_node = None # Ensure root is None if creation fails
             except Exception as e:
@@ -278,6 +414,25 @@ class HTATree:
              logger.warning("Data for 'root' key is not a dictionary: %s", type(root_data))
 
         return cls(root=root_node) # Node map will be built on first access or explicitly
+=======
+                logger.error(
+                    "Error creating root HTANode from dict: %s. Data: %s", e, root_data
+                )
+                root_node = None  # Ensure root is None if creation fails
+            except Exception as e:
+                logger.exception(
+                    "Unexpected error creating root HTANode from dict: %s", e
+                )
+                root_node = None
+        elif root_data is not None:
+            logger.warning(
+                "Data for 'root' key is not a dictionary: %s", type(root_data)
+            )
+
+        return cls(
+            root=root_node
+        )  # Node map will be built on first access or explicitly
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     # [flatten_tree / flatten methods remain unchanged]
     def flatten_tree(self) -> List[HTANode]:
@@ -291,6 +446,7 @@ class HTATree:
         visited = set()
         while stack:
             node = stack.pop()
+<<<<<<< HEAD
             if node.id in visited: continue
             visited.add(node.id)
             nodes.append(node)
@@ -304,6 +460,26 @@ class HTATree:
     def flatten(self) -> List[HTANode]:
          """Alias for flatten_tree for compatibility."""
          return self.flatten_tree()
+=======
+            if node.id in visited:
+                continue
+            visited.add(node.id)
+            nodes.append(node)
+            # Add children to stack carefully
+            if hasattr(node, "children") and isinstance(node.children, list):
+                for child in reversed(node.children):
+                    if (
+                        isinstance(child, HTANode)
+                        and hasattr(child, "id")
+                        and child.id not in visited
+                    ):
+                        stack.append(child)
+        return nodes
+
+    def flatten(self) -> List[HTANode]:
+        """Alias for flatten_tree for compatibility."""
+        return self.flatten_tree()
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     # [propagate_status method remains unchanged]
     def propagate_status(self):
@@ -312,25 +488,54 @@ class HTATree:
         If all children of a node are 'completed' or 'pruned', the node is marked 'completed'.
         Should be called after a node status changes to 'completed' or 'pruned'.
         """
+<<<<<<< HEAD
         if not self.root: return
         changed_nodes = set()
         def _propagate(node: HTANode) -> bool:
             if not node.children: return node.status.lower() in ["completed", "pruned"]
+=======
+        if not self.root:
+            return
+        changed_nodes = set()
+
+        def _propagate(node: HTANode) -> bool:
+            if not node.children:
+                return node.status.lower() in ["completed", "pruned"]
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             all_children_done = all(_propagate(child) for child in node.children)
             if all_children_done and node.status.lower() not in ["completed", "pruned"]:
                 old_status = node.status
                 node.status = "completed"
                 changed_nodes.add(node.id)
+<<<<<<< HEAD
                 logger.info("Propagated status: Node '%s' (id: %s) changed from '%s' to 'completed'.", node.title, node.id, old_status)
             return node.status.lower() in ["completed", "pruned"]
         _propagate(self.root)
         if changed_nodes: logger.info("Status propagation finished. Nodes updated: %s", changed_nodes)
         else: logger.debug("Status propagation check finished. No changes.") # Changed to debug
+=======
+                logger.info(
+                    "Propagated status: Node '%s' (id: %s) changed from '%s' to 'completed'.",
+                    node.title,
+                    node.id,
+                    old_status,
+                )
+            return node.status.lower() in ["completed", "pruned"]
+
+        _propagate(self.root)
+        if changed_nodes:
+            logger.info("Status propagation finished. Nodes updated: %s", changed_nodes)
+        else:
+            logger.debug(
+                "Status propagation check finished. No changes."
+            )  # Changed to debug
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     # [find_node_by_id method remains unchanged]
     def find_node_by_id(self, node_id: str) -> Optional[HTANode]:
         """Searches the tree for a node with the given ID using the node map."""
         current_map = self.get_node_map()
+<<<<<<< HEAD
         if current_map: return current_map.get(node_id)
         logger.warning("Node map empty/missing despite root existing, performing tree traversal for find_node_by_id.")
         if not self.root: return None
@@ -342,6 +547,24 @@ class HTATree:
                  for child in current_node.children:
                      if isinstance(child, HTANode): # Check child is valid node
                           queue.append(child)
+=======
+        if current_map:
+            return current_map.get(node_id)
+        logger.warning(
+            "Node map empty/missing despite root existing, performing tree traversal for find_node_by_id."
+        )
+        if not self.root:
+            return None
+        queue = [self.root]
+        while queue:
+            current_node = queue.pop(0)
+            if current_node.id == node_id:
+                return current_node
+            if hasattr(current_node, "children"):  # Check children exist
+                for child in current_node.children:
+                    if isinstance(child, HTANode):  # Check child is valid node
+                        queue.append(child)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return None
 
     # [add_node method remains unchanged]
@@ -353,13 +576,20 @@ class HTATree:
         parent = self.find_node_by_id(parent_id)
         if parent:
             if self.find_node_by_id(new_node.id):
+<<<<<<< HEAD
                 logger.warning("Cannot add node: Node with id '%s' already exists.", new_node.id)
+=======
+                logger.warning(
+                    "Cannot add node: Node with id '%s' already exists.", new_node.id
+                )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 return False
             parent.children.append(new_node)
             # Add the new node and its potential children to the map
             subtree_nodes = [new_node]
             queue = list(new_node.children)
             while queue:
+<<<<<<< HEAD
                  current = queue.pop(0)
                  subtree_nodes.append(current)
                  if hasattr(current, 'children'): queue.extend(current.children)
@@ -367,6 +597,27 @@ class HTATree:
                  if node_to_add.id not in self._node_map: self._node_map[node_to_add.id] = node_to_add
                  else: logger.warning("Node ID %s collision during add_node map update.", node_to_add.id)
             logger.info("Added node '%s' (id: %s) as child of '%s' (id: %s).", new_node.title, new_node.id, parent.title, parent.id)
+=======
+                current = queue.pop(0)
+                subtree_nodes.append(current)
+                if hasattr(current, "children"):
+                    queue.extend(current.children)
+            for node_to_add in subtree_nodes:
+                if node_to_add.id not in self._node_map:
+                    self._node_map[node_to_add.id] = node_to_add
+                else:
+                    logger.warning(
+                        "Node ID %s collision during add_node map update.",
+                        node_to_add.id,
+                    )
+            logger.info(
+                "Added node '%s' (id: %s) as child of '%s' (id: %s).",
+                new_node.title,
+                new_node.id,
+                parent.title,
+                parent.id,
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return True
         else:
             logger.warning("Cannot add node: Parent node '%s' not found.", parent_id)
@@ -378,6 +629,7 @@ class HTATree:
         Removes the node with the specified ID (and its entire subtree) from the tree.
         Updates the node map.
         """
+<<<<<<< HEAD
         if not self.root: logger.warning("Cannot remove node: Tree empty."); return False
         if self.root.id == node_id: logger.warning("Cannot remove root node."); return False
         queue = [self.root]; parent_map: Dict[str, Optional[HTANode]] = {self.root.id: None}
@@ -400,10 +652,68 @@ class HTATree:
             logger.debug("Updated node map after removing subtree at %s.", node_id)
             return True
         except ValueError: logger.error("Error removing node '%s': Not found in parent '%s' children.", node_to_remove.title, parent_node.title); return False
+=======
+        if not self.root:
+            logger.warning("Cannot remove node: Tree empty.")
+            return False
+        if self.root.id == node_id:
+            logger.warning("Cannot remove root node.")
+            return False
+        queue = [self.root]
+        parent_map: Dict[str, Optional[HTANode]] = {self.root.id: None}
+        node_to_remove: Optional[HTANode] = None
+        parent_node: Optional[HTANode] = None
+        found = False
+        while queue:
+            current = queue.pop(0)
+            if current.id == node_id:
+                node_to_remove = current
+                parent_node = parent_map.get(node_id)
+                found = True
+                break
+            if hasattr(current, "children"):
+                for child in current.children:
+                    if isinstance(child, HTANode):
+                        parent_map[child.id] = current
+                        queue.append(child)
+        if not found or parent_node is None:
+            logger.warning(
+                "Cannot remove node: Node '%s' not found or parent lookup failed.",
+                node_id,
+            )
+            return False
+        try:
+            parent_node.children.remove(node_to_remove)
+            logger.info(
+                "Removed node '%s' (id: %s) from parent '%s'.",
+                node_to_remove.title,
+                node_to_remove.id,
+                parent_node.title,
+            )
+            ids_to_remove = set()
+            queue = [node_to_remove]
+            while queue:
+                current = queue.pop(0)
+                ids_to_remove.add(current.id)
+                if hasattr(current, "children"):
+                    queue.extend(current.children)
+            for removed_id in ids_to_remove:
+                self._node_map.pop(removed_id, None)
+            logger.debug("Updated node map after removing subtree at %s.", node_id)
+            return True
+        except ValueError:
+            logger.error(
+                "Error removing node '%s': Not found in parent '%s' children.",
+                node_to_remove.title,
+                parent_node.title,
+            )
+            return False
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     # [get_node_depth method remains unchanged]
     def get_node_depth(self, node_id: str) -> int:
         """Calculates the depth of a node (root is depth 0)."""
+<<<<<<< HEAD
         if not self.root: return -1
         queue = [(self.root, 0)]; visited = {self.root.id}
         while queue:
@@ -414,6 +724,28 @@ class HTATree:
                     if isinstance(child, HTANode) and hasattr(child, 'id') and child.id not in visited:
                         visited.add(child.id); queue.append((child, depth + 1))
         logger.warning("Node ID %s not found when calculating depth.", node_id); return -1
+=======
+        if not self.root:
+            return -1
+        queue = [(self.root, 0)]
+        visited = {self.root.id}
+        while queue:
+            current_node, depth = queue.pop(0)
+            if current_node.id == node_id:
+                return depth
+            if hasattr(current_node, "children"):
+                for child in current_node.children:
+                    if (
+                        isinstance(child, HTANode)
+                        and hasattr(child, "id")
+                        and child.id not in visited
+                    ):
+                        visited.add(child.id)
+                        queue.append((child, depth + 1))
+        logger.warning("Node ID %s not found when calculating depth.", node_id)
+        return -1
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 #############################################
 # End of hta_tree.py

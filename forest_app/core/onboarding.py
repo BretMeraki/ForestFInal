@@ -109,7 +109,7 @@ def run_onboarding(snapshot: MemorySnapshot) -> None:
         # 0. Seed details
         goal_title = _prompt(
             "What is the primary goal you wish to cultivate? "
-            "(e.g. ‘Run a 5k’, ‘Launch my blog’)"
+            "(e.g. 'Run a 5k', 'Launch my blog')"
         )
         seed_domain = _prompt(
             "In one word, which life domain does this goal belong to? "
@@ -256,7 +256,9 @@ def run_forest_session(
             except Exception as sleep_err:
                 logger.error(
                     "Error during heartbeat sleep for session=%s: %s",
-                    session_id, sleep_err, exc_info=True
+                    session_id,
+                    sleep_err,
+                    exc_info=True,
                 )
     except KeyboardInterrupt:
         logger.info("KeyboardInterrupt received; stopping session=%s", session_id)
@@ -265,7 +267,9 @@ def run_forest_session(
         except Exception as e:
             logger.error(
                 "Error saving state at shutdown for session=%s: %s",
-                session_id, e, exc_info=True
+                session_id,
+                e,
+                exc_info=True,
             )
     finally:
         logger.info("Blocking forest session stopped for session=%s", session_id)
@@ -274,13 +278,13 @@ def run_forest_session(
 async def run_forest_session_async(
     snapshot: Dict[str, Any],
     save_snapshot: Callable[[Dict[str, Any]], None],
-    lock: Optional[threading.Lock] = None
+    lock: Optional[threading.Lock] = None,
 ) -> None:
     session_id = snapshot.get("user_id", "unknown")
     orch = ForestOrchestrator(saver=save_snapshot)
     logger.info(
         "Starting async forest session for session=%s (interval=%s sec)",
-        session_id, ORCHESTRATOR_HEARTBEAT_SEC
+        session_id, ORCHESTRATOR_HEARTBEAT_SEC,
     )
     try:
         while True:
@@ -302,26 +306,25 @@ async def run_forest_session_async(
             sleep_duration = max(0, ORCHESTRATOR_HEARTBEAT_SEC - elapsed)
             try:
                 await asyncio.sleep(sleep_duration)
-            except asyncio.CancelledError:
+            except KeyboardInterrupt:
                 raise
             except Exception as sleep_err:
                 logger.error(
                     "Error during async heartbeat sleep for session=%s: %s",
-                    session_id, sleep_err, exc_info=True
+                    session_id,
+                    sleep_err,
+                    exc_info=True,
                 )
-    except asyncio.CancelledError:
-        logger.info("Async session cancelled for session=%s", session_id)
+    except KeyboardInterrupt:
+        logger.info("KeyboardInterrupt received; stopping session=%s", session_id)
         try:
             orch._save_component_states(snapshot)
         except Exception as e:
             logger.error(
-                "Error saving state at cancellation for session=%s: %s",
-                session_id, e, exc_info=True
+                "Error saving state at shutdown for session=%s: %s",
+                session_id,
+                e,
+                exc_info=True,
             )
-    except Exception as e:
-        logger.error(
-            "Unhandled error in async session for session=%s: %s",
-            session_id, e, exc_info=True
-        )
     finally:
         logger.info("Async forest session stopped for session=%s", session_id)

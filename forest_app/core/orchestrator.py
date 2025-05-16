@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List, TYPE_CHECKING
+from typing import Any, Dict, Optional
 from sqlalchemy.orm import Session
 
 # Core imports with error handling
@@ -92,7 +92,7 @@ class ForestOrchestrator:
         tree_repository: Optional[HTATreeRepository] = None,
         task_logger: Optional[TaskFootprintLogger] = None,
         reflection_logger: Optional[ReflectionLogLogger] = None,
-        llm_client = None,
+        llm_client=None,
     ):
         """Initializes the orchestrator with injected processors and services."""
         self.reflection_processor = reflection_processor
@@ -110,17 +110,16 @@ class ForestOrchestrator:
 
         # Check critical dependencies
         if not isinstance(self.reflection_processor, ReflectionProcessor):
-             raise TypeError("Invalid ReflectionProcessor provided.")
+            raise TypeError("Invalid ReflectionProcessor provided.")
         if not isinstance(self.completion_processor, CompletionProcessor):
-             raise TypeError("Invalid CompletionProcessor provided.")
+            raise TypeError("Invalid CompletionProcessor provided.")
         if not isinstance(self.state_manager, ComponentStateManager):
-             raise TypeError("Invalid ComponentStateManager provided.")
+            raise TypeError("Invalid ComponentStateManager provided.")
         if not isinstance(self.seed_manager, SeedManager):
-             raise TypeError("Invalid SeedManager provided.")
+            raise TypeError("Invalid SeedManager provided.")
         # Add checks for other injected components like hta_service if kept
 
         logger.info("ForestOrchestrator (Refactored) initialized.")
-
 
     # ───────────────────────── 2. CORE WORKFLOWS ────────────────────────────
 
@@ -354,13 +353,12 @@ class ForestOrchestrator:
         snap.withering_level = clamp01(new_level * WITHERING_DECAY_FACTOR)
         logger.debug(f"Withering updated: Level={snap.withering_level:.4f} (IdleHrs={idle_hours:.2f}, OverdueHrs={overdue_hours:.2f})")
 
-
     # Example: Keeping get_primary_active_seed here, but could be moved to SeedManager
     async def get_primary_active_seed(self) -> Optional[Seed]:
         """Retrieves the first active seed using the injected SeedManager."""
         if not self.seed_manager or not hasattr(self.seed_manager, 'get_primary_active_seed'):
-             logger.error("Injected SeedManager missing or invalid for get_primary_active_seed.")
-             return None
+            logger.error("Injected SeedManager missing or invalid for get_primary_active_seed.")
+            return None
         try:
             # Assuming get_primary_active_seed is now async in SeedManager
             return await self.seed_manager.get_primary_active_seed()
@@ -368,10 +366,9 @@ class ForestOrchestrator:
             logger.exception("Error getting primary active seed via orchestrator: %s", e)
             return None
 
-
     # Convenience APIs delegating to SeedManager
-    async def plant_seed( self, intention: str, domain: str, addl_ctx: Optional[Dict[str, Any]] = None) -> Optional[Seed]:
-        logger.info(f"Orchestrator: Delegating plant_seed to SeedManager...")
+    async def plant_seed(self, intention: str, domain: str, addl_ctx: Optional[Dict[str, Any]] = None) -> Optional[Seed]:
+        logger.info("Orchestrator: Delegating plant_seed to SeedManager...")
         if not self.seed_manager or not hasattr(self.seed_manager, 'plant_seed'):
             logger.error("Injected SeedManager missing or invalid for plant_seed.")
             return None
@@ -382,19 +379,17 @@ class ForestOrchestrator:
             logger.exception("Orchestrator plant_seed delegation error: %s", exc)
             return None
 
-
-    async def trigger_seed_evolution( self, seed_id: str, evolution: str, new_intention: Optional[str] = None ) -> bool:
-        logger.info(f"Orchestrator: Delegating trigger_seed_evolution to SeedManager...")
+    async def trigger_seed_evolution(self, seed_id: str, evolution: str, new_intention: Optional[str] = None) -> bool:
+        logger.info("Orchestrator: Delegating trigger_seed_evolution to SeedManager...")
         if not self.seed_manager or not hasattr(self.seed_manager, 'evolve_seed'):
             logger.error("Injected SeedManager missing or invalid for evolve_seed.")
             return False
         try:
-             # Assuming evolve_seed is now async in SeedManager
+            # Assuming evolve_seed is now async in SeedManager
             return await self.seed_manager.evolve_seed(seed_id, evolution, new_intention)
         except Exception as exc:
             logger.exception("Orchestrator trigger_seed_evolution delegation error: %s", exc)
             return False
-
 
     # Static utility method can remain
     @staticmethod
@@ -403,10 +398,12 @@ class ForestOrchestrator:
         try:
             float_value = float(value)
             valid_thresholds = {k: float(v) for k, v in MAGNITUDE_THRESHOLDS.items() if isinstance(v, (int, float))}
-            if not valid_thresholds: return "Unknown"
+            if not valid_thresholds:
+                return "Unknown"
             sorted_thresholds = sorted(valid_thresholds.items(), key=lambda item: item[1], reverse=True)
             for label, thresh in sorted_thresholds:
-                if float_value >= thresh: return str(label)
+                if float_value >= thresh:
+                    return str(label)
             return str(sorted_thresholds[-1][0]) if sorted_thresholds else "Dormant"
         except (ValueError, TypeError) as e:
             logger.error("Error converting value/threshold for magnitude: %s (Value: %s)", e, value)

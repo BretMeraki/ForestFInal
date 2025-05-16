@@ -6,6 +6,7 @@ a sanctuary that can support countless users at scale, while maintaining the
 intimate, personal experience that makes The Forest special.
 """
 
+<<<<<<< HEAD
 import asyncio
 import logging
 import os
@@ -39,17 +40,59 @@ class ArchitectureContainer(containers.DeclarativeContainer):
     llm_client = providers.Dependency(instance_of=LLMClient)
     semantic_memory_manager = providers.Dependency(instance_of=SemanticMemoryManagerBase)
     
+=======
+import logging
+import os
+from contextlib import asynccontextmanager
+
+from dependency_injector import containers, providers
+from fastapi import FastAPI
+
+from forest_app.core.cache_service import CacheConfig, CacheService
+from forest_app.core.circuit_breaker import CacheBackend
+from forest_app.core.discovery_journey import DiscoveryJourneyService
+from forest_app.core.event_bus import EventBus, EventType
+from forest_app.core.services.enhanced_hta_service import EnhancedHTAService
+from forest_app.core.services.semantic_base import SemanticMemoryManagerBase
+# Import enhanced architectural components
+from forest_app.core.task_queue import TaskQueue
+# Core domain imports
+from forest_app.integrations.llm import LLMClient
+
+logger = logging.getLogger(__name__)
+
+
+class ArchitectureContainer(containers.DeclarativeContainer):
+    """Dependency injection container for architecture components."""
+
+    # Configuration
+    config = providers.Configuration()
+
+    # External dependencies (will be injected)
+    llm_client = providers.Dependency(instance_of=LLMClient)
+    semantic_memory_manager = providers.Dependency(
+        instance_of=SemanticMemoryManagerBase
+    )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Task Queue (Singleton)
     task_queue = providers.Singleton(
         TaskQueue,
         max_workers=config.architecture.task_queue.max_workers,
+<<<<<<< HEAD
         result_ttl=config.architecture.task_queue.result_ttl
     )
     
+=======
+        result_ttl=config.architecture.task_queue.result_ttl,
+    )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Cache Service (Singleton)
     cache_service = providers.Singleton(
         CacheService,
         config=lambda: CacheConfig(
+<<<<<<< HEAD
             backend=CacheBackend(config.architecture.cache.backend),
             redis_url=config.architecture.cache.redis_url,
             default_ttl=config.architecture.cache.default_ttl,
@@ -62,18 +105,39 @@ class ArchitectureContainer(containers.DeclarativeContainer):
         EventBus.get_instance
     )
     
+=======
+            backend=CacheBackend(
+                ArchitectureContainer.config.architecture.cache.backend()
+            ),
+            redis_url=ArchitectureContainer.config.architecture.cache.redis_url(),
+            default_ttl=ArchitectureContainer.config.architecture.cache.default_ttl(),
+            namespace=ArchitectureContainer.config.architecture.cache.namespace(),
+        ),
+    )
+
+    # Event Bus (Singleton)
+    event_bus = providers.Singleton(EventBus.get_instance)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Enhanced HTA Service (with injected dependencies)
     enhanced_hta_service = providers.Factory(
         EnhancedHTAService,
         llm_client=llm_client,
+<<<<<<< HEAD
         semantic_memory_manager=semantic_memory_manager
     )
     
+=======
+        semantic_memory_manager=semantic_memory_manager,
+    )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Discovery Journey Service (with injected dependencies)
     discovery_journey_service = providers.Factory(
         DiscoveryJourneyService,
         hta_service=enhanced_hta_service,
         llm_client=llm_client,
+<<<<<<< HEAD
         event_bus=event_bus
     )
 
@@ -84,6 +148,19 @@ async def initialize_architecture(app: FastAPI = None) -> ArchitectureContainer:
     Args:
         app: Optional FastAPI app for lifecycle management
         
+=======
+        event_bus=event_bus,
+    )
+
+
+async def initialize_architecture(app: FastAPI = None) -> ArchitectureContainer:
+    """
+    Initialize the scalable architecture components.
+
+    Args:
+        app: Optional FastAPI app for lifecycle management
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     Returns:
         Initialized architecture container
     """
@@ -92,6 +169,7 @@ async def initialize_architecture(app: FastAPI = None) -> ArchitectureContainer:
         "architecture": {
             "task_queue": {
                 "max_workers": int(os.environ.get("FOREST_TASK_WORKERS", "10")),
+<<<<<<< HEAD
                 "result_ttl": int(os.environ.get("FOREST_TASK_RESULT_TTL", "300"))
             },
             "cache": {
@@ -113,10 +191,37 @@ async def initialize_architecture(app: FastAPI = None) -> ArchitectureContainer:
     
     # Register lifecycle management if app provided
     if app:
+=======
+                "result_ttl": int(os.environ.get("FOREST_TASK_RESULT_TTL", "300")),
+            },
+            "cache": {
+                "backend": os.environ.get("FOREST_CACHE_BACKEND", "memory"),
+                "redis_url": os.environ.get(
+                    "FOREST_REDIS_URL", "redis://localhost:6379/0"
+                ),
+                "default_ttl": int(os.environ.get("FOREST_CACHE_TTL", "3600")),
+                "namespace": os.environ.get("FOREST_CACHE_NAMESPACE", "forest:"),
+            },
+        }
+    }
+
+    # Create container
+    container = ArchitectureContainer()
+    container.config.from_dict(config)
+
+    # Initialize components that need startup
+    task_queue = container.task_queue()
+    await task_queue.start()
+
+    # Register lifecycle management if app provided
+    if app:
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         @asynccontextmanager
         async def lifespan(app: FastAPI):
             # Startup
             logger.info("Starting The Forest architecture components...")
+<<<<<<< HEAD
             
             # Yield to FastAPI
             yield
@@ -141,11 +246,42 @@ def inject_enhanced_architecture(app: FastAPI) -> None:
     Args:
         app: FastAPI app to enhance
     """
+=======
+
+            # Yield to FastAPI
+            yield
+
+            # Shutdown
+            logger.info("Shutting down The Forest architecture components...")
+            await task_queue.stop()
+
+        # Assign lifespan to app
+        app.router.lifespan_context = lifespan
+
+    logger.info(
+        "The Forest's enhanced architecture initialized and ready to support users at scale"
+    )
+    return container
+
+
+def inject_enhanced_architecture(app: FastAPI) -> None:
+    """
+    Inject the enhanced architecture into a FastAPI app.
+
+    This sets up the FastAPI app to use the enhanced architecture components,
+    making them available throughout the application.
+
+    Args:
+        app: FastAPI app to enhance
+    """
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Store initialization in startup event
     @app.on_event("startup")
     async def startup_enhanced_architecture():
         container = await initialize_architecture(app)
         app.state.architecture = container
+<<<<<<< HEAD
         
         # Log startup
         logger.info("The Forest is now operating with enhanced architecture")
@@ -161,5 +297,29 @@ def inject_enhanced_architecture(app: FastAPI) -> None:
             }
         })
     
+=======
+
+        # Log startup
+        logger.info("The Forest is now operating with enhanced architecture")
+
+        # Publish system startup event
+        event_bus = container.event_bus()
+        await event_bus.publish(
+            {
+                "event_type": EventType.SYSTEM_METRICS,
+                "payload": {
+                    "event": "startup",
+                    "message": "The Forest's enhanced architecture is now active",
+                    "components": [
+                        "task_queue",
+                        "circuit_breaker",
+                        "event_bus",
+                        "cache_service",
+                    ],
+                },
+            }
+        )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Log configuration
     logger.info("Enhanced architecture configured for FastAPI app")

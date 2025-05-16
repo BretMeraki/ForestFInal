@@ -2,11 +2,19 @@
 
 import logging
 from datetime import datetime
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # Removed unused List, Dict, Any imports for this version
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 class XPMastery:
     """
     Handles XP-related state and Mastery Challenges.
@@ -45,7 +53,13 @@ class XPMastery:
         Updates the engine's state from a dictionary (currently stateless).
         """
         # No state to load in this revised version.
+<<<<<<< HEAD
         logger.debug("XPMastery state loaded (currently stateless based on HTA progression).")
+=======
+        logger.debug(
+            "XPMastery state loaded (currently stateless based on HTA progression)."
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         pass
 
     # --- MODIFICATION START: Adjust get_current_stage ---
@@ -58,6 +72,7 @@ class XPMastery:
         # In the future, this could potentially inspect snapshot.core_state.hta_tree
         # to determine a descriptive stage based on completed HTA branches.
         # For now, return a default or placeholder status.
+<<<<<<< HEAD
         logger.debug("get_current_stage called (XP: %.2f) - returning generic status as stages are HTA-driven.", xp)
         return {
             "stage": "In Progress (HTA-Driven)", # Generic stage name
@@ -65,6 +80,19 @@ class XPMastery:
             "min_xp": 0, # No longer relevant for gating
             "max_xp": float("inf"), # No longer relevant for gating
         }
+=======
+        logger.debug(
+            "get_current_stage called (XP: %.2f) - returning generic status as stages are HTA-driven.",
+            xp,
+        )
+        return {
+            "stage": "In Progress (HTA-Driven)",  # Generic stage name
+            "challenge_type": "HTA Milestone Integration",  # Generic challenge type hint
+            "min_xp": 0,  # No longer relevant for gating
+            "max_xp": float("inf"),  # No longer relevant for gating
+        }
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # --- MODIFICATION END ---
 
     # --- MODIFICATION START: Keep challenge content generation, but note trigger change ---
@@ -76,6 +104,7 @@ class XPMastery:
         """
         # Use challenge type from input, default if missing
         ct = stage_info.get("challenge_type", "HTA Milestone Integration")
+<<<<<<< HEAD
         stage_name = stage_info.get("stage", "Current Milestone") # Use descriptive name if available
 
         # Example content based on generic types (can be refined later)
@@ -83,11 +112,25 @@ class XPMastery:
         hta_milestone_title = stage_info.get("hta_milestone_title", "your recent progress") # Example key
 
         if ct == "Naming Desire": # Keep original content as examples if useful
+=======
+        stage_name = stage_info.get(
+            "stage", "Current Milestone"
+        )  # Use descriptive name if available
+
+        # Example content based on generic types (can be refined later)
+        # This logic could be enhanced to use details from the completed HTA node/branch
+        hta_milestone_title = stage_info.get(
+            "hta_milestone_title", "your recent progress"
+        )  # Example key
+
+        if ct == "Naming Desire":  # Keep original content as examples if useful
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             act = (
                 f"Reflect on how completing '{hta_milestone_title}' clarifies your deepest desire. "
                 "Capture this refined desire visually or in writing."
             )
         elif ct == "Showing Up":
+<<<<<<< HEAD
              act = (
                  f"Building on completing '{hta_milestone_title}', commit to a specific action that demonstrates 'showing up' "
                  "in alignment with your next goal. Schedule it now."
@@ -109,6 +152,31 @@ class XPMastery:
              )
         else: # Generic fallback
              act = f"Reflect on completing '{hta_milestone_title}' and identify one concrete next step."
+=======
+            act = (
+                f"Building on completing '{hta_milestone_title}', commit to a specific action that demonstrates 'showing up' "
+                "in alignment with your next goal. Schedule it now."
+            )
+        elif ct == "Softening Shadow":
+            act = (
+                f"Consider any shadow aspects revealed or addressed by completing '{hta_milestone_title}'. "
+                "Identify one concrete self-care or boundary-setting action to take this week."
+            )
+        elif ct == "Harmonizing Seeds":
+            act = (
+                f"Now that '{hta_milestone_title}' is complete, how does it connect to other active goals (seeds) in your plan? "
+                "Create a mind map or plan to integrate these efforts."
+            )
+        elif (
+            ct == "Integration Prompt" or ct == "HTA Milestone Integration"
+        ):  # Default/Fallback
+            act = (
+                f"Reflect on the journey to complete '{hta_milestone_title}'. "
+                "What have you learned? How does this integrate into your overall vision? Capture your insights."
+            )
+        else:  # Generic fallback
+            act = f"Reflect on completing '{hta_milestone_title}' and identify one concrete next step."
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         content = (
             f"Integration Challenge: {stage_name}\n"
@@ -119,6 +187,7 @@ class XPMastery:
         )
 
         challenge = {
+<<<<<<< HEAD
             "stage":          stage_name,
             "challenge_type": ct,
             "challenge_content": content,
@@ -126,6 +195,18 @@ class XPMastery:
         }
         logger.info("Generated Integration Challenge content: %s", challenge["challenge_type"])
         return challenge
+=======
+            "stage": stage_name,
+            "challenge_type": ct,
+            "challenge_content": content,
+            "triggered_at": datetime.utcnow().isoformat(),
+        }
+        logger.info(
+            "Generated Integration Challenge content: %s", challenge["challenge_type"]
+        )
+        return challenge
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # --- MODIFICATION END ---
 
     # --- MODIFICATION START: Disable XP-based check ---
@@ -138,6 +219,14 @@ class XPMastery:
         # This method is effectively disabled in the HTA-driven model.
         # The logic to check for milestones and trigger challenges moves
         # to core/orchestrator.py -> process_task_completion.
+<<<<<<< HEAD
         logger.debug("check_xp_stage called, but XP-based triggers are disabled. Returning {}.")
         return {}
+=======
+        logger.debug(
+            "check_xp_stage called, but XP-based triggers are disabled. Returning {}."
+        )
+        return {}
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # --- MODIFICATION END ---

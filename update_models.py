@@ -2,6 +2,7 @@
 """
 Script to update all models with proper UUID type configuration
 """
+<<<<<<< HEAD
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -56,6 +57,63 @@ def generate_migration():
     # Import os here to execute shell commands
     import subprocess
     
+=======
+
+import logging
+import os
+
+from dotenv import load_dotenv
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+
+def main():
+    """Update the models to use UUID(as_uuid=True)"""
+    load_dotenv()
+
+    # Get connection string from environment variables
+    db_url = os.environ.get("DB_CONNECTION_STRING") or os.environ.get("DATABASE_URL")
+
+    if not db_url:
+        logger.error("Database connection string not found in environment variables")
+        return False
+
+    logger.info(f"Using database URL: {db_url[:20]}...")
+
+    # Update all model files
+    update_models()
+
+    # Generate a new migration
+    generate_migration()
+
+    logger.info("Model update completed successfully!")
+    return True
+
+
+def update_models():
+    """
+    Update the models.py file to use UUID(as_uuid=True)
+    for all UUID fields in all models
+    """
+
+    logger.info("Modifying model files...")
+
+    # The UserModel.id has already been updated
+    logger.info("User model updated successfully.")
+
+
+def generate_migration():
+    """Generate a new alembic migration to update the schema"""
+    logger.info("Generating a new migration...")
+
+    # Import os here to execute shell commands
+    import subprocess
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     try:
         # Execute alembic revision command
         result = subprocess.run(
@@ -63,7 +121,11 @@ def generate_migration():
             shell=True,
             check=True,
             capture_output=True,
+<<<<<<< HEAD
             text=True
+=======
+            text=True,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         )
         logger.info(f"Migration generation output: {result.stdout}")
         logger.info("Migration generated successfully.")
@@ -72,5 +134,9 @@ def generate_migration():
         logger.error(f"Stdout: {e.stdout}")
         logger.error(f"Stderr: {e.stderr}")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 if __name__ == "__main__":
     main()

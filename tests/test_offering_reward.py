@@ -1,6 +1,7 @@
 """Tests for offering reward module."""
 
 import pytest
+<<<<<<< HEAD
 from datetime import datetime, timezone
 from forest_app.modules.offering_reward import (
     OfferingRouter,
@@ -23,17 +24,50 @@ class MockFinancialEngine:
     def __init__(self, readiness=0.7):
         self.readiness = readiness
 
+=======
+
+from forest_app.modules.offering_reward import (OfferingResponseModel,
+                                                OfferingRouter,
+                                                OfferingSuggestion)
+
+
+class MockDesireEngine:
+    """Mock DesireEngine for testing."""
+
+    def __init__(self, wants=None):
+        self.wants = wants or ["reading", "exercise", "meditation"]
+
+    def get_all_wants(self):
+        return self.wants
+
+
+class MockFinancialEngine:
+    """Mock FinancialReadinessEngine for testing."""
+
+    def __init__(self, readiness=0.7):
+        self.readiness = readiness
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 @pytest.fixture
 def offering_router():
     """Create an OfferingRouter instance for testing."""
     desire_engine = MockDesireEngine()
     financial_engine = MockFinancialEngine()
+<<<<<<< HEAD
     return OfferingRouter(desire_engine=desire_engine, financial_engine=financial_engine)
+=======
+    return OfferingRouter(
+        desire_engine=desire_engine, financial_engine=financial_engine
+    )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 @pytest.fixture
 def sample_snapshot():
     """Create a sample snapshot for testing."""
     return {
+<<<<<<< HEAD
         "wants_cache": {
             "reading": 0.8,
             "exercise": 0.7,
@@ -47,6 +81,14 @@ def sample_snapshot():
         }
     }
 
+=======
+        "wants_cache": {"reading": 0.8, "exercise": 0.7, "meditation": 0.6},
+        "totems": [],
+        "component_state": {"OfferingRouter": {"totems": []}},
+    }
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 @pytest.fixture
 def sample_task():
     """Create a sample task for testing."""
@@ -54,6 +96,7 @@ def sample_task():
         "id": "task_1",
         "title": "Complete Project Report",
         "description": "Write and submit the final project report",
+<<<<<<< HEAD
         "magnitude": 0.8
     }
 
@@ -63,20 +106,46 @@ def mock_feature_flags(monkeypatch):
         monkeypatch.setattr("forest_app.modules.offering_reward.is_enabled", lambda feature: return_value)
     return _set_enabled
 
+=======
+        "magnitude": 0.8,
+    }
+
+
+@pytest.fixture
+def mock_feature_flags(monkeypatch):
+    def _set_enabled(return_value):
+        monkeypatch.setattr(
+            "forest_app.modules.offering_reward.is_enabled",
+            lambda feature: return_value,
+        )
+
+    return _set_enabled
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_offering_router_initialization(offering_router):
     """Test OfferingRouter initialization."""
     assert offering_router.desire_engine is not None
     assert offering_router.financial_engine is not None
     assert offering_router.logger is not None
 
+<<<<<<< HEAD
 def test_preview_offering_disabled(offering_router, mock_feature_flags):
     """Test preview_offering_for_task when feature is disabled."""
     mock_feature_flags(False)
     
+=======
+
+def test_preview_offering_disabled(offering_router, mock_feature_flags):
+    """Test preview_offering_for_task when feature is disabled."""
+    mock_feature_flags(False)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     result = offering_router.preview_offering_for_task({}, None, 0.5)
     assert isinstance(result, list)
     assert len(result) == 0
 
+<<<<<<< HEAD
 def test_preview_offering_success(offering_router, sample_snapshot, sample_task, mock_feature_flags):
     """Test successful preview offering generation."""
     result = offering_router.preview_offering_for_task(sample_snapshot, sample_task, 0.7)
@@ -84,16 +153,36 @@ def test_preview_offering_success(offering_router, sample_snapshot, sample_task,
     assert isinstance(result, list)
     assert result == []  # Rewards are disabled for MVP
 
+=======
+
+def test_preview_offering_success(
+    offering_router, sample_snapshot, sample_task, mock_feature_flags
+):
+    """Test successful preview offering generation."""
+    result = offering_router.preview_offering_for_task(
+        sample_snapshot, sample_task, 0.7
+    )
+
+    assert isinstance(result, list)
+    assert result == []  # Rewards are disabled for MVP
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 @pytest.mark.asyncio
 async def test_generate_offering_disabled(offering_router, mock_feature_flags):
     """Test maybe_generate_offering when feature is disabled."""
     # Override mock to return False for REWARDS feature
     mock_feature_flags(False)
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     result = await offering_router.maybe_generate_offering({})
     assert isinstance(result, list)
     assert len(result) == 0
 
+<<<<<<< HEAD
 @pytest.mark.asyncio
 async def test_generate_offering_success(offering_router, sample_snapshot, mock_feature_flags):
     """Test successful offering generation."""
@@ -101,10 +190,26 @@ async def test_generate_offering_success(offering_router, sample_snapshot, mock_
     assert isinstance(result, list)
     assert result == []  # Rewards are disabled for MVP
 
+=======
+
+@pytest.mark.asyncio
+async def test_generate_offering_success(
+    offering_router, sample_snapshot, mock_feature_flags
+):
+    """Test successful offering generation."""
+    result = await offering_router.maybe_generate_offering(
+        sample_snapshot, reward_scale=0.7
+    )
+    assert isinstance(result, list)
+    assert result == []  # Rewards are disabled for MVP
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_record_acceptance_disabled(offering_router, mock_feature_flags):
     """Test record_acceptance when feature is disabled."""
     # Override mock to return False for REWARDS feature
     mock_feature_flags(False)
+<<<<<<< HEAD
     
     result = offering_router.record_acceptance({}, "Test suggestion")
     assert result == {"error": "Cannot record acceptance; rewards disabled or error occurred."}
@@ -119,6 +224,35 @@ def test_record_acceptance_invalid_suggestion(offering_router, sample_snapshot, 
     """Test record_acceptance with invalid suggestion."""
     result = offering_router.record_acceptance(sample_snapshot, "")
     assert result == {"error": "Cannot record acceptance; rewards disabled or error occurred."}
+=======
+
+    result = offering_router.record_acceptance({}, "Test suggestion")
+    assert result == {
+        "error": "Cannot record acceptance; rewards disabled or error occurred."
+    }
+
+
+def test_record_acceptance_success(
+    offering_router, sample_snapshot, mock_feature_flags
+):
+    """Test successful acceptance recording."""
+    suggestion = "Take a relaxing walk"
+    result = offering_router.record_acceptance(sample_snapshot, suggestion)
+    assert result == {
+        "error": "Cannot record acceptance; rewards disabled or error occurred."
+    }
+
+
+def test_record_acceptance_invalid_suggestion(
+    offering_router, sample_snapshot, mock_feature_flags
+):
+    """Test record_acceptance with invalid suggestion."""
+    result = offering_router.record_acceptance(sample_snapshot, "")
+    assert result == {
+        "error": "Cannot record acceptance; rewards disabled or error occurred."
+    }
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 def test_record_acceptance_invalid_snapshot(offering_router, mock_feature_flags):
     """Test record_acceptance with invalid snapshot structure."""
@@ -126,11 +260,16 @@ def test_record_acceptance_invalid_snapshot(offering_router, mock_feature_flags)
     result = offering_router.record_acceptance(invalid_snapshot, "Test suggestion")
     assert "error" in result
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_get_snapshot_data(offering_router):
     """Test _get_snapshot_data helper method."""
     # Test with dict
     dict_snap = {"test_key": "test_value"}
     assert offering_router._get_snapshot_data(dict_snap, "test_key") == "test_value"
+<<<<<<< HEAD
     assert offering_router._get_snapshot_data(dict_snap, "missing_key", "default") == "default"
     
     # Test with object
@@ -140,12 +279,31 @@ def test_get_snapshot_data(offering_router):
     obj_snap = TestSnapshot()
     assert offering_router._get_snapshot_data(obj_snap, "test_key") == "test_value"
     assert offering_router._get_snapshot_data(obj_snap, "missing_key", "default") == "default"
+=======
+    assert (
+        offering_router._get_snapshot_data(dict_snap, "missing_key", "default")
+        == "default"
+    )
+
+    # Test with object
+    class TestSnapshot:
+        test_key = "test_value"
+
+    obj_snap = TestSnapshot()
+    assert offering_router._get_snapshot_data(obj_snap, "test_key") == "test_value"
+    assert (
+        offering_router._get_snapshot_data(obj_snap, "missing_key", "default")
+        == "default"
+    )
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 def test_pydantic_models():
     """Test Pydantic model validation."""
     # Test OfferingSuggestion
     suggestion = OfferingSuggestion(suggestion="Test suggestion")
     assert suggestion.suggestion == "Test suggestion"
+<<<<<<< HEAD
     
     with pytest.raises(ValueError):
         OfferingSuggestion(suggestion="")  # Empty suggestion should fail
@@ -159,3 +317,20 @@ def test_pydantic_models():
     
     with pytest.raises(ValueError):
         OfferingResponseModel(suggestions=[])  # Empty suggestions list should fail 
+=======
+
+    with pytest.raises(ValueError):
+        OfferingSuggestion(suggestion="")  # Empty suggestion should fail
+
+    # Test OfferingResponseModel
+    response = OfferingResponseModel(
+        suggestions=[
+            OfferingSuggestion(suggestion="Suggestion 1"),
+            OfferingSuggestion(suggestion="Suggestion 2"),
+        ]
+    )
+    assert len(response.suggestions) == 2
+
+    with pytest.raises(ValueError):
+        OfferingResponseModel(suggestions=[])  # Empty suggestions list should fail
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

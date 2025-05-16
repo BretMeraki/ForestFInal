@@ -1,5 +1,6 @@
 """Tests for task engine module."""
 
+<<<<<<< HEAD
 import pytest
 from datetime import datetime, timezone
 from forest_app.modules.task_engine import TaskEngine, _calculate_node_score
@@ -22,6 +23,35 @@ class MockHTATree:
     def __init__(self, nodes=None):
         self.nodes = nodes or {}
         self.root = MockHTANode(id='root')
+=======
+from unittest.mock import patch
+
+import pytest
+
+from forest_app.modules.task_engine import TaskEngine, _calculate_node_score
+
+
+class MockHTANode:
+    """Mock HTA Node for testing."""
+
+    def __init__(self, **kwargs):
+        self.id = kwargs.get("id", "test_id")
+        self.title = kwargs.get("title", "Test Node")
+        self.description = kwargs.get("description", "Test Description")
+        self.status = kwargs.get("status", "pending")
+        self.priority = kwargs.get("priority", 0.5)
+        self.magnitude = kwargs.get("magnitude", 5.0)
+        self.depends_on = kwargs.get("depends_on", [])
+        self.estimated_energy = kwargs.get("estimated_energy", "low")
+
+
+class MockHTATree:
+    """Mock HTA Tree for testing."""
+
+    def __init__(self, nodes=None):
+        self.nodes = nodes or {}
+        self.root = MockHTANode(id="root")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def flatten_tree(self):
         """Return list of all nodes."""
@@ -35,11 +65,19 @@ class MockHTATree:
         """Mock depth calculation."""
         return 1 if node_id in self.nodes else -1
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 @pytest.fixture
 def task_engine():
     """Create a TaskEngine instance for testing."""
     return TaskEngine()
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 @pytest.fixture
 def mock_pattern_engine(mocker):
     """Create a mock pattern engine."""
@@ -47,11 +85,16 @@ def mock_pattern_engine(mocker):
     mock_engine.identify_patterns.return_value = []
     return mock_engine
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 @pytest.fixture
 def sample_snapshot():
     """Create a sample snapshot for testing."""
     return {
         "core_state": {
+<<<<<<< HEAD
             "hta_tree": {
                 "root": {
                     "id": "root",
@@ -65,6 +108,16 @@ def sample_snapshot():
         "withering_level": 0.2
     }
 
+=======
+            "hta_tree": {"root": {"id": "root", "title": "Root Node", "children": []}}
+        },
+        "capacity": 0.8,
+        "shadow_score": 0.3,
+        "withering_level": 0.2,
+    }
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_calculate_node_score():
     """Test node score calculation."""
     node = MockHTANode(priority=0.7)
@@ -75,22 +128,38 @@ def test_calculate_node_score():
     assert isinstance(score, float)
     assert 0 <= score <= 1
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_calculate_node_score_invalid_priority():
     """Test node score calculation with invalid priority."""
     node = MockHTANode()
     node.priority = "invalid"  # Set invalid priority
     snapshot = {"capacity": 0.8, "withering_level": 0.2}
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     score = _calculate_node_score(node, snapshot)
     assert isinstance(score, float)
     assert score >= 0  # Should use default priority
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_task_engine_initialization(task_engine, mock_pattern_engine):
     """Test TaskEngine initialization."""
     engine = TaskEngine(pattern_engine=mock_pattern_engine)
     assert engine.pattern_engine == mock_pattern_engine
     assert engine.logger is not None
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_get_next_step_no_hta(task_engine):
     """Test get_next_step when no HTA tree is available."""
     snapshot = {"core_state": {}}
@@ -101,10 +170,15 @@ def test_get_next_step_no_hta(task_engine):
         assert "tasks" in result
         assert len(result["tasks"]) == 0
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_get_next_step_with_tasks(task_engine, sample_snapshot):
     """Test get_next_step with valid HTA nodes."""
     # Create mock nodes
     nodes = {
+<<<<<<< HEAD
         'task1': MockHTANode(id='task1', priority=0.8, magnitude=5.0),
         'task2': MockHTANode(id='task2', priority=0.6, magnitude=4.0)
     }
@@ -126,15 +200,39 @@ def test_get_next_step_with_tasks(task_engine, sample_snapshot):
         with patch("forest_app.modules.hta_tree.HTATree.from_dict", mock_from_dict):
             result = task_engine.get_next_step(sample_snapshot)
             
+=======
+        "task1": MockHTANode(id="task1", priority=0.8, magnitude=5.0),
+        "task2": MockHTANode(id="task2", priority=0.6, magnitude=4.0),
+    }
+    tree = MockHTATree(nodes)
+
+    # Update snapshot with mock tree
+    sample_snapshot["core_state"]["hta_tree"] = {
+        "root": {"id": "root", "title": "Root", "children": list(nodes.keys())}
+    }
+
+    def mock_from_dict(data):
+        return tree
+
+    with patch("forest_app.modules.task_engine.is_enabled", return_value=True):
+        with patch("forest_app.modules.hta_tree.HTATree.from_dict", mock_from_dict):
+            result = task_engine.get_next_step(sample_snapshot)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             assert "tasks" in result
             assert len(result["tasks"]) == 2
             assert "fallback_task" in result
             assert result["fallback_task"] is None
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_check_dependencies(task_engine):
     """Test dependency checking."""
     # Create mock nodes and tree
     nodes = {
+<<<<<<< HEAD
         'task1': MockHTANode(id='task1', status='completed'),
         'task2': MockHTANode(id='task2', depends_on=['task1'], status='pending'),
         'task3': MockHTANode(id='task3', depends_on=['task1'], status='completed')
@@ -157,11 +255,37 @@ def test_check_resources(task_engine):
     with patch("forest_app.modules.task_engine.is_enabled", return_value=True):
         assert task_engine._check_resources(node, snapshot) is True
     
+=======
+        "task1": MockHTANode(id="task1", status="completed"),
+        "task2": MockHTANode(id="task2", depends_on=["task1"], status="pending"),
+        "task3": MockHTANode(id="task3", depends_on=["task1"], status="completed"),
+    }
+    tree = MockHTATree(nodes)
+
+    # Test node with no dependencies
+    assert task_engine._check_dependencies(nodes["task1"], tree) is True
+
+    # Test node with incomplete dependency
+    assert task_engine._check_dependencies(nodes["task2"], tree) is True
+
+    # Test node with completed dependency
+    assert task_engine._check_dependencies(nodes["task3"], tree) is True
+
+
+def test_check_resources(task_engine):
+    """Test resource checking."""
+    node = MockHTANode(estimated_energy="medium")
+    snapshot = {"capacity": 0.8}
+    with patch("forest_app.modules.task_engine.is_enabled", return_value=True):
+        assert task_engine._check_resources(node, snapshot) is True
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     # Test with insufficient capacity
     snapshot["capacity"] = 0.2
     with patch("forest_app.modules.task_engine.is_enabled", return_value=True):
         assert task_engine._check_resources(node, snapshot) is False
 
+<<<<<<< HEAD
 def test_create_task_from_hta_node(task_engine):
     """Test task creation from HTA node."""
     node = MockHTANode(
@@ -176,10 +300,31 @@ def test_create_task_from_hta_node(task_engine):
     
     task = task_engine._create_task_from_hta_node(snapshot, node, tree)
     
+=======
+
+def test_create_task_from_hta_node(task_engine):
+    """Test task creation from HTA node."""
+    node = MockHTANode(
+        id="test_task",
+        title="Test Task",
+        description="Test Description",
+        priority=0.7,
+        magnitude=5.0,
+    )
+    tree = MockHTATree({node.id: node})
+    snapshot = {}
+
+    task = task_engine._create_task_from_hta_node(snapshot, node, tree)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     assert isinstance(task, dict)
     assert task["id"].startswith("hta_")
     assert task["title"] == "Test Task"
     assert task["description"] == "Test Description"
     assert task["magnitude"] == 5.0
     assert isinstance(task["created_at"], str)
+<<<<<<< HEAD
     assert "metadata" in task 
+=======
+    assert "metadata" in task
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

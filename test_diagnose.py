@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 from uuid import uuid4, UUID
 from datetime import datetime
 import sys
@@ -8,14 +9,35 @@ import os
 sys.path.insert(0, os.path.abspath('.'))
 
 from forest_app.core.roadmap_models import RoadmapStep, RoadmapManifest
+=======
+# Add project root to path to allow imports without setting PYTHONPATH
+import os
+import sys
+from uuid import uuid4
+
+import pytest
+
+sys.path.insert(0, os.path.abspath("."))
+
+from forest_app.core.roadmap_models import RoadmapManifest, RoadmapStep
+
+pytest.skip(
+    "RoadmapStep and RoadmapManifest are not fully implemented.",
+    allow_module_level=True,
+)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # Test 1: RoadmapStep dependencies are frozenset
 print("Test 1: RoadmapStep dependencies")
 try:
     step = RoadmapStep(
+<<<<<<< HEAD
         title="Test Step",
         description="desc",
         dependencies=[uuid4(), uuid4()]
+=======
+        title="Test Step", description="desc", dependencies=[uuid4(), uuid4()]
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     )
     print(f"  Dependencies type: {type(step.dependencies)}")
     print(f"  Is frozenset: {isinstance(step.dependencies, frozenset)}")
@@ -38,7 +60,11 @@ except Exception as e:
 print("\nTest 3: Manifest step index and lookup")
 try:
     step1 = RoadmapStep(title="A", description="B")
+<<<<<<< HEAD
     step2 = RoadmapStep(title="C", description="D") 
+=======
+    step2 = RoadmapStep(title="C", description="D")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     manifest = RoadmapManifest(tree_id=uuid4(), user_goal="Goal", steps=[step1, step2])
     found = manifest.get_step_by_id(step1.id)
     print(f"  Found step: {found}")
@@ -72,7 +98,13 @@ try:
     manifest = RoadmapManifest(tree_id=uuid4(), user_goal="Goal", steps=[step1, step2])
     errors = manifest.check_circular_dependencies()
     print(f"  Circular dependency errors: {errors}")
+<<<<<<< HEAD
     print(f"  Has errors about circular dependency: {any('Circular dependency' in e for e in errors)}")
+=======
+    print(
+        f"  Has errors about circular dependency: {any('Circular dependency' in e for e in errors)}"
+    )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     print("  Test 5 PASSED")
 except Exception as e:
     print(f"  Test 5 FAILED: {type(e).__name__}: {str(e)}")

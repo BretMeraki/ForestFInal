@@ -6,19 +6,31 @@ while respecting the semi-static nature of the top node.
 """
 
 import logging
+<<<<<<< HEAD
 from typing import Dict, Any, List, Optional, Union, TypeVar, cast
 from uuid import UUID
 from datetime import datetime, timezone
+=======
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, TypeVar, Union, cast
+from uuid import UUID
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 from .top_node_evolution import TopNodeEvolutionManager
 
 logger = logging.getLogger(__name__)
 
+<<<<<<< HEAD
 T = TypeVar('T')
+=======
+T = TypeVar("T")
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 class DiscoveryJourneyService:
     """
     Service for managing the user's journey from abstract to concrete goals.
+<<<<<<< HEAD
     
     This service builds on the EnhancedHTAService to specifically support the
     discovery journey use case, where users begin with abstract goals and
@@ -38,6 +50,27 @@ class DiscoveryJourneyService:
         """
         Initialize the discovery journey service.
         
+=======
+
+    This service builds on the EnhancedHTAService to specifically support the
+    discovery journey use case, where users begin with abstract goals and
+    gradually discover their true needs through interaction and reflection.
+
+    It ensures the top node remains semi-static, staying true to the user's
+    original vision while making measured refinements based on journey data.
+    """
+
+    def __init__(
+        self,
+        hta_service: Any,
+        llm_client: Any,
+        event_bus: Optional[Any] = None,
+        top_node_manager: Optional["TopNodeEvolutionManager"] = None,
+    ):
+        """
+        Initialize the discovery journey service.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             hta_service: Enhanced HTA service for tree operations
             llm_client: LLM client for pattern discovery
@@ -45,11 +78,16 @@ class DiscoveryJourneyService:
             top_node_manager: Manager for top node evolution (ensuring semi-static nature)
         """
         from forest_app.core.event_bus import EventBus
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         self.hta_service = hta_service
         self.llm_client = llm_client
         self.event_bus = event_bus or EventBus.get_instance()
         self.top_node_manager = top_node_manager
+<<<<<<< HEAD
         
         # Register event listeners
         self._register_event_listeners()
@@ -67,17 +105,38 @@ class DiscoveryJourneyService:
         """
         Assess the abstraction level of the user's goal.
         
+=======
+
+        # Register event listeners
+        self._register_event_listeners()
+
+    def _register_event_listeners(self):
+        """Register event listeners for the discovery journey."""
+        pass
+
+    async def assess_abstraction_level(
+        self, user_id: Union[str, UUID], goal_description: str, context_reflection: str
+    ) -> Dict[str, Any]:
+        """
+        Assess the abstraction level of the user's goal.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             goal_description: The user's goal description
             context_reflection: The user's context reflection
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dict with abstraction level assessment
         """
         # This is a placeholder method that would be fully implemented
         # in a real implementation
         return {
+<<<<<<< HEAD
             'level': 7,  # On a scale of 1-10, where 10 is highly abstract
             'abstract_areas': ['personal growth', 'better habits'],
             'confidence': 0.8
@@ -92,6 +151,19 @@ class DiscoveryJourneyService:
         """
         Prepare exploratory paths for abstract goals.
         
+=======
+            "level": 7,  # On a scale of 1-10, where 10 is highly abstract
+            "abstract_areas": ["personal growth", "better habits"],
+            "confidence": 0.8,
+        }
+
+    async def prepare_exploratory_paths(
+        self, user_id: Union[str, UUID], goal_description: str, context_reflection: str
+    ) -> None:
+        """
+        Prepare exploratory paths for abstract goals.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             goal_description: The user's goal description
@@ -100,6 +172,7 @@ class DiscoveryJourneyService:
         # This is a placeholder method that would be fully implemented
         # in a real implementation
         pass
+<<<<<<< HEAD
     
     async def process_reflection(
         self, 
@@ -111,17 +184,35 @@ class DiscoveryJourneyService:
         """
         Process a user reflection for discovery journey insights.
         
+=======
+
+    async def process_reflection(
+        self,
+        user_id: Union[str, UUID],
+        reflection_content: str,
+        emotion_level: Optional[int] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Process a user reflection for discovery journey insights.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             reflection_content: The content of the reflection
             emotion_level: Optional emotion level
             context: Optional context information
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dict with processing results
         """
         # This is a placeholder method that would be fully implemented
         # in a real implementation
+<<<<<<< HEAD
         return {
             'insights': ['Insight 1', 'Insight 2'],
             'has_new_pattern': False
@@ -136,16 +227,34 @@ class DiscoveryJourneyService:
         """
         Process task completion for discovery journey insights.
         
+=======
+        return {"insights": ["Insight 1", "Insight 2"], "has_new_pattern": False}
+
+    async def process_task_completion(
+        self,
+        user_id: Union[str, UUID],
+        task_id: str,
+        feedback: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Process task completion for discovery journey insights.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             task_id: Completed task identifier
             feedback: Optional feedback information
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dict with processing results
         """
         # This is a placeholder method that would be fully implemented
         # in a real implementation
+<<<<<<< HEAD
         return {
             'next_steps': [],
             'insights_gained': []
@@ -161,12 +270,24 @@ class DiscoveryJourneyService:
         Args:
             user_id: User identifier
             
+=======
+        return {"next_steps": [], "insights_gained": []}
+
+    async def get_journey_progress(self, user_id: Union[str, UUID]) -> Dict[str, Any]:
+        """
+        Get a summary of the user's discovery journey progress.
+
+        Args:
+            user_id: User identifier
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dict with journey progress summary
         """
         # This is a placeholder method that would be fully implemented
         # in a real implementation
         return {
+<<<<<<< HEAD
             'starting_point': {},
             'current_understanding': {},
             'key_insights': [],
@@ -185,12 +306,32 @@ class DiscoveryJourneyService:
         """
         Generate exploratory tasks to help users discover concrete needs.
         
+=======
+            "starting_point": {},
+            "current_understanding": {},
+            "key_insights": [],
+            "progress_metrics": {},
+            "clarity_level": 5,
+            "journey_highlights": [],
+        }
+
+    async def generate_exploratory_tasks(
+        self, user_id: Union[str, UUID], tree: Any, parent_node_id: str, count: int = 3
+    ) -> List[Dict[str, Any]]:
+        """
+        Generate exploratory tasks to help users discover concrete needs.
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Args:
             user_id: User identifier
             tree: Current HTA tree
             parent_node_id: Parent node for exploratory tasks
             count: Number of tasks to generate
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             List of task data dictionaries
         """
@@ -198,6 +339,7 @@ class DiscoveryJourneyService:
         # in a real implementation
         return [
             {
+<<<<<<< HEAD
                 'id': 'exploratory_1',
                 'title': 'Explore your motivation',
                 'description': 'Reflect on what truly drives you toward this goal'
@@ -219,11 +361,33 @@ class DiscoveryJourneyService:
             user_id: User identifier
             tree: Current HTA tree
             
+=======
+                "id": "exploratory_1",
+                "title": "Explore your motivation",
+                "description": "Reflect on what truly drives you toward this goal",
+            }
+        ]
+
+    async def evolve_focus_based_on_patterns(
+        self, user_id: Union[str, UUID], tree: Any
+    ) -> Dict[str, Any]:
+        """
+        Carefully evolve the user's focus based on discovered patterns.
+
+        This respects the semi-static nature of the top node, making only
+        measured refinements that stay true to the original vision.
+
+        Args:
+            user_id: User identifier
+            tree: Current HTA tree
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         Returns:
             Dict with evolution recommendations
         """
         # Use the top node evolution manager if available
         if self.top_node_manager:
+<<<<<<< HEAD
             from forest_app.persistence.repository import MemorySnapshotRepository
             from forest_app.core.snapshot import MemorySnapshot
             
@@ -234,17 +398,39 @@ class DiscoveryJourneyService:
             journey_data = await self.top_node_manager.get_journey_data_for_evolution(snapshot, user_id)
             original_vision = self.top_node_manager.get_original_vision(snapshot)
             
+=======
+            from forest_app.core.snapshot import MemorySnapshot
+            from forest_app.persistence.repository import \
+                MemorySnapshotRepository
+
+            # This is a placeholder that would retrieve the actual snapshot in production
+            snapshot = MemorySnapshot()
+
+            # Get journey data and original vision
+            journey_data = await self.top_node_manager.get_journey_data_for_evolution(
+                snapshot, user_id
+            )
+            original_vision = self.top_node_manager.get_original_vision(snapshot)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Get evolution history from tree
             evolution_history = []
             if tree.root_id and tree.root_id in tree.nodes:
                 root_node = tree.nodes[tree.root_id]
+<<<<<<< HEAD
                 if hasattr(root_node, 'metadata') and root_node.metadata:
                     evolution_history = root_node.metadata.get('evolution_history', [])
             
+=======
+                if hasattr(root_node, "metadata") and root_node.metadata:
+                    evolution_history = root_node.metadata.get("evolution_history", [])
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Get evolution recommendation
             recommendation = await self.top_node_manager.should_evolve_top_node(
                 journey_data, original_vision, evolution_history
             )
+<<<<<<< HEAD
             
             # If recommended, apply the evolution
             if recommendation.get('should_evolve', False):
@@ -270,4 +456,28 @@ class DiscoveryJourneyService:
                 'confidence': 0.0,
                 'rationale': 'Top node evolution manager not available'
             }
+=======
+
+            # If recommended, apply the evolution
+            if recommendation.get("should_evolve", False):
+                updated_tree = await self.top_node_manager.apply_evolution_to_top_node(
+                    tree, recommendation, user_id
+                )
+
+                return {
+                    "evolved": True,
+                    "tree": updated_tree.to_dict(),
+                    "recommendation": recommendation,
+                }
+
+            return {"evolved": False, "recommendation": recommendation}
+
+        return {
+            "evolved": False,
+            "recommendation": {
+                "should_evolve": False,
+                "confidence": 0.0,
+                "rationale": "Top node evolution manager not available",
+            },
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         }

@@ -1,14 +1,20 @@
 # forest_app/modules/practical_consequence.py
 
 import logging
+<<<<<<< HEAD
 from datetime import datetime, timezone # Use timezone aware datetime
 from typing import Dict, Any, Optional
+=======
+from datetime import datetime, timezone  # Use timezone aware datetime
+from typing import Any, Dict, Optional
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
     logger = logging.getLogger("prac_consequence_init")
+<<<<<<< HEAD
     logger.warning("Feature flags module not found in practical_consequence. Feature flag checks will be disabled.")
     class Feature: # Dummy class
         # Assuming this flag name, confirm or correct as needed
@@ -19,6 +25,25 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO) # Or rely on global config
+=======
+    logger.warning(
+        "Feature flags module not found in practical_consequence. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        # Assuming this flag name, confirm or correct as needed
+        PRACTICAL_CONSEQUENCE = "FEATURE_ENABLE_PRACTICAL_CONSEQUENCE"
+
+    def is_enabled(feature: Any) -> bool:  # Dummy function
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # Or rely on global config
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Default values ---
 DEFAULT_CALIBRATION = {
@@ -30,9 +55,15 @@ DEFAULT_CALIBRATION = {
     "safety_weight": 0.15,
 }
 DEFAULT_SCORE = 0.5
+<<<<<<< HEAD
 MIN_SCORE = 0.0 # Define min/max explicitly
 MAX_SCORE = 1.0
 DEFAULT_LEVEL = "Neutral Impact" # Default level when disabled
+=======
+MIN_SCORE = 0.0  # Define min/max explicitly
+MAX_SCORE = 1.0
+DEFAULT_LEVEL = "Neutral Impact"  # Default level when disabled
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 DEFAULT_MULTIPLIER = 1.0
 DEFAULT_TONE = {"empathy": 1.0, "encouragement": 1.0}
 
@@ -44,9 +75,15 @@ class PracticalConsequenceEngine:
     Incorporates the effect of missed deadlines (only when current path is 'structured').
     """
 
+<<<<<<< HEAD
     def __init__(self, calibration: Optional[Dict[str, float]] = None): # Use Optional
         """Initializes the engine with calibration and default state."""
         self._reset_state(initial_calibration=calibration) # Initialize using helper
+=======
+    def __init__(self, calibration: Optional[Dict[str, float]] = None):  # Use Optional
+        """Initializes the engine with calibration and default state."""
+        self._reset_state(initial_calibration=calibration)  # Initialize using helper
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         logger.info("PracticalConsequenceEngine initialized.")
 
     def _reset_state(self, initial_calibration: Optional[Dict[str, float]] = None):
@@ -54,6 +91,7 @@ class PracticalConsequenceEngine:
         # Deep copy default calibration to avoid modifying the original
         # from copy import deepcopy
         # self.calibration = deepcopy(DEFAULT_CALIBRATION)
+<<<<<<< HEAD
         self.calibration = DEFAULT_CALIBRATION.copy() # Simple copy likely sufficient
         if isinstance(initial_calibration, dict):
             self.calibration.update(initial_calibration) # Apply overrides if provided at init
@@ -63,17 +101,36 @@ class PracticalConsequenceEngine:
         logger.debug("PracticalConsequenceEngine state reset.")
 
 
+=======
+        self.calibration = DEFAULT_CALIBRATION.copy()  # Simple copy likely sufficient
+        if isinstance(initial_calibration, dict):
+            self.calibration.update(
+                initial_calibration
+            )  # Apply overrides if provided at init
+
+        self.score = DEFAULT_SCORE
+        self.last_update: Optional[str] = None  # Initialize as None
+        logger.debug("PracticalConsequenceEngine state reset.")
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def update_signals_from_reflection(self, reflection: str):
         """
         Updates score based on reflection keywords. Does nothing if feature disabled.
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
+<<<<<<< HEAD
             logger.debug("Skipping update_signals_from_reflection: PRACTICAL_CONSEQUENCE feature disabled.")
+=======
+            logger.debug(
+                "Skipping update_signals_from_reflection: PRACTICAL_CONSEQUENCE feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
         # --- End Check ---
 
         if not isinstance(reflection, str) or not reflection.strip():
+<<<<<<< HEAD
              logger.debug("Skipping update_signals_from_reflection: Empty or invalid input.")
              return
 
@@ -92,6 +149,48 @@ class PracticalConsequenceEngine:
         if "supported" in reflection_lower or "connected" in reflection_lower: adjustments["relational"] -= 0.05
         if "unsafe" in reflection_lower or "fear" in reflection_lower: adjustments["safety"] += 0.1
         if "secure" in reflection_lower or "protected" in reflection_lower: adjustments["safety"] -= 0.05
+=======
+            logger.debug(
+                "Skipping update_signals_from_reflection: Empty or invalid input."
+            )
+            return
+
+        reflection_lower = reflection.lower()
+        adjustments = {
+            "time": 0.0,
+            "energy": 0.0,
+            "money": 0.0,
+            "relational": 0.0,
+            "safety": 0.0,
+        }
+        old_score = self.score
+
+        # Example heuristics (Consider making keywords/weights configurable)
+        if "rush" in reflection_lower or "deadline" in reflection_lower:
+            adjustments["time"] += 0.1
+        if "delay" in reflection_lower or "waiting" in reflection_lower:
+            adjustments["time"] -= 0.05
+        if "tired" in reflection_lower or "exhausted" in reflection_lower:
+            adjustments["energy"] += 0.1
+        if "energized" in reflection_lower or "motivated" in reflection_lower:
+            adjustments["energy"] -= 0.05
+        if "money" in reflection_lower or "debt" in reflection_lower:
+            adjustments["money"] += 0.1
+        if "affluent" in reflection_lower or "wealth" in reflection_lower:
+            adjustments["money"] -= 0.05
+        if (
+            "lonely" in reflection_lower
+            or "isolated" in reflection_lower
+            or "argument" in reflection_lower
+        ):
+            adjustments["relational"] += 0.1
+        if "supported" in reflection_lower or "connected" in reflection_lower:
+            adjustments["relational"] -= 0.05
+        if "unsafe" in reflection_lower or "fear" in reflection_lower:
+            adjustments["safety"] += 0.1
+        if "secure" in reflection_lower or "protected" in reflection_lower:
+            adjustments["safety"] -= 0.05
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Safely get weights from calibration config
         time_w = self.calibration.get("time_weight", 0.0)
@@ -102,6 +201,7 @@ class PracticalConsequenceEngine:
         base_w = self.calibration.get("base_weight", 1.0)
 
         total_adjustment = (
+<<<<<<< HEAD
             time_w * adjustments["time"] + energy_w * adjustments["energy"] +
             money_w * adjustments["money"] + relational_w * adjustments["relational"] +
             safety_w * adjustments["safety"]
@@ -119,6 +219,31 @@ class PracticalConsequenceEngine:
         else:
              logger.debug("Reflection analysis resulted in no change to consequence score.")
 
+=======
+            time_w * adjustments["time"]
+            + energy_w * adjustments["energy"]
+            + money_w * adjustments["money"]
+            + relational_w * adjustments["relational"]
+            + safety_w * adjustments["safety"]
+        )
+
+        # Update consequence score, clamped between MIN_SCORE and MAX_SCORE.
+        self.score = max(
+            MIN_SCORE, min(MAX_SCORE, self.score + base_w * total_adjustment)
+        )
+
+        if self.score != old_score:  # Log only if changed
+            logger.info(
+                "Practical consequence score updated via reflection: %.3f (adjustments: %s)",
+                self.score,
+                adjustments,
+            )
+            self.last_update = datetime.now(timezone.utc).isoformat()
+        else:
+            logger.debug(
+                "Reflection analysis resulted in no change to consequence score."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def update_with_deadline_penalties(self, snapshot: dict):
         """
@@ -127,7 +252,13 @@ class PracticalConsequenceEngine:
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
+<<<<<<< HEAD
             logger.debug("Skipping update_with_deadline_penalties: PRACTICAL_CONSEQUENCE feature disabled.")
+=======
+            logger.debug(
+                "Skipping update_with_deadline_penalties: PRACTICAL_CONSEQUENCE feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return
         # --- End Check ---
 
@@ -135,6 +266,7 @@ class PracticalConsequenceEngine:
         if isinstance(snapshot, dict) and snapshot.get("current_path") == "structured":
             # This function might be called externally when a deadline is missed.
             # The logic here assumes it *is* called upon a missed deadline.
+<<<<<<< HEAD
             penalty = 0.05 # Example penalty - make configurable?
             old_score = self.score
             self.score = min(MAX_SCORE, self.score + penalty) # Ensure clamping
@@ -147,28 +279,63 @@ class PracticalConsequenceEngine:
         # else: (No need for else, just don't apply penalty if path != structured)
              # logger.debug("Deadline penalty skipped: path is not 'structured'.")
 
+=======
+            penalty = 0.05  # Example penalty - make configurable?
+            old_score = self.score
+            self.score = min(MAX_SCORE, self.score + penalty)  # Ensure clamping
+
+            if self.score != old_score:
+                logger.info(
+                    "Practical consequence score increased due to missed deadline. New score: %.3f",
+                    self.score,
+                )
+                self.last_update = datetime.now(timezone.utc).isoformat()
+            else:
+                logger.debug(
+                    "Missed deadline penalty resulted in no change (already at max)."
+                )
+        # else: (No need for else, just don't apply penalty if path != structured)
+        # logger.debug("Deadline penalty skipped: path is not 'structured'.")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def compute_consequence(self) -> float:
         """Returns current score, or default if feature disabled."""
         # --- Feature Flag Check ---
         if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
+<<<<<<< HEAD
             logger.debug("Returning default consequence score: PRACTICAL_CONSEQUENCE feature disabled.")
             return DEFAULT_SCORE
         # --- End Check ---
         # Rounding might be better handled by the consumer, but kept here for now
         return round(self.score, 3) # Increased precision
 
+=======
+            logger.debug(
+                "Returning default consequence score: PRACTICAL_CONSEQUENCE feature disabled."
+            )
+            return DEFAULT_SCORE
+        # --- End Check ---
+        # Rounding might be better handled by the consumer, but kept here for now
+        return round(self.score, 3)  # Increased precision
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def get_consequence_level(self) -> str:
         """Returns consequence level string, or default if feature disabled."""
         # --- Feature Flag Check ---
         if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
+<<<<<<< HEAD
             logger.debug("Returning default consequence level: PRACTICAL_CONSEQUENCE feature disabled.")
+=======
+            logger.debug(
+                "Returning default consequence level: PRACTICAL_CONSEQUENCE feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return DEFAULT_LEVEL
         # --- End Check ---
 
         # Use current score if feature enabled
         # Consider making thresholds configurable
+<<<<<<< HEAD
         if self.score >= 0.8: return "High Impact"
         elif self.score >= 0.6: return "Moderate Impact"
         elif self.score >= 0.4: return "Low Impact"
@@ -180,11 +347,30 @@ class PracticalConsequenceEngine:
          # --- Feature Flag Check ---
         if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
             logger.debug("Returning default difficulty multiplier: PRACTICAL_CONSEQUENCE feature disabled.")
+=======
+        if self.score >= 0.8:
+            return "High Impact"
+        elif self.score >= 0.6:
+            return "Moderate Impact"
+        elif self.score >= 0.4:
+            return "Low Impact"
+        else:
+            return "Minimal Impact"
+
+    def get_task_difficulty_multiplier(self) -> float:
+        """Returns difficulty multiplier, or default if feature disabled."""
+        # --- Feature Flag Check ---
+        if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
+            logger.debug(
+                "Returning default difficulty multiplier: PRACTICAL_CONSEQUENCE feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return DEFAULT_MULTIPLIER
         # --- End Check ---
 
         # Calculate based on current score if feature enabled
         # Higher consequence -> lower score -> higher multiplier (more difficult)
+<<<<<<< HEAD
         multiplier = 1.0 + (MAX_SCORE - self.score) * 0.5 # Example scaling
         return round(max(1.0, multiplier), 2) # Ensure multiplier is at least 1.0
 
@@ -195,67 +381,140 @@ class PracticalConsequenceEngine:
         if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
             logger.debug("Returning default tone modifier: PRACTICAL_CONSEQUENCE feature disabled.")
             return DEFAULT_TONE.copy() # Return copy
+=======
+        multiplier = 1.0 + (MAX_SCORE - self.score) * 0.5  # Example scaling
+        return round(max(1.0, multiplier), 2)  # Ensure multiplier is at least 1.0
+
+    def get_tone_modifier(self) -> dict:
+        """Returns tone modifier dict, or default if feature disabled."""
+        # --- Feature Flag Check ---
+        if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
+            logger.debug(
+                "Returning default tone modifier: PRACTICAL_CONSEQUENCE feature disabled."
+            )
+            return DEFAULT_TONE.copy()  # Return copy
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # --- End Check ---
 
         # Determine tone based on score if feature enabled
         # Consider making thresholds/values configurable
+<<<<<<< HEAD
         if self.score >= 0.8: tone = {"empathy": 1.2, "encouragement": 0.8}
         elif self.score >= 0.6: tone = {"empathy": 1.1, "encouragement": 0.9}
         elif self.score >= 0.4: tone = {"empathy": 1.0, "encouragement": 1.0}
         else: tone = {"empathy": 0.9, "encouragement": 1.1}
         return tone # Return reference (dict is mutable)
 
+=======
+        if self.score >= 0.8:
+            tone = {"empathy": 1.2, "encouragement": 0.8}
+        elif self.score >= 0.6:
+            tone = {"empathy": 1.1, "encouragement": 0.9}
+        elif self.score >= 0.4:
+            tone = {"empathy": 1.0, "encouragement": 1.0}
+        else:
+            tone = {"empathy": 0.9, "encouragement": 1.1}
+        return tone  # Return reference (dict is mutable)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def to_dict(self) -> dict:
         """Serializes state. Returns {} if feature disabled."""
         # --- Feature Flag Check ---
         if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
+<<<<<<< HEAD
             logger.debug("Skipping PracticalConsequenceEngine serialization: PRACTICAL_CONSEQUENCE feature disabled.")
+=======
+            logger.debug(
+                "Skipping PracticalConsequenceEngine serialization: PRACTICAL_CONSEQUENCE feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return {}
         # --- End Check ---
 
         logger.debug("Serializing PracticalConsequenceEngine state.")
         return {
+<<<<<<< HEAD
             "calibration": self.calibration.copy(), # Return copy
+=======
+            "calibration": self.calibration.copy(),  # Return copy
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             "score": self.score,
             "last_update": self.last_update,
         }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def update_from_dict(self, data: dict):
         """Updates state. Resets if feature disabled."""
         # --- Feature Flag Check ---
         if not is_enabled(Feature.PRACTICAL_CONSEQUENCE):
+<<<<<<< HEAD
             logger.debug("Resetting state via update_from_dict: PRACTICAL_CONSEQUENCE feature disabled.")
+=======
+            logger.debug(
+                "Resetting state via update_from_dict: PRACTICAL_CONSEQUENCE feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             self._reset_state()
             return
         # --- End Check ---
 
         # Feature enabled, proceed
         if not isinstance(data, dict):
+<<<<<<< HEAD
              logger.warning("Invalid data type passed to update_from_dict: %s. Resetting state.", type(data))
              self._reset_state()
              return
+=======
+            logger.warning(
+                "Invalid data type passed to update_from_dict: %s. Resetting state.",
+                type(data),
+            )
+            self._reset_state()
+            return
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Load calibration if present and valid
         loaded_cal = data.get("calibration")
         if isinstance(loaded_cal, dict):
+<<<<<<< HEAD
              # Could add validation for keys/values here
              self.calibration.update(loaded_cal)
         elif loaded_cal is not None:
              logger.warning("Invalid 'calibration' type in data: %s. Calibration not updated.", type(loaded_cal))
+=======
+            # Could add validation for keys/values here
+            self.calibration.update(loaded_cal)
+        elif loaded_cal is not None:
+            logger.warning(
+                "Invalid 'calibration' type in data: %s. Calibration not updated.",
+                type(loaded_cal),
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Load score if present and valid, clamp it
         loaded_score = data.get("score", DEFAULT_SCORE)
         try:
+<<<<<<< HEAD
              self.score = max(MIN_SCORE, min(MAX_SCORE, float(loaded_score)))
         except (ValueError, TypeError):
              logger.warning("Invalid 'score' value in data: %s. Using default.", loaded_score)
              self.score = DEFAULT_SCORE
+=======
+            self.score = max(MIN_SCORE, min(MAX_SCORE, float(loaded_score)))
+        except (ValueError, TypeError):
+            logger.warning(
+                "Invalid 'score' value in data: %s. Using default.", loaded_score
+            )
+            self.score = DEFAULT_SCORE
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Load last_update timestamp if present and valid
         loaded_ts = data.get("last_update")
         if isinstance(loaded_ts, str):
+<<<<<<< HEAD
              # Could add ISO format validation here
              self.last_update = loaded_ts
         elif loaded_ts is not None:
@@ -263,5 +522,17 @@ class PracticalConsequenceEngine:
              self.last_update = None # Reset if invalid
         else:
              self.last_update = None # Reset if missing
+=======
+            # Could add ISO format validation here
+            self.last_update = loaded_ts
+        elif loaded_ts is not None:
+            logger.warning(
+                "Invalid 'last_update' type in data: %s. Timestamp not updated.",
+                type(loaded_ts),
+            )
+            self.last_update = None  # Reset if invalid
+        else:
+            self.last_update = None  # Reset if missing
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         logger.debug("PracticalConsequenceEngine state updated from dict.")

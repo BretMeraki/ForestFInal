@@ -4,19 +4,20 @@ import logging
 from typing import Optional
 from uuid import UUID
 
-from fastapi import HTTPException, status, Depends, Request, Header
-from sqlalchemy.orm import Session # Import Session for type hinting
+from fastapi import Depends, Header, HTTPException, Request, status
+from sqlalchemy.orm import Session  # Import Session for type hinting
 
 # Import request context
 from forest_app.core.request_context import RequestContext
 
 # --- Import the Classes needed for type hinting ---
 try:
-    from forest_app.core.orchestrator import ForestOrchestrator
-    from forest_app.modules.trigger_phrase import TriggerPhraseHandler
-    from forest_app.modules.logging_tracking import TaskFootprintLogger, ReflectionLogLogger
     from forest_app.containers import Container
+    from forest_app.core.orchestrator import ForestOrchestrator
+    from forest_app.modules.logging_tracking import (ReflectionLogLogger, TaskFootprintLogger)
+    from forest_app.modules.trigger_phrase import TriggerPhraseHandler
     from forest_app.persistence.database import get_db
+    from forest_app.persistence.models import UserModel
     imports_ok = True
 except ImportError as e:
     logging.error(f"CRITICAL: dependencies.py failed to import one or more modules: {e}")
@@ -48,23 +49,22 @@ def get_orchestrator(request: Request) -> ForestOrchestrator:
     if not imports_ok:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal Server Error: Required modules could not be imported."
+            detail="Internal Server Error: Core application container not available."
         )
-    
     container: Container = getattr(request.app.state, "container", None)
-    if container is None:
-        logger.critical("CRITICAL: DI container not found in app.state!")
+    if container is None or not hasattr(container, "orchestrator"):
+        logger.critical("CRITICAL: DI container or orchestrator not found in app.state!")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal Server Error: Core application container not available."
         )
     try:
         # Get orchestrator instance FROM the container
-        orchestrator = container.orchestrator() # Calls the provider in containers.py
+        orchestrator = container.orchestrator()  # Calls the provider in containers.py
         if not isinstance(orchestrator, ForestOrchestrator):
             raise TypeError("Container did not return a valid ForestOrchestrator instance.")
         return orchestrator
-    except Exception as e: # Catch potential errors during provider resolution
+    except Exception as e:  # Catch potential errors during provider resolution
         logger.exception("CRITICAL: Failed to get orchestrator from DI container: %s", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -102,7 +102,6 @@ async def get_request_context(
     # Get feature flags from container if available
     container = getattr(request.app.state, "container", None)
     feature_flags = {}
-    
     if container and hasattr(container, "feature_flags"):
         try:
             feature_flags_provider = container.feature_flags()
@@ -110,7 +109,7 @@ async def get_request_context(
                 feature_flags = feature_flags_provider.get_all_flags()
         except Exception as e:
             logger.warning(f"Failed to retrieve feature flags: {e}")
-    
+
     # Try to get user_id from auth - implementation will need to be extended when auth is implemented
     user_id = None
     
@@ -145,4 +144,14 @@ def get_reflection_logger(db: Session = Depends(get_db)) -> ReflectionLogLogger:
         return ReflectionLogLogger(db=db)
     except ValueError as ve: # Catch init errors specifically
          logger.error(f"Failed to create ReflectionLogLogger: {ve}")
-         raise HTTPException(status_code=500, detail="Internal server error: Could not initialize reflection logger.") 
+         raise HTTPException(status_code=500, detail="Internal server error: Could not initialize reflection logger.")
+
+def get_current_user(request: Request) -> UserModel:
+    """
+    Dependency to get the current authenticated user. This is a stub and should be replaced with real authentication logic.
+    """
+    # TODO: Replace with actual authentication logic
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Authentication required. Implement get_current_user logic.",
+    )

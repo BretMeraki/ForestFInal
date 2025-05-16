@@ -1,6 +1,7 @@
 # forest_app/core/harmonic_framework.py
 
 import logging
+<<<<<<< HEAD
 # --- Import Constants ---
 from forest_app.config.constants import (
     # Weights for Silent Scoring (Ensure these sum as intended, e.g., to 1.0)
@@ -16,6 +17,15 @@ from forest_app.config.constants import (
     HARMONY_THRESHOLD_RENEWAL,
     HARMONY_THRESHOLD_RESILIENCE,
 )
+=======
+
+# --- Import Constants ---
+from forest_app.config.constants import (  # Weights for Silent Scoring (Ensure these sum as intended, e.g., to 1.0); Default snapshot values if keys are missing; Harmonic Routing Thresholds
+    DEFAULT_SNAPSHOT_CAPACITY, DEFAULT_SNAPSHOT_MAGNITUDE,
+    DEFAULT_SNAPSHOT_SHADOW, HARMONY_THRESHOLD_REFLECTION,
+    HARMONY_THRESHOLD_RENEWAL, HARMONY_THRESHOLD_RESILIENCE, WEIGHT_CAPACITY,
+    WEIGHT_MAGNITUDE, WEIGHT_SHADOW_SCORE)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -43,7 +53,10 @@ class SilentScoring:
         # if abs(total_weight - 1.0) > 1e-6: # Allow for floating point inaccuracy
         #     logger.warning(f"SilentScoring weights do not sum to 1.0 (Sum: {total_weight})")
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def compute_detailed_scores(self, snapshot_dict: dict) -> dict:
         """
         Computes detailed silent scores based on selected snapshot fields using constants.
@@ -58,6 +71,7 @@ class SilentScoring:
 
         # Ensure values are numeric before multiplication (optional safety)
         try:
+<<<<<<< HEAD
              shadow = float(shadow)
              capacity = float(capacity)
              magnitude = float(magnitude)
@@ -66,6 +80,18 @@ class SilentScoring:
              shadow = DEFAULT_SNAPSHOT_SHADOW
              capacity = DEFAULT_SNAPSHOT_CAPACITY
              magnitude = DEFAULT_SNAPSHOT_MAGNITUDE
+=======
+            shadow = float(shadow)
+            capacity = float(capacity)
+            magnitude = float(magnitude)
+        except (ValueError, TypeError) as e:
+            logger.error(
+                f"Non-numeric value encountered in snapshot for scoring: {e}. Using defaults."
+            )
+            shadow = DEFAULT_SNAPSHOT_SHADOW
+            capacity = DEFAULT_SNAPSHOT_CAPACITY
+            magnitude = DEFAULT_SNAPSHOT_MAGNITUDE
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         detailed = {
             # "xp_score": REMOVED
@@ -77,7 +103,13 @@ class SilentScoring:
             # Assuming direct weighting for now as per original logic.
             "magnitude_component": magnitude * self.weights["magnitude"],
         }
+<<<<<<< HEAD
         logger.debug("Computed detailed silent scores: %s", detailed) # Changed to debug level
+=======
+        logger.debug(
+            "Computed detailed silent scores: %s", detailed
+        )  # Changed to debug level
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return detailed
 
     def compute_composite_score(self, snapshot_dict: dict) -> float:
@@ -89,7 +121,13 @@ class SilentScoring:
         composite = sum(detailed.values())
         # Ensure score is float
         composite = float(composite)
+<<<<<<< HEAD
         logger.debug("Composite silent score computed: %.4f", composite) # Changed to debug, increased precision
+=======
+        logger.debug(
+            "Composite silent score computed: %.4f", composite
+        )  # Changed to debug, increased precision
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return composite
 
 
@@ -111,8 +149,14 @@ class HarmonicRouting:
             # "Transcendence" is implicitly anything above the Resilience threshold
         }
         # Store sorted thresholds for efficient lookup (lowest to highest)
+<<<<<<< HEAD
         self._sorted_thresholds = sorted(self.theme_thresholds.items(), key=lambda item: item[1])
 
+=======
+        self._sorted_thresholds = sorted(
+            self.theme_thresholds.items(), key=lambda item: item[1]
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     def route_harmony(self, snapshot_dict: dict, detailed_scores: dict = None) -> dict:
         """
@@ -125,12 +169,17 @@ class HarmonicRouting:
         # Calculate composite score if detailed scores are provided
         if detailed_scores and isinstance(detailed_scores, dict):
             composite = sum(detailed_scores.values())
+<<<<<<< HEAD
             composite = float(composite) # Ensure float
+=======
+            composite = float(composite)  # Ensure float
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         else:
             # If detailed scores aren't provided, we might need SilentScoring instance
             # or recalculate. For now, assuming detailed_scores should be passed in
             # or handle recalculation if needed. Let's default to 0 if not provided.
             # Alternative: scorer = SilentScoring(); composite = scorer.compute_composite_score(snapshot_dict)
+<<<<<<< HEAD
             logger.warning("Detailed scores not provided to route_harmony. Using composite score of 0.0.")
             composite = 0.0
 
@@ -144,4 +193,22 @@ class HarmonicRouting:
 
         routing_info = {"theme": theme, "routing_score": composite}
         logger.info("Harmonic routing determined: %s", routing_info) # Keep as info level
+=======
+            logger.warning(
+                "Detailed scores not provided to route_harmony. Using composite score of 0.0."
+            )
+            composite = 0.0
+
+        # Determine theme by comparing score against sorted thresholds
+        theme = "Transcendence"  # Default for scores above the highest threshold
+        for theme_name, threshold_value in self._sorted_thresholds:
+            if composite < threshold_value:
+                theme = theme_name
+                break  # Found the correct theme bracket
+
+        routing_info = {"theme": theme, "routing_score": composite}
+        logger.info(
+            "Harmonic routing determined: %s", routing_info
+        )  # Keep as info level
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return routing_info

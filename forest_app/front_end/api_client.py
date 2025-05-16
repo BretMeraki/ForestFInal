@@ -1,8 +1,16 @@
 # front_end/api_client.py
+<<<<<<< HEAD
 import requests
 import json
 import logging
 from typing import Dict, List, Union, Optional, Any
+=======
+import json
+import logging
+from typing import Any, Dict, Optional
+
+import requests
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # Define constants used within this module
 # (Consider moving to a central constants/state_keys.py later)
@@ -14,6 +22,7 @@ KEY_DATA = "data"
 # Get logger for this module
 logger = logging.getLogger(__name__)
 
+<<<<<<< HEAD
 def call_forest_api(
     endpoint: str,
     backend_url: str, # Added parameter
@@ -21,6 +30,16 @@ def call_forest_api(
     method: str = "POST",
     data: Optional[Dict[str, Any]] = None,
     params: Optional[Dict[str, Any]] = None
+=======
+
+def call_forest_api(
+    endpoint: str,
+    backend_url: str,  # Added parameter
+    api_token: Optional[str],  # Added parameter
+    method: str = "POST",
+    data: Optional[Dict[str, Any]] = None,
+    params: Optional[Dict[str, Any]] = None,
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 ) -> Dict[str, Any]:
     """
     Helper function to call the backend API. Returns a consistent dictionary format.
@@ -49,7 +68,15 @@ def call_forest_api(
     url = f"{backend_url}{endpoint}"
     response = None
     # Default return structure indicates an internal client error before request attempt
+<<<<<<< HEAD
     result = {"status_code": 500, KEY_DATA: None, "KEY_ERROR": "API call initialization error"} # Fixed syntax
+=======
+    result = {
+        "status_code": 500,
+        KEY_DATA: None,
+        "KEY_ERROR": "API call initialization error",
+    }  # Fixed syntax
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     logger.debug(f"Calling API: {method.upper()} {url}")
     # Log payload safely (mask password for token endpoint)
@@ -57,6 +84,7 @@ def call_forest_api(
     if data:
         is_token_endpoint = endpoint == "/auth/token"
         # For token endpoint, data is form data; otherwise, it's JSON
+<<<<<<< HEAD
         payload_type = 'Form' if is_token_endpoint else 'JSON'
         # Mask password in logs
         log_data = {k: v for k, v in data.items() if k != 'password'} if is_token_endpoint else data
@@ -66,6 +94,25 @@ def call_forest_api(
         except TypeError:
             log_data_repr = str(log_data) # Fallback if data isn't JSON serializable
         logger.debug(f"Payload ({payload_type}): {log_data_repr[:500]}{'...' if len(log_data_repr)>500 else ''}")
+=======
+        payload_type = "Form" if is_token_endpoint else "JSON"
+        # Mask password in logs
+        log_data = (
+            {k: v for k, v in data.items() if k != "password"}
+            if is_token_endpoint
+            else data
+        )
+        try:
+            # Attempt to dump JSON data for logging, fallback to string representation
+            log_data_repr = (
+                json.dumps(log_data) if not is_token_endpoint else str(log_data)
+            )
+        except TypeError:
+            log_data_repr = str(log_data)  # Fallback if data isn't JSON serializable
+        logger.debug(
+            f"Payload ({payload_type}): {log_data_repr[:500]}{'...' if len(log_data_repr) > 500 else ''}"
+        )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     if params:
         logger.debug(f"Params: {params}")
 
@@ -73,10 +120,21 @@ def call_forest_api(
         # Execute the request based on the method
         method_upper = method.upper()
         if method_upper == "POST":
+<<<<<<< HEAD
             if endpoint == "/auth/token": # Special handling for form data
                 response = requests.post(url, data=data, headers=headers, params=params, timeout=60)
             else: # Default to JSON payload for other POSTs
                 response = requests.post(url, json=data, headers=headers, params=params, timeout=60)
+=======
+            if endpoint == "/auth/token":  # Special handling for form data
+                response = requests.post(
+                    url, data=data, headers=headers, params=params, timeout=60
+                )
+            else:  # Default to JSON payload for other POSTs
+                response = requests.post(
+                    url, json=data, headers=headers, params=params, timeout=60
+                )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         elif method_upper == "GET":
             response = requests.get(url, headers=headers, params=params, timeout=30)
         elif method_upper == "DELETE":
@@ -85,8 +143,17 @@ def call_forest_api(
         else:
             logger.error(f"Unsupported HTTP method requested: {method}")
             # Syntax fix: Use quoted key
+<<<<<<< HEAD
             result = {"status_code": 405, KEY_DATA: None, "KEY_ERROR": f"Unsupported HTTP method: {method}"}
             return result # Return immediately for unsupported method
+=======
+            result = {
+                "status_code": 405,
+                KEY_DATA: None,
+                "KEY_ERROR": f"Unsupported HTTP method: {method}",
+            }
+            return result  # Return immediately for unsupported method
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Store status code immediately after getting response
         result["status_code"] = response.status_code
@@ -99,6 +166,7 @@ def call_forest_api(
                 # Try to parse JSON error response (FastAPI often returns {'detail': ...})
                 error_json = response.json()
                 # Prioritize 'detail', then 'error', then the raw text
+<<<<<<< HEAD
                 error_detail = error_json.get(KEY_DETAIL, error_json.get(KEY_ERROR, response.text or f"HTTP Error {response.status_code}"))
                 logger.warning(f"HTTP Error {response.status_code} calling {url}. Detail: {error_detail}")
             except json.JSONDecodeError:
@@ -108,11 +176,35 @@ def call_forest_api(
             result[KEY_ERROR] = str(error_detail) # Ensure error message is a string
             result[KEY_DATA] = None # Ensure data is None on error
             return result # Return immediately on HTTP error
+=======
+                error_detail = error_json.get(
+                    KEY_DETAIL,
+                    error_json.get(
+                        KEY_ERROR, response.text or f"HTTP Error {response.status_code}"
+                    ),
+                )
+                logger.warning(
+                    f"HTTP Error {response.status_code} calling {url}. Detail: {error_detail}"
+                )
+            except json.JSONDecodeError:
+                # If response is not JSON, use the raw text
+                error_detail = (
+                    response.text
+                    or f"HTTP Error {response.status_code} (non-JSON body)"
+                )
+                logger.warning(
+                    f"HTTP Error {response.status_code} calling {url}. Response Text: {error_detail[:500]}"
+                )
+            result[KEY_ERROR] = str(error_detail)  # Ensure error message is a string
+            result[KEY_DATA] = None  # Ensure data is None on error
+            return result  # Return immediately on HTTP error
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # --- Handle Success Cases (2xx) ---
         # Handle 204 No Content specifically
         if response.status_code == 204:
             logger.debug(f"API Response: 204 No Content for {url}")
+<<<<<<< HEAD
             result[KEY_DATA] = None # Explicitly set data to None
             result[KEY_ERROR] = None # Explicitly set error to None
         # Handle other 2xx responses that might have an empty body
@@ -120,6 +212,17 @@ def call_forest_api(
              logger.warning(f"API Response {response.status_code} with empty body for {url}")
              result[KEY_DATA] = None # Explicitly set data to None
              result[KEY_ERROR] = None # Explicitly set error to None
+=======
+            result[KEY_DATA] = None  # Explicitly set data to None
+            result[KEY_ERROR] = None  # Explicitly set error to None
+        # Handle other 2xx responses that might have an empty body
+        elif not response.content:
+            logger.warning(
+                f"API Response {response.status_code} with empty body for {url}"
+            )
+            result[KEY_DATA] = None  # Explicitly set data to None
+            result[KEY_ERROR] = None  # Explicitly set error to None
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         # Handle 2xx responses with content - attempt JSON parsing
         else:
             try:
@@ -132,6 +235,7 @@ def call_forest_api(
                     result[KEY_DATA] = response_json
                 # Handle unexpected JSON types (e.g., just a string or number)
                 else:
+<<<<<<< HEAD
                     logger.warning(f"API Success Response ({response.status_code}) for {url} was JSON but not dict/list: {type(response_json)}")
                     result[KEY_DATA] = response_json # Store it anyway, let caller handle
                 result[KEY_ERROR] = None # Clear error on successful parse
@@ -141,12 +245,34 @@ def call_forest_api(
                 logger.error(f"Failed to decode JSON from SUCCESSFUL ({response.status_code}) response from {url}. Response text: {response.text[:500]}{'...' if len(response.text)>500 else ''}")
                 result[KEY_DATA] = None
                 result[KEY_ERROR] = "Failed to decode JSON response from server, although status was OK."
+=======
+                    logger.warning(
+                        f"API Success Response ({response.status_code}) for {url} was JSON but not dict/list: {type(response_json)}"
+                    )
+                    result[KEY_DATA] = (
+                        response_json  # Store it anyway, let caller handle
+                    )
+                result[KEY_ERROR] = None  # Clear error on successful parse
+                logger.debug(
+                    f"API Success Response Data: {str(result[KEY_DATA])[:500]}{'...' if len(str(result[KEY_DATA])) > 500 else ''}"
+                )
+            except json.JSONDecodeError:
+                # If JSON parsing fails even on a 2xx response
+                logger.error(
+                    f"Failed to decode JSON from SUCCESSFUL ({response.status_code}) response from {url}. Response text: {response.text[:500]}{'...' if len(response.text) > 500 else ''}"
+                )
+                result[KEY_DATA] = None
+                result[KEY_ERROR] = (
+                    "Failed to decode JSON response from server, although status was OK."
+                )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
                 # Keep the original success status code, but add the error message
 
     # --- Handle Network/Request Errors ---
     except requests.exceptions.ConnectionError as conn_err:
         logger.error(f"Connection Error calling {url}: {conn_err}")
         # Syntax fix: Use quoted key
+<<<<<<< HEAD
         result = {"status_code": 503, KEY_DATA: None, "KEY_ERROR": f"Connection error: Could not connect to backend at {backend_url}."}
     except requests.exceptions.Timeout as timeout_err:
         logger.error(f"Timeout Error calling {url}: {timeout_err}")
@@ -160,5 +286,38 @@ def call_forest_api(
         logger.exception(f"Unexpected error in call_forest_api for {url}: {e}")
         # Syntax fix: Use quoted key
         result = {"status_code": 500, KEY_DATA: None, "KEY_ERROR": f"An unexpected client-side error occurred while making the API call: {type(e).__name__}"}
+=======
+        result = {
+            "status_code": 503,
+            KEY_DATA: None,
+            "KEY_ERROR": f"Connection error: Could not connect to backend at {backend_url}.",
+        }
+    except requests.exceptions.Timeout as timeout_err:
+        logger.error(f"Timeout Error calling {url}: {timeout_err}")
+        # Syntax fix: Use quoted key
+        result = {
+            "status_code": 504,
+            KEY_DATA: None,
+            "KEY_ERROR": "Timeout error: The request to the backend timed out.",
+        }
+    except (
+        requests.exceptions.RequestException
+    ) as req_err:  # Catch other requests library errors
+        logger.error(f"Request Exception calling {url}: {req_err}")
+        # Syntax fix: Use quoted key
+        result = {
+            "status_code": 500,
+            KEY_DATA: None,
+            "KEY_ERROR": f"Network request error: {req_err}",
+        }
+    except Exception as e:  # Catch-all for unexpected issues within this function
+        logger.exception(f"Unexpected error in call_forest_api for {url}: {e}")
+        # Syntax fix: Use quoted key
+        result = {
+            "status_code": 500,
+            KEY_DATA: None,
+            "KEY_ERROR": f"An unexpected client-side error occurred while making the API call: {type(e).__name__}",
+        }
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
     return result

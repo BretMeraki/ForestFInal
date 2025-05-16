@@ -1,15 +1,31 @@
 """Tests for pattern identification module."""
 
+<<<<<<< HEAD
 import pytest
 from datetime import datetime, timezone
 from forest_app.modules.pattern_id import PatternIdentificationEngine, DEFAULT_CONFIG
 from unittest.mock import patch
 
+=======
+from datetime import datetime, timezone
+from unittest.mock import patch
+
+import pytest
+
+from forest_app.modules.pattern_id import (DEFAULT_CONFIG,
+                                           PatternIdentificationEngine)
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 @pytest.fixture
 def pattern_engine():
     """Create a PatternIdentificationEngine instance for testing."""
     return PatternIdentificationEngine()
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 @pytest.fixture
 def sample_snapshot():
     """Create a sample snapshot with reflection and task logs."""
@@ -18,38 +34,64 @@ def sample_snapshot():
             {
                 "role": "user",
                 "content": "I feel stressed about work deadlines and time management",
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat()
+=======
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             },
             {
                 "role": "user",
                 "content": "Work stress is affecting my sleep. Time management is hard.",
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat()
+=======
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             },
             {
                 "role": "user",
                 "content": "Making progress with work but still stressed about deadlines",
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat()
             }
+=======
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         ],
         "task_footprints": [
             {
                 "event_type": "completed",
                 "task_type": "work_planning",
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat()
+=======
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             },
             {
                 "event_type": "completed",
                 "task_type": "work_planning",
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat()
+=======
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             },
             {
                 "event_type": "completed",
                 "task_type": "work_planning",
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat()
+=======
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             },
             {
                 "event_type": "completed",
                 "task_type": "relaxation",
+<<<<<<< HEAD
                 "timestamp": datetime.now(timezone.utc).isoformat()
             }
         ],
@@ -57,29 +99,54 @@ def sample_snapshot():
         "capacity": 0.3
     }
 
+=======
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        ],
+        "shadow_score": 0.8,
+        "capacity": 0.3,
+    }
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_pattern_engine_initialization(pattern_engine):
     """Test PatternIdentificationEngine initialization."""
     assert pattern_engine.config == DEFAULT_CONFIG
     assert pattern_engine.logger is not None
 
+<<<<<<< HEAD
 def test_pattern_engine_custom_config():
     """Test PatternIdentificationEngine with custom config."""
     custom_config = {
         "reflection_lookback": 5,
         "task_lookback": 10
     }
+=======
+
+def test_pattern_engine_custom_config():
+    """Test PatternIdentificationEngine with custom config."""
+    custom_config = {"reflection_lookback": 5, "task_lookback": 10}
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     engine = PatternIdentificationEngine(config=custom_config)
     assert engine.config["reflection_lookback"] == 5
     assert engine.config["task_lookback"] == 10
     # Default values should be preserved
     assert "stop_words" in engine.config
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_extract_keywords(pattern_engine):
     """Test keyword extraction from text."""
     text = "I feel stressed about work deadlines and time management"
     stop_words = set(pattern_engine.config["stop_words"])
     keywords = pattern_engine._extract_keywords(text, stop_words)
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     assert "stressed" in keywords
     assert "deadlines" in keywords
     assert "management" in keywords
@@ -87,74 +154,138 @@ def test_extract_keywords(pattern_engine):
     assert "about" not in keywords  # Should be removed as stop word
     # 'work' is a stop word and should not be present
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_analyze_patterns_disabled(pattern_engine):
     """Test pattern analysis when feature is disabled."""
     with patch("forest_app.modules.pattern_id.is_enabled", return_value=False):
         result = pattern_engine.analyze_patterns({})
         assert result.get("status") == "disabled"
 
+<<<<<<< HEAD
 def test_analyze_patterns_reflection_keywords(pattern_engine, sample_snapshot, mock_feature_flags):
     """Test pattern analysis for recurring keywords in reflections."""
     result = pattern_engine.analyze_patterns(sample_snapshot)
     
+=======
+
+def test_analyze_patterns_reflection_keywords(
+    pattern_engine, sample_snapshot, mock_feature_flags
+):
+    """Test pattern analysis for recurring keywords in reflections."""
+    result = pattern_engine.analyze_patterns(sample_snapshot)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     assert "recurring_keywords" in result
     assert result["recurring_keywords"] == []  # All are filtered as stop words
     # 'work' and 'stress' are stop words and should not be present
 
+<<<<<<< HEAD
 def test_analyze_patterns_task_cycles(pattern_engine, sample_snapshot, mock_feature_flags):
     """Test pattern analysis for task cycles."""
     result = pattern_engine.analyze_patterns(sample_snapshot)
     
+=======
+
+def test_analyze_patterns_task_cycles(
+    pattern_engine, sample_snapshot, mock_feature_flags
+):
+    """Test pattern analysis for task cycles."""
+    result = pattern_engine.analyze_patterns(sample_snapshot)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     assert "task_cycles" in result
     assert len(result["task_cycles"]) > 0
     # "work_planning" should be identified as a cycle
     assert "work_planning" in result["task_cycles"]
 
+<<<<<<< HEAD
 def test_analyze_patterns_triggers(pattern_engine, sample_snapshot, mock_feature_flags):
     """Test pattern analysis for potential triggers."""
     result = pattern_engine.analyze_patterns(sample_snapshot)
     
+=======
+
+def test_analyze_patterns_triggers(pattern_engine, sample_snapshot, mock_feature_flags):
+    """Test pattern analysis for potential triggers."""
+    result = pattern_engine.analyze_patterns(sample_snapshot)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     assert "potential_triggers" in result
     # Should identify high shadow and low capacity
     assert "high_shadow" in result["potential_triggers"]
     assert "low_capacity" in result["potential_triggers"]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_analyze_patterns_invalid_data(pattern_engine, mock_feature_flags):
     """Test pattern analysis with invalid data."""
     invalid_snapshot = {
         "reflection_log": "not_a_list",  # Invalid format
         "task_footprints": None,  # Invalid format
         "shadow_score": "invalid",
+<<<<<<< HEAD
         "capacity": None
     }
     
     result = pattern_engine.analyze_patterns(invalid_snapshot)
     
+=======
+        "capacity": None,
+    }
+
+    result = pattern_engine.analyze_patterns(invalid_snapshot)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     assert "errors" in result
     assert len(result["errors"]) > 0
     assert result["recurring_keywords"] == []
     assert result["task_cycles"] == {}
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_analyze_patterns_empty_data(pattern_engine, mock_feature_flags):
     """Test pattern analysis with empty data."""
     empty_snapshot = {
         "reflection_log": [],
         "task_footprints": [],
         "shadow_score": 0.5,
+<<<<<<< HEAD
         "capacity": 0.5
     }
     
     result = pattern_engine.analyze_patterns(empty_snapshot)
     
+=======
+        "capacity": 0.5,
+    }
+
+    result = pattern_engine.analyze_patterns(empty_snapshot)
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     assert "recurring_keywords" in result
     assert len(result["recurring_keywords"]) == 0
     assert "task_cycles" in result
     assert len(result["task_cycles"]) == 0
     assert isinstance(result["overall_focus_score"], float)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def test_identify_patterns(pattern_engine):
     """Test identify_patterns method."""
     # This is a placeholder test since the method is not fully implemented
     result = pattern_engine.identify_patterns(None)
     assert isinstance(result, list)
+<<<<<<< HEAD
     assert len(result) == 0 
+=======
+    assert len(result) == 0
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)

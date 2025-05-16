@@ -3,15 +3,21 @@
 import json
 import logging
 import os
+<<<<<<< HEAD
 import re # Import regex for parsing IDs
 from datetime import datetime, timezone # Added timezone
 from typing import Optional, Dict, Any # Added typing
+=======
+import re  # Import regex for parsing IDs
+from typing import Any, Dict, Optional  # Added typing
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 # --- Import Feature Flags ---
 try:
     from forest_app.core.feature_flags import Feature, is_enabled
 except ImportError:
     logger = logging.getLogger("trigger_phrase_init")
+<<<<<<< HEAD
     logger.warning("Feature flags module not found in trigger_phrase. Feature flag checks will be disabled.")
     class Feature: # Dummy class
         TRIGGER_PHRASES = "FEATURE_ENABLE_TRIGGER_PHRASES" # Define the specific flag
@@ -19,6 +25,22 @@ except ImportError:
         logger.warning("is_enabled check defaulting to TRUE due to missing feature flags module.")
         return True
 
+=======
+    logger.warning(
+        "Feature flags module not found in trigger_phrase. Feature flag checks will be disabled."
+    )
+
+    class Feature:  # Dummy class
+        TRIGGER_PHRASES = "FEATURE_ENABLE_TRIGGER_PHRASES"  # Define the specific flag
+
+    def is_enabled(feature: Any) -> bool:  # Dummy function
+        logger.warning(
+            "is_enabled check defaulting to TRUE due to missing feature flags module."
+        )
+        return True
+
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 # Imports needed for type hints if using snapshot in handlers
 # from forest_app.core.snapshot import MemorySnapshot # Can likely be removed if snapshot not truly needed by handlers
 
@@ -28,6 +50,10 @@ logger.setLevel(logging.INFO)
 # --- Default empty trigger map if feature disabled or load fails ---
 DEFAULT_EMPTY_TRIGGER_MAP = {}
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 def load_trigger_config():
     """Loads trigger phrase mappings."""
     # --- Feature Flag Check ---
@@ -42,6 +68,7 @@ def load_trigger_config():
     config_path = os.path.join("forest_app", "config", "trigger_config.json")
     # Define default triggers including new ones
     defaults = {
+<<<<<<< HEAD
        "activate the forest": "activate",
        "forest, change the decor": "change_decor",
        "forest, audit the scores": "audit_scores",
@@ -50,6 +77,16 @@ def load_trigger_config():
        "forest save now": "save_snapshot",
        "forest list saves": "list_snapshots",
        # Load and delete are handled by regex
+=======
+        "activate the forest": "activate",
+        "forest, change the decor": "change_decor",
+        "forest, audit the scores": "audit_scores",
+        "forest, show me the running to-do list": "show_todo",
+        "forest, integrate memory": "integrate_memory",
+        "forest save now": "save_snapshot",
+        "forest list saves": "list_snapshots",
+        # Load and delete are handled by regex
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     }
     try:
         if os.path.exists(config_path):
@@ -62,6 +99,7 @@ def load_trigger_config():
                 logger.info("Loaded trigger config from %s", config_path)
                 return loaded_config
         else:
+<<<<<<< HEAD
             logger.warning("trigger_config.json not found at %s. Using defaults.", config_path)
             return defaults.copy() # Return a copy
     except Exception as e:
@@ -70,6 +108,21 @@ def load_trigger_config():
             config_path, e, exc_info=True # Added exc_info
         )
         return defaults.copy() # Return a copy
+=======
+            logger.warning(
+                "trigger_config.json not found at %s. Using defaults.", config_path
+            )
+            return defaults.copy()  # Return a copy
+    except Exception as e:
+        logger.error(  # Changed to error level
+            "Could not load or parse trigger configuration from %s: %s. Using default mapping.",
+            config_path,
+            e,
+            exc_info=True,  # Added exc_info
+        )
+        return defaults.copy()  # Return a copy
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
 class TriggerPhraseHandler:
     """
@@ -83,10 +136,17 @@ class TriggerPhraseHandler:
             self.load_pattern = re.compile(r"forest load save (\d+)", re.IGNORECASE)
             self.delete_pattern = re.compile(r"forest delete save (\d+)", re.IGNORECASE)
         except re.error as re_err:
+<<<<<<< HEAD
              logger.error("Failed to compile trigger phrase regex patterns: %s", re_err)
              # Set patterns that won't match anything if compilation fails
              self.load_pattern = re.compile(r"$^") # Matches nothing
              self.delete_pattern = re.compile(r"$^")
+=======
+            logger.error("Failed to compile trigger phrase regex patterns: %s", re_err)
+            # Set patterns that won't match anything if compilation fails
+            self.load_pattern = re.compile(r"$^")  # Matches nothing
+            self.delete_pattern = re.compile(r"$^")
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # Handlers map actions to simple functions returning intent/messages
         self.handlers = {
@@ -101,19 +161,32 @@ class TriggerPhraseHandler:
         logger.info("TriggerPhraseHandler initialized.")
 
     # --- This is the main method to guard ---
+<<<<<<< HEAD
     def handle_trigger_phrase(self, user_input: str, snapshot: Optional[Any] = None) -> Dict[str, Any]:
+=======
+    def handle_trigger_phrase(
+        self, user_input: str, snapshot: Optional[Any] = None
+    ) -> Dict[str, Any]:
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         """
         Checks user input against trigger phrases and patterns.
         Returns immediately with {'triggered': False} if TRIGGER_PHRASES feature is disabled.
         """
         # --- Feature Flag Check ---
         if not is_enabled(Feature.TRIGGER_PHRASES):
+<<<<<<< HEAD
             logger.debug("Skipping trigger phrase handling: TRIGGER_PHRASES feature disabled.")
+=======
+            logger.debug(
+                "Skipping trigger phrase handling: TRIGGER_PHRASES feature disabled."
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return {"triggered": False}
         # --- End Check ---
 
         # Feature enabled, proceed with matching
         if not isinstance(user_input, str):
+<<<<<<< HEAD
              logger.debug("Invalid user_input type for trigger check: %s", type(user_input))
              return {"triggered": False}
 
@@ -121,6 +194,17 @@ class TriggerPhraseHandler:
         if not command:
              logger.debug("Empty command string received.")
              return {"triggered": False}
+=======
+            logger.debug(
+                "Invalid user_input type for trigger check: %s", type(user_input)
+            )
+            return {"triggered": False}
+
+        command = user_input.strip().lower()
+        if not command:
+            logger.debug("Empty command string received.")
+            return {"triggered": False}
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         action_key = None
         action_args = {}
@@ -128,12 +212,19 @@ class TriggerPhraseHandler:
         # 1. Check exact matches from trigger_map
         action_key = self.trigger_map.get(command)
         if action_key and action_key in self.handlers:
+<<<<<<< HEAD
             logger.info("Exact trigger phrase '%s' detected (action: %s).", command, action_key)
+=======
+            logger.info(
+                "Exact trigger phrase '%s' detected (action: %s).", command, action_key
+            )
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             # Call the handler safely
             try:
                 handler_result = self.handlers[action_key](snapshot)
                 # Ensure result is a dict before modifying
                 if not isinstance(handler_result, dict):
+<<<<<<< HEAD
                      logger.error("Handler for action '%s' did not return a dict.", action_key)
                      handler_result = {} # Fallback to empty dict
             except Exception as e:
@@ -142,10 +233,25 @@ class TriggerPhraseHandler:
 
             handler_result["triggered"] = True
             handler_result["action"] = action_key # Ensure action key is present
+=======
+                    logger.error(
+                        "Handler for action '%s' did not return a dict.", action_key
+                    )
+                    handler_result = {}  # Fallback to empty dict
+            except Exception as e:
+                logger.exception(
+                    "Error executing handler for action '%s': %s", action_key, e
+                )
+                handler_result = {"error": f"Handler error: {e}"}  # Add error info
+
+            handler_result["triggered"] = True
+            handler_result["action"] = action_key  # Ensure action key is present
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             return handler_result
 
         # 2. Check regex pattern for "load save {id}"
         try:
+<<<<<<< HEAD
              load_match = self.load_pattern.match(command)
              if load_match:
                  action_key = "load_snapshot"
@@ -175,6 +281,63 @@ class TriggerPhraseHandler:
         except re.error as re_err:
              logger.error("Regex error matching delete pattern: %s", re_err)
              # Continue to next check (although this is the last check)
+=======
+            load_match = self.load_pattern.match(command)
+            if load_match:
+                action_key = "load_snapshot"
+                try:
+                    action_args["snapshot_id"] = int(load_match.group(1))
+                    logger.info(
+                        "Load trigger phrase detected (action: %s, id: %d).",
+                        action_key,
+                        action_args["snapshot_id"],
+                    )
+                    return {
+                        "triggered": True,
+                        "action": action_key,
+                        "args": action_args,
+                    }
+                except (ValueError, IndexError):
+                    logger.warning(
+                        "Could not parse snapshot ID for load command: %s", command
+                    )
+                    return {
+                        "triggered": False,
+                        "error": "Invalid snapshot ID for load.",
+                    }
+        except re.error as re_err:
+            logger.error("Regex error matching load pattern: %s", re_err)
+            # Continue to next check
+
+        # 3. Check regex pattern for "delete save {id}"
+        try:
+            delete_match = self.delete_pattern.match(command)
+            if delete_match:
+                action_key = "delete_snapshot"
+                try:
+                    action_args["snapshot_id"] = int(delete_match.group(1))
+                    logger.info(
+                        "Delete trigger phrase detected (action: %s, id: %d).",
+                        action_key,
+                        action_args["snapshot_id"],
+                    )
+                    return {
+                        "triggered": True,
+                        "action": action_key,
+                        "args": action_args,
+                    }
+                except (ValueError, IndexError):
+                    logger.warning(
+                        "Could not parse snapshot ID for delete command: %s", command
+                    )
+                    return {
+                        "triggered": False,
+                        "error": "Invalid snapshot ID for delete.",
+                    }
+        except re.error as re_err:
+            logger.error("Regex error matching delete pattern: %s", re_err)
+            # Continue to next check (although this is the last check)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 
         # 4. No trigger matched
         logger.debug("No specific trigger detected for input: '%s'", user_input)
@@ -195,6 +358,7 @@ class TriggerPhraseHandler:
     def _handle_show_todo(self, snapshot) -> dict:
         # This handler logic remains, but complexity should ideally be in main.py
         if snapshot and hasattr(snapshot, "task_backlog") and snapshot.task_backlog:
+<<<<<<< HEAD
             tasks = snapshot.task_backlog if isinstance(snapshot.task_backlog, list) else []
             todo_list = "\n".join([
                  f"- ID: {t.get('id', 'N/A')}, Title: {t.get('title', '')}"
@@ -202,6 +366,21 @@ class TriggerPhraseHandler:
             ])
             count = len(tasks)
             if count > 5: todo_list += f"\n... ({count - 5} more)"
+=======
+            tasks = (
+                snapshot.task_backlog if isinstance(snapshot.task_backlog, list) else []
+            )
+            todo_list = "\n".join(
+                [
+                    f"- ID: {t.get('id', 'N/A')}, Title: {t.get('title', '')}"
+                    for t in tasks[:5]
+                    if isinstance(t, dict)
+                ]
+            )
+            count = len(tasks)
+            if count > 5:
+                todo_list += f"\n... ({count - 5} more)"
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             message = f"Current To-Do List ({count} total):\n{todo_list}"
         else:
             message = "No tasks found in the current task backlog."

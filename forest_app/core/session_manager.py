@@ -3,9 +3,16 @@
 """
 Manages per-user Forest sessions: state storage, heartbeat tasks, and concurrency.
 """
+<<<<<<< HEAD
 import asyncio
 import threading
 import logging
+=======
+
+import asyncio
+import logging
+import threading
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
 from typing import Any, Callable, Dict, Optional
 
 from forest_app.core.onboarding import onboard_user, run_forest_session_async
@@ -17,12 +24,20 @@ class SessionInfo:
     """
     Holds the state and control primitives for a single user session.
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(
         self,
         user_id: str,
         snapshot: Dict[str, Any],
         save_snapshot: Callable[[Dict[str, Any]], None],
+<<<<<<< HEAD
         baselines: Dict[str, float]
+=======
+        baselines: Dict[str, float],
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ):
         self.lock = threading.Lock()
         self.save_snapshot = save_snapshot
@@ -31,9 +46,13 @@ class SessionInfo:
             # Initialize and persist baselines; returns a new snapshot copy
             self.snapshot = onboard_user(snapshot, baselines, save_snapshot)
         except Exception as e:
+<<<<<<< HEAD
             logger.error(
                 "Failed to onboard user '%s': %s", user_id, e, exc_info=True
             )
+=======
+            logger.error("Failed to onboard user '%s': %s", user_id, e, exc_info=True)
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
             raise
         self.task: Optional[asyncio.Task] = None
 
@@ -43,6 +62,10 @@ class SessionManager:
     Singleton manager for all active user sessions.
     Provides safe access and control over per-user SessionInfo.
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     def __init__(self):
         self._sessions: Dict[str, SessionInfo] = {}
 
@@ -51,7 +74,11 @@ class SessionManager:
         user_id: str,
         initial_snapshot: Dict[str, Any],
         baselines: Dict[str, float],
+<<<<<<< HEAD
         save_snapshot: Callable[[Dict[str, Any]], None]
+=======
+        save_snapshot: Callable[[Dict[str, Any]], None],
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
     ) -> None:
         """
         Launch an async heartbeat loop for the user.
@@ -106,6 +133,10 @@ class SessionManager:
     def get_instance(cls):
         """Return the global singleton instance of SessionManager."""
         from forest_app.core.session_manager import session_manager
+<<<<<<< HEAD
+=======
+
+>>>>>>> cede20c (Fix Pylint critical errors: update BaseSettings import for Pydantic v1, ensure dependency_injector and uvicorn are installed)
         return session_manager
 
 
